@@ -38,7 +38,6 @@ export async function POST(request: Request) {
 
     const { object } = await generateObject({
       model: openai('gpt-4o'),
-      mode: 'json',
       system: `You are a professional tailor and clothing fit specialist performing a standard client measurement consultation.
 Your job is to assess the client's frame, proportions, and silhouette from their reference photo so you can recommend the best clothing fits.
 

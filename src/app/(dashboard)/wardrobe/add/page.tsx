@@ -184,7 +184,7 @@ export default function AddWardrobeItemPage() {
         <>
           <div className={styles.previewContainer}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={imagePreview} alt="Item preview" className={styles.previewImage} />
+            <img src={imagePreview || undefined} alt="Item preview" className={styles.previewImage} />
             <button 
               className={styles.retakeBtn}
               onClick={handleRetake}

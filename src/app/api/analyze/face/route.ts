@@ -45,7 +45,6 @@ export async function POST(request: Request) {
 
     const { object: analysis } = await generateObject({
       model: openai('gpt-4o'),
-      mode: 'json',
       schemaName: 'StylingConsultation',
       schemaDescription: 'Personal color analysis and grooming consultation results for a styling platform client.',
       system: `You are a professional personal stylist and color consultant performing a routine client intake assessment for a fashion and grooming platform.

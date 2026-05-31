@@ -1,4 +1,4 @@
-import { getTemporalClient } from './src/temporal/client.ts'
+import { getTemporalClient } from './src/temporal/client'
 import dotenv from 'dotenv'
 
 dotenv.config({ path: '.env.local' })
