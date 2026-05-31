@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
 import ImageCropper from '@/components/shared/ImageCropper'
+import { toast } from 'sonner'
+import { triggerHaptic, hapticPatterns } from '@/utils/haptics'
 import styles from './page.module.css'
 
 export default function AddWardrobeItemPage() {
@@ -40,6 +42,7 @@ export default function AddWardrobeItemPage() {
   }
 
   const handleCropComplete = async (croppedFile: File) => {
+    triggerHaptic(hapticPatterns.success)
     setCropSrc(null) // Close cropper
     
     // 1. Show Preview
@@ -98,11 +101,14 @@ export default function AddWardrobeItemPage() {
         pattern: metadata.pattern || '',
         material: metadata.material || '',
         formality: Math.round(metadata.formalityScore || 3),
-        aiTags: metadata.aiTags || []
+        aiTags: metadata.tags || []
       })
-    } catch (error: any) {
-      console.error('Failed to analyze image', error)
-      alert(error.message || 'Analysis failed. Did you create the wardrobe-images bucket?')
+      triggerHaptic(hapticPatterns.success)
+    } catch (err: any) {
+      console.error(err)
+      toast.error(err.message || 'Failed to analyze item')
+      triggerHaptic(hapticPatterns.error)
+      setImagePreview(null) // Reset on failure
     } finally {
       setIsAnalyzing(false)
     }
@@ -115,35 +121,44 @@ export default function AddWardrobeItemPage() {
   }
 
   const handleSave = async () => {
-    if (!uploadedUrl) return
+    triggerHaptic(hapticPatterns.light)
+    if (!uploadedUrl || !tags.category) {
+      toast.error('Please complete analysis before saving')
+      triggerHaptic(hapticPatterns.error)
+      return
+    }
+
     setIsSaving(true)
-    
     try {
       const supabase = createClient()
       const { data: userData } = await supabase.auth.getUser()
-      if (!userData.user) throw new Error('Not authenticated')
+      const userId = userData?.user?.id
+      
+      if (!userId) throw new Error('Not logged in')
 
       const { error } = await supabase
         .from('wardrobe_items')
         .insert({
-          user_id: userData.user.id,
+          user_id: userId,
           image_url: uploadedUrl,
           category: tags.category,
           sub_category: tags.subCategory,
           primary_color: tags.color,
           pattern: tags.pattern,
-          material: tags.material,
-          formality_score: Math.round(tags.formality),
-          ai_tags: tags.aiTags,
-          brand: 'Unknown'
+          formality: tags.formality >= 4 ? 'Formal' : tags.formality <= 2 ? 'Casual' : 'Smart Casual',
+          season: ['All']
         })
 
-      if (error) throw error
+      if (error) throw new Error(error.message)
 
+      toast.success('Added to Wardrobe!')
+      triggerHaptic(hapticPatterns.success)
       router.push('/wardrobe')
-    } catch (error) {
-      console.error('Save failed', error)
-      alert('Failed to save to database.')
+      router.refresh()
+    } catch (err: any) {
+      console.error(err)
+      toast.error(err.message || 'Failed to save item')
+      triggerHaptic(hapticPatterns.error)
     } finally {
       setIsSaving(false)
     }

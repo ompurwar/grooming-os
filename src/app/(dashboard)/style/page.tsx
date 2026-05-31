@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import { fetchWeatherContext, WeatherContext } from '@/utils/weather'
+import { toast } from 'sonner'
+import { triggerHaptic, hapticPatterns } from '@/utils/haptics'
 import styles from './page.module.css'
 
 const OCCASION_CHIPS = [
@@ -73,6 +75,7 @@ function StyleContent() {
     const textToSubmit = directPrompt || prompt
     if (!textToSubmit.trim()) return
 
+    triggerHaptic(hapticPatterns.light)
     setIsDetectingContext(true)
     setShowContextModal(true)
 
@@ -117,6 +120,7 @@ function StyleContent() {
   const handleConfirmStyle = async () => {
     if (!prompt.trim()) return
     
+    triggerHaptic(hapticPatterns.medium)
     setShowContextModal(false)
     setIsGenerating(true)
     
@@ -140,7 +144,8 @@ function StyleContent() {
       router.push(`/style/get-ready?id=${data.outfitId}`)
     } catch (err: any) {
       console.error(err)
-      alert(err.message)
+      toast.error(err.message)
+      triggerHaptic(hapticPatterns.error)
       setIsGenerating(false)
     }
   }
@@ -156,6 +161,7 @@ function StyleContent() {
   }, [searchParams])
 
   const handleChipClick = (chip: string) => {
+    triggerHaptic(hapticPatterns.light)
     const text = `Get me ready for a ${chip.toLowerCase()}`
     setPrompt(text)
     handleInitialStyleClick(undefined, text)

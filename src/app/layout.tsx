@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next'
+import { Toaster } from 'sonner'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -47,7 +48,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <Toaster position="top-center" theme="dark" toastOptions={{ style: { background: 'var(--color-glass-bg)', border: '1px solid var(--color-glass-border)', color: 'var(--color-text-primary)' } }} />
+        {children}
+      </body>
     </html>
   )
 }

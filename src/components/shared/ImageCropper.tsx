@@ -2,6 +2,8 @@
 
 import React, { useState, useCallback } from 'react'
 import Cropper from 'react-easy-crop'
+import { toast } from 'sonner'
+import { triggerHaptic, hapticPatterns } from '@/utils/haptics'
 import getCroppedImg from '@/utils/cropImage'
 import styles from './ImageCropper.module.css'
 
@@ -21,16 +23,18 @@ export default function ImageCropper({ imageSrc, onCropComplete, onCancel }: Ima
   }, [])
 
   const handleConfirm = async () => {
+    triggerHaptic(hapticPatterns.light)
     try {
       const croppedBlob = await getCroppedImg(imageSrc, croppedAreaPixels)
       if (croppedBlob) {
-        // Convert Blob to File
         const croppedFile = new File([croppedBlob], 'cropped-image.jpg', { type: 'image/jpeg' })
+        triggerHaptic(hapticPatterns.success)
         onCropComplete(croppedFile)
       }
     } catch (e) {
       console.error(e)
-      alert('Failed to crop image')
+      toast.error('Failed to crop image')
+      triggerHaptic(hapticPatterns.error)
     }
   }
 

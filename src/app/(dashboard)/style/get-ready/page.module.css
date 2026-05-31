@@ -28,50 +28,77 @@
   font-weight: var(--font-bold);
 }
 
-/* Loading State */
-.loadingState {
-  flex: 1;
+/* Skeleton Loader */
+.skeletonCard {
+  background: var(--color-glass-bg);
+  border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-4);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
+  gap: var(--space-4);
+  width: 100%;
   animation: fadeIn 0.4s ease-out;
 }
 
-.spinner {
-  width: 60px;
-  height: 60px;
-  border: 3px solid var(--color-bg-tertiary);
-  border-top-color: var(--color-accent);
-  border-radius: var(--radius-full);
-  animation: spin 1s linear infinite;
-  margin-bottom: var(--space-6);
-}
-
-.loadingState h2 {
-  font-size: var(--text-lg);
-  font-weight: var(--font-bold);
-  margin-bottom: var(--space-6);
-}
-
-.loadingSteps {
+.skeletonHeader {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  text-align: left;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.stepDone {
-  color: var(--color-success);
-  font-size: var(--text-sm);
-  animation: fadeIn 0.3s ease-out;
-}
-
-.stepActive {
-  color: var(--color-accent);
-  font-size: var(--text-sm);
+.skeletonTitle {
+  width: 150px;
+  height: 24px;
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-sm);
   animation: pulse 1.5s infinite ease-in-out;
+}
+
+.skeletonBadge {
+  width: 60px;
+  height: 24px;
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-full);
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+.skeletonText {
+  width: 100%;
+  height: 60px;
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-sm);
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+.skeletonItem {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  padding: var(--space-3);
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-lg);
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+.skeletonIcon {
+  width: 40px;
+  height: 40px;
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-md);
+}
+
+.skeletonItemLine {
+  width: 120px;
+  height: 16px;
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-sm);
+}
+
+@keyframes pulse {
+  0% { opacity: 0.7; }
+  50% { opacity: 0.3; }
+  100% { opacity: 0.7; }
 }
 
 /* Result Container */
