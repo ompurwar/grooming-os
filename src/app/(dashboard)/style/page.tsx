@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
@@ -29,7 +29,7 @@ function getTimeAgo(dateStr: string): string {
   return `${months}mo ago`
 }
 
-export default function StylePage() {
+function StyleContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [prompt, setPrompt] = useState('')
@@ -305,5 +305,13 @@ export default function StylePage() {
         </div>
       )}
     </div>
+  )
+}
+
+export default function StylePage() {
+  return (
+    <Suspense fallback={<div className={styles.container}><div className={styles.loadingContext}><div className={styles.spinner} /></div></div>}>
+      <StyleContent />
+    </Suspense>
   )
 }

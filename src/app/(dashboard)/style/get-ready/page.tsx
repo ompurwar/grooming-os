@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
@@ -15,7 +15,7 @@ interface OutfitData {
   items: any[]
 }
 
-export default function GetReadyResults() {
+function GetReadyContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const outfitId = searchParams.get('id')
@@ -156,5 +156,13 @@ export default function GetReadyResults() {
         </div>
       )}
     </div>
+  )
+}
+
+export default function GetReadyResults() {
+  return (
+    <Suspense fallback={<div className={styles.container}><div className={styles.loadingState}><div className={styles.spinner} /><h2>Loading...</h2></div></div>}>
+      <GetReadyContent />
+    </Suspense>
   )
 }
