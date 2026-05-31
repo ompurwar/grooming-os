@@ -1,0 +1,458 @@
+.container {
+  min-height: 100dvh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: var(--space-6);
+  padding-top: var(--space-10);
+  padding-bottom: var(--space-20);
+  position: relative;
+  overflow: hidden;
+}
+
+.bgOrb1 {
+  position: absolute;
+  top: 10%;
+  left: -100px;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(74, 158, 255, 0.08) 0%, transparent 70%);
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+}
+
+.content {
+  width: 100%;
+  max-width: 480px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Progress */
+.progressBar {
+  width: 100%;
+  height: 3px;
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-full);
+  margin-bottom: var(--space-2);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-light));
+  border-radius: var(--radius-full);
+  transition: width var(--transition-slow);
+}
+
+.progressLabel {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-widest);
+  margin-bottom: var(--space-6);
+}
+
+.title {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+  margin-bottom: var(--space-2);
+}
+
+.subtitle {
+  font-size: var(--text-base);
+  color: var(--color-text-tertiary);
+  margin-bottom: var(--space-6);
+}
+
+/* Instructions */
+.instructionsView {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.tipsCard {
+  background: var(--color-glass-bg);
+  border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5);
+  margin-bottom: var(--space-8);
+}
+
+.tipsTitle {
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  margin-bottom: var(--space-3);
+}
+
+.tipsList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.tipsList li::before {
+  content: '✓ ';
+  color: var(--color-success);
+}
+
+/* Camera View */
+.cameraView {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.cameraTitle {
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+  margin-bottom: var(--space-1);
+}
+
+.cameraSubtitle {
+  font-size: var(--text-sm);
+  color: var(--color-text-tertiary);
+  margin-bottom: var(--space-6);
+}
+
+.cameraFrame {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  aspect-ratio: 3/4;
+  background: var(--color-bg-secondary);
+  border: 2px solid var(--color-glass-border);
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  margin-bottom: var(--space-8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.faceOvalGuide {
+  width: 60%;
+  height: 65%;
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  position: relative;
+}
+
+.faceOvalGuide::before {
+  content: '';
+  position: absolute;
+  top: 35%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.faceOvalGuide::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 1px;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Corner guides */
+.cornerGuide {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-color: var(--color-blue);
+  border-style: solid;
+  border-width: 0;
+}
+
+.cornerTL { top: 12px; left: 12px; border-top-width: 2px; border-left-width: 2px; border-radius: 4px 0 0 0; }
+.cornerTR { top: 12px; right: 12px; border-top-width: 2px; border-right-width: 2px; border-radius: 0 4px 0 0; }
+.cornerBL { bottom: 12px; left: 12px; border-bottom-width: 2px; border-left-width: 2px; border-radius: 0 0 0 4px; }
+.cornerBR { bottom: 12px; right: 12px; border-bottom-width: 2px; border-right-width: 2px; border-radius: 0 0 4px 0; }
+
+/* Capture button */
+.captureButton {
+  width: 72px;
+  height: 72px;
+  border-radius: var(--radius-full);
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform var(--transition-fast);
+  margin-bottom: var(--space-3);
+}
+
+.captureButton:hover {
+  transform: scale(1.05);
+}
+
+.captureButton:active {
+  transform: scale(0.95);
+}
+
+.captureRing {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-full);
+  border: 3px solid var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.captureCenter {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-full);
+  background: var(--color-text-primary);
+  transition: background var(--transition-fast);
+}
+
+.captureButton:hover .captureCenter {
+  background: var(--color-blue);
+}
+
+.captureHint {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+}
+
+/* Analyzing */
+.analyzingView {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding-top: var(--space-16);
+  animation: fadeIn 0.5s ease-out;
+}
+
+.analyzingSpinner {
+  width: 80px;
+  height: 80px;
+  margin-bottom: var(--space-6);
+}
+
+.spinnerRing {
+  width: 100%;
+  height: 100%;
+  border: 3px solid var(--color-bg-tertiary);
+  border-top-color: var(--color-blue);
+  border-radius: var(--radius-full);
+  animation: spin 1s linear infinite;
+}
+
+.analyzingTitle {
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+  margin-bottom: var(--space-2);
+}
+
+.analyzingSubtitle {
+  font-size: var(--text-sm);
+  color: var(--color-text-tertiary);
+  margin-bottom: var(--space-8);
+}
+
+.analyzingSteps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  text-align: left;
+}
+
+.analyzingStep {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.analyzingStepActive {
+  color: var(--color-blue);
+}
+
+.analyzingStepPending {
+  composes: analyzingStep;
+  color: var(--color-text-muted);
+}
+
+.checkmark { color: var(--color-success); }
+.spinner { animation: spin 1s linear infinite; display: inline-block; }
+.pending { color: var(--color-text-muted); }
+
+/* Results */
+.resultsView {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.metricsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.metricCard {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  background: var(--color-glass-bg);
+  border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius-xl);
+}
+
+.metricIcon {
+  font-size: var(--text-2xl);
+  background: var(--color-bg-tertiary);
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+}
+
+.metricLabel {
+  font-size: var(--text-sm);
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  flex-shrink: 0;
+  width: 100px;
+}
+
+.metricValue {
+  font-size: var(--text-base);
+  font-weight: var(--font-bold);
+  color: var(--color-text-primary);
+}
+
+/* Palette */
+.paletteCard {
+  padding: var(--space-5);
+  background: var(--color-glass-bg);
+  border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius-xl);
+  margin-bottom: var(--space-6);
+}
+
+.paletteTitle {
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  margin-bottom: var(--space-4);
+}
+
+.colorSwatches {
+  display: flex;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.swatch {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-full);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-fast);
+}
+
+.swatch:hover {
+  transform: scale(1.1);
+}
+
+.paletteDesc {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+/* Tips */
+.tipsSection {
+  margin-bottom: var(--space-8);
+}
+
+.tipItem {
+  display: flex;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  padding: var(--space-2) 0;
+}
+
+.tipBullet {
+  color: var(--color-blue);
+  flex-shrink: 0;
+}
+
+/* CTA */
+.ctaButton {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-8);
+  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-dark));
+  color: var(--color-text-inverse);
+  font-size: var(--text-md);
+  font-weight: var(--font-semibold);
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-glow-accent);
+}
+
+.ctaButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 40px rgba(200, 165, 90, 0.3);
+}
+
+.ctaArrow {
+  transition: transform var(--transition-fast);
+}
+
+.ctaButton:hover .ctaArrow {
+  transform: translateX(4px);
+}
+
+.skipLink {
+  display: block;
+  text-align: center;
+  margin-top: var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  transition: color var(--transition-fast);
+}
+
+.skipLink:hover {
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 480px) {
+  .metricCard {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+    padding: var(--space-4);
+  }
+  
+  .metricIcon {
+    display: none;
+  }
+  
+  .metricLabel {
+    width: auto;
+  }
+}

@@ -1,0 +1,312 @@
+.container {
+  min-height: 100dvh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: var(--space-6);
+  padding-top: var(--space-10);
+  position: relative;
+  overflow: hidden;
+}
+
+.bgOrb1 {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(200, 165, 90, 0.06) 0%, transparent 70%);
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+}
+
+.content {
+  width: 100%;
+  max-width: 400px;
+  position: relative;
+  z-index: 1;
+  animation: fadeInUp 0.5s ease-out;
+}
+
+/* Progress */
+.progressBar {
+  width: 100%;
+  height: 3px;
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-full);
+  margin-bottom: var(--space-2);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-light));
+  border-radius: var(--radius-full);
+  transition: width var(--transition-slow);
+}
+
+.progressLabel {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-widest);
+  margin-bottom: var(--space-6);
+}
+
+.title {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+  margin-bottom: var(--space-2);
+}
+
+.subtitle {
+  font-size: var(--text-sm);
+  color: var(--color-text-tertiary);
+  margin-bottom: var(--space-8);
+}
+
+/* Card */
+.card {
+  width: 100%;
+  background: var(--color-glass-bg);
+  border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  transition: all 0.3s ease-out;
+  margin-bottom: var(--space-6);
+  animation: scaleIn 0.3s ease-out;
+}
+
+.cardSwipeRight {
+  transform: translateX(100px) rotate(5deg);
+  opacity: 0;
+}
+
+.cardSwipeLeft {
+  transform: translateX(-100px) rotate(-5deg);
+  opacity: 0;
+}
+
+.cardVisual {
+  position: relative;
+  height: 240px;
+  overflow: hidden;
+}
+
+.colorGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  height: 100%;
+}
+
+.colorBlock {
+  width: 100%;
+  height: 100%;
+  transition: transform var(--transition-base);
+}
+
+.card:hover .colorBlock {
+  transform: scale(1.02);
+}
+
+.cardOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(2px);
+}
+
+.cardIcon {
+  font-size: 3rem;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
+}
+
+.cardContent {
+  padding: var(--space-5);
+}
+
+.cardTitle {
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+  margin-bottom: var(--space-1);
+}
+
+.cardDesc {
+  font-size: var(--text-sm);
+  color: var(--color-text-tertiary);
+}
+
+/* Swipe buttons */
+.swipeButtons {
+  display: flex;
+  gap: var(--space-4);
+  justify-content: center;
+  margin-bottom: var(--space-6);
+}
+
+.swipeBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-4) var(--space-8);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius-xl);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  flex: 1;
+  max-width: 160px;
+}
+
+.swipeBtn:hover {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-glass-border-hover);
+  transform: translateY(-2px);
+}
+
+.swipeBtnIcon {
+  font-size: var(--text-2xl);
+  color: var(--color-text-tertiary);
+}
+
+.swipeBtnLike .swipeBtnIcon {
+  color: var(--color-accent);
+}
+
+.swipeBtnLike {
+  border-color: var(--color-accent-border);
+  background: var(--color-accent-bg);
+}
+
+.swipeBtnLike:hover {
+  background: rgba(200, 165, 90, 0.15);
+  box-shadow: var(--shadow-glow-accent);
+}
+
+.swipeBtnLabel {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+  font-weight: var(--font-medium);
+}
+
+/* Dots */
+.dots {
+  display: flex;
+  gap: var(--space-2);
+  justify-content: center;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-tertiary);
+  transition: all var(--transition-fast);
+}
+
+.dotActive {
+  width: 24px;
+  background: var(--color-accent);
+}
+
+.dotDone {
+  background: var(--color-accent-dark);
+}
+
+/* Results */
+.results {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.resultCard {
+  text-align: center;
+  padding: var(--space-8);
+  background: var(--color-glass-bg);
+  border: 1px solid var(--color-accent-border);
+  border-radius: var(--radius-2xl);
+  margin-bottom: var(--space-6);
+}
+
+.resultIcon {
+  font-size: 3rem;
+  margin-bottom: var(--space-4);
+}
+
+.resultTitle {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+  margin-bottom: var(--space-2);
+  background: linear-gradient(135deg, var(--color-accent-light), var(--color-accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.resultDesc {
+  font-size: var(--text-sm);
+  color: var(--color-text-tertiary);
+  margin-bottom: var(--space-6);
+}
+
+.resultStats {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-8);
+}
+
+.resultStat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.resultStatValue {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+  color: var(--color-text-primary);
+}
+
+.resultStatLabel {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+}
+
+/* CTA */
+.ctaButton {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-8);
+  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-dark));
+  color: var(--color-text-inverse);
+  font-size: var(--text-md);
+  font-weight: var(--font-semibold);
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-glow-accent);
+}
+
+.ctaButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 40px rgba(200, 165, 90, 0.3);
+}
+
+.ctaArrow {
+  transition: transform var(--transition-fast);
+}
+
+.ctaButton:hover .ctaArrow {
+  transform: translateX(4px);
+}

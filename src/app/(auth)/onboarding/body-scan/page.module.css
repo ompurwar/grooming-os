@@ -1,0 +1,559 @@
+.container {
+  min-height: 100dvh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: var(--space-6);
+  padding-top: var(--space-10);
+  padding-bottom: var(--space-20);
+  position: relative;
+  overflow: hidden;
+}
+
+.bgOrb1 {
+  position: absolute;
+  top: 30%;
+  right: -100px;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(200, 165, 90, 0.08) 0%, transparent 70%);
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+}
+
+.content {
+  width: 100%;
+  max-width: 480px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Progress */
+.progressBar {
+  width: 100%;
+  height: 3px;
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-full);
+  margin-bottom: var(--space-2);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-light));
+  border-radius: var(--radius-full);
+  transition: width var(--transition-slow);
+}
+
+.progressLabel {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-widest);
+  margin-bottom: var(--space-6);
+}
+
+.title {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+  margin-bottom: var(--space-2);
+}
+
+.subtitle {
+  font-size: var(--text-base);
+  color: var(--color-text-tertiary);
+  margin-bottom: var(--space-6);
+}
+
+/* Instructions */
+.instructionsView {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.tipsCard {
+  background: var(--color-glass-bg);
+  border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5);
+  margin-bottom: var(--space-6);
+}
+
+.tipsTitle {
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  margin-bottom: var(--space-3);
+}
+
+.tipsList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.tipsList li::before {
+  content: '✓ ';
+  color: var(--color-success);
+}
+
+.scanTypes {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-8);
+}
+
+.scanTypeCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-5);
+  background: var(--color-glass-bg);
+  border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius-xl);
+  flex: 1;
+}
+
+.scanTypeIcon {
+  font-size: 2rem;
+}
+
+.scanTypeLabel {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  font-weight: var(--font-medium);
+}
+
+.scanConnector {
+  font-size: var(--text-xl);
+  color: var(--color-text-tertiary);
+}
+
+/* Camera View */
+.cameraView {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.cameraTitle {
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+  margin-bottom: var(--space-1);
+}
+
+.cameraSubtitle {
+  font-size: var(--text-sm);
+  color: var(--color-text-tertiary);
+  margin-bottom: var(--space-6);
+}
+
+.cameraFrame {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  aspect-ratio: 3/5;
+  background: var(--color-bg-secondary);
+  border: 2px solid var(--color-glass-border);
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  margin-bottom: var(--space-6);
+}
+
+.cameraPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+}
+
+.silhouette {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  opacity: 0.15;
+}
+
+.silhouetteHead {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--color-text-primary);
+}
+
+.silhouetteBody {
+  width: 60px;
+  height: 80px;
+  border: 2px solid var(--color-text-primary);
+  border-radius: 8px 8px 4px 4px;
+}
+
+.silhouetteLegs {
+  display: flex;
+  gap: 8px;
+}
+
+.silhouetteLegs::before,
+.silhouetteLegs::after {
+  content: '';
+  width: 20px;
+  height: 60px;
+  border: 2px solid var(--color-text-primary);
+  border-radius: 4px;
+}
+
+.cameraGuide {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+}
+
+/* Corner guides */
+.cornerGuide {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-color: var(--color-accent);
+  border-style: solid;
+  border-width: 0;
+}
+
+.cornerTL { top: 12px; left: 12px; border-top-width: 2px; border-left-width: 2px; border-radius: 4px 0 0 0; }
+.cornerTR { top: 12px; right: 12px; border-top-width: 2px; border-right-width: 2px; border-radius: 0 4px 0 0; }
+.cornerBL { bottom: 12px; left: 12px; border-bottom-width: 2px; border-left-width: 2px; border-radius: 0 0 0 4px; }
+.cornerBR { bottom: 12px; right: 12px; border-bottom-width: 2px; border-right-width: 2px; border-radius: 0 0 4px 0; }
+
+/* Photo indicators */
+.photoIndicators {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.photoIndicator {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-tertiary);
+  border: 2px solid var(--color-glass-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-tertiary);
+  transition: all var(--transition-base);
+}
+
+.photoIndicatorActive {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  background: var(--color-accent-bg);
+}
+
+.photoIndicatorDone {
+  border-color: var(--color-success);
+  color: var(--color-success);
+  background: var(--color-success-bg);
+}
+
+.photoIndicatorLine {
+  width: 32px;
+  height: 2px;
+  background: var(--color-bg-tertiary);
+}
+
+/* Capture button */
+.captureButton {
+  width: 72px;
+  height: 72px;
+  border-radius: var(--radius-full);
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform var(--transition-fast);
+  margin-bottom: var(--space-3);
+}
+
+.captureButton:hover {
+  transform: scale(1.05);
+}
+
+.captureButton:active {
+  transform: scale(0.95);
+}
+
+.captureRing {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-full);
+  border: 3px solid var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.captureCenter {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-full);
+  background: var(--color-text-primary);
+  transition: background var(--transition-fast);
+}
+
+.captureButton:hover .captureCenter {
+  background: var(--color-accent);
+}
+
+.captureHint {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+}
+
+/* Analyzing */
+.analyzingView {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding-top: var(--space-16);
+  animation: fadeIn 0.5s ease-out;
+}
+
+.analyzingSpinner {
+  width: 80px;
+  height: 80px;
+  margin-bottom: var(--space-6);
+}
+
+.spinnerRing {
+  width: 100%;
+  height: 100%;
+  border: 3px solid var(--color-bg-tertiary);
+  border-top-color: var(--color-accent);
+  border-radius: var(--radius-full);
+  animation: spin 1s linear infinite;
+}
+
+.analyzingTitle {
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+  margin-bottom: var(--space-2);
+}
+
+.analyzingSubtitle {
+  font-size: var(--text-sm);
+  color: var(--color-text-tertiary);
+  margin-bottom: var(--space-8);
+}
+
+.analyzingSteps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  text-align: left;
+}
+
+.analyzingStep {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.analyzingStepActive {
+  color: var(--color-accent);
+}
+
+.analyzingStepPending {
+  composes: analyzingStep;
+  color: var(--color-text-muted);
+}
+
+.checkmark { color: var(--color-success); }
+.spinner { animation: spin 1s linear infinite; display: inline-block; }
+.pending { color: var(--color-text-muted); }
+
+/* Results */
+.resultsView {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.resultCardMain {
+  text-align: center;
+  padding: var(--space-6);
+  background: var(--color-glass-bg);
+  border: 1px solid var(--color-accent-border);
+  border-radius: var(--radius-xl);
+  margin-bottom: var(--space-6);
+}
+
+.resultBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-5);
+  background: var(--color-accent-bg);
+  border-radius: var(--radius-full);
+  margin-bottom: var(--space-3);
+}
+
+.resultBadgeIcon { font-size: var(--text-xl); }
+.resultBadgeText {
+  font-size: var(--text-lg);
+  font-weight: var(--font-bold);
+  color: var(--color-accent-light);
+}
+
+.resultBadgeDesc {
+  font-size: var(--text-sm);
+  color: var(--color-text-tertiary);
+}
+
+/* Metrics */
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.metricCard {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-3);
+  background: var(--color-glass-bg);
+  border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+
+.metricLabel {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+}
+
+.metricValue {
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-primary);
+}
+
+/* Fit recs */
+.fitRecsCard {
+  padding: var(--space-5);
+  background: var(--color-glass-bg);
+  border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius-xl);
+  margin-bottom: var(--space-6);
+}
+
+.fitRecsTitle {
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  margin-bottom: var(--space-4);
+}
+
+.fitRecItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-glass-border);
+}
+
+.fitRecItem:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.fitRecLabel {
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  color: var(--color-accent);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+}
+
+.fitRecValue {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+/* Tips */
+.tipsSection {
+  margin-bottom: var(--space-8);
+}
+
+.tipItem {
+  display: flex;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  padding: var(--space-2) 0;
+}
+
+.tipBullet {
+  color: var(--color-accent);
+  flex-shrink: 0;
+}
+
+/* CTA */
+.ctaButton {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-8);
+  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-dark));
+  color: var(--color-text-inverse);
+  font-size: var(--text-md);
+  font-weight: var(--font-semibold);
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-glow-accent);
+}
+
+.ctaButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 40px rgba(200, 165, 90, 0.3);
+}
+
+.ctaArrow {
+  transition: transform var(--transition-fast);
+}
+
+.ctaButton:hover .ctaArrow {
+  transform: translateX(4px);
+}
+
+.skipLink {
+  display: block;
+  text-align: center;
+  margin-top: var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  transition: color var(--transition-fast);
+}
+
+.skipLink:hover {
+  color: var(--color-text-secondary);
+}

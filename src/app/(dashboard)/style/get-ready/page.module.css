@@ -1,0 +1,116 @@
+.container {
+  padding: var(--space-4);
+  padding-bottom: 100px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding-top: var(--space-4);
+  margin-bottom: var(--space-8);
+}
+
+.backBtn {
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  font-size: var(--text-sm);
+  background: var(--color-bg-secondary);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-full);
+}
+
+.title {
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+}
+
+/* Loading State */
+.loadingState {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.spinner {
+  width: 60px;
+  height: 60px;
+  border: 3px solid var(--color-bg-tertiary);
+  border-top-color: var(--color-accent);
+  border-radius: var(--radius-full);
+  animation: spin 1s linear infinite;
+  margin-bottom: var(--space-6);
+}
+
+.loadingState h2 {
+  font-size: var(--text-lg);
+  font-weight: var(--font-bold);
+  margin-bottom: var(--space-6);
+}
+
+.loadingSteps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  text-align: left;
+}
+
+.stepDone {
+  color: var(--color-success);
+  font-size: var(--text-sm);
+  animation: fadeIn 0.3s ease-out;
+}
+
+.stepActive {
+  color: var(--color-accent);
+  font-size: var(--text-sm);
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+/* Result Container */
+.resultContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.feedbackSection {
+  text-align: center;
+  padding-bottom: var(--space-8);
+}
+
+.feedbackSection p {
+  font-size: var(--text-sm);
+  color: var(--color-text-tertiary);
+  margin-bottom: var(--space-4);
+}
+
+.feedbackButtons {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.feedbackBtn {
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-glass-bg);
+  border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius-full);
+  color: var(--color-text-primary);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.feedbackBtn:hover {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-glass-border-hover);
+}
