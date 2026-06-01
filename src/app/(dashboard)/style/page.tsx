@@ -72,6 +72,28 @@ function StyleContent() {
     initStyle()
   }, [])
 
+  const executeGeneration = async (textToSubmit: string, finalContext: any) => {
+    setIsGenerating(true)
+    try {
+      const res = await fetch('/api/style/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: textToSubmit, weatherContext: finalContext })
+      })
+      
+      const data = await res.json()
+      
+      if (!res.ok) throw new Error(data.error || 'Failed to generate style')
+      
+      router.push(`/style/get-ready?id=${data.outfitId}`)
+    } catch (err: any) {
+      console.error(err)
+      toast.error(err.message)
+      triggerHaptic(hapticPatterns.error)
+      setIsGenerating(false)
+    }
+  }
+
   const handleInitialStyleClick = (e?: React.FormEvent, directPrompt?: string) => {
     if (e) e.preventDefault()
     
@@ -79,10 +101,22 @@ function StyleContent() {
     if (!textToSubmit.trim()) return
 
     triggerHaptic(hapticPatterns.light)
+
+    // Check cache
+    try {
+      const cached = localStorage.getItem('weatherContextCache')
+      if (cached) {
+        const parsed = JSON.parse(cached)
+        if (Date.now() - parsed.timestamp < 2 * 60 * 60 * 1000) {
+          executeGeneration(textToSubmit, parsed.context)
+          return
+        }
+      }
+    } catch (e) {}
+
     setIsDetectingContext(true)
     setShowContextModal(true)
 
-    // Fallback timer if geolocation hangs
     const timeout = setTimeout(() => {
       setIsDetectingContext(false)
     }, 8000)
@@ -97,35 +131,39 @@ function StyleContent() {
           setManualTemp(context.temperature.toString())
           setManualCond(context.condition)
           setIsDetectingContext(false)
+          
+          // Auto-confirm after successful fetch to save a click
+          localStorage.setItem('weatherContextCache', JSON.stringify({ timestamp: Date.now(), context }))
+          setShowContextModal(false)
+          executeGeneration(textToSubmit, context)
         },
         (error) => {
           console.warn('Geolocation denied or failed', error)
           clearTimeout(timeout)
-          setContextData({ city: 'New York', temperature: 22, condition: 'Clear' })
-          setManualCity('New York')
-          setManualTemp('22')
-          setManualCond('Clear')
+          const fallback = { city: 'New York', temperature: 22, condition: 'Clear' }
+          setContextData(fallback)
+          setManualCity(fallback.city)
+          setManualTemp(fallback.temperature.toString())
+          setManualCond(fallback.condition)
           setIsDetectingContext(false)
         },
         { timeout: 5000 }
       )
     } else {
       clearTimeout(timeout)
-      setContextData({ city: 'New York', temperature: 22, condition: 'Clear' })
-      setManualCity('New York')
-      setManualTemp('22')
-      setManualCond('Clear')
+      const fallback = { city: 'New York', temperature: 22, condition: 'Clear' }
+      setContextData(fallback)
+      setManualCity(fallback.city)
+      setManualTemp(fallback.temperature.toString())
+      setManualCond(fallback.condition)
       setIsDetectingContext(false)
     }
   }
 
-  // Needs to be defined before useEffect to avoid dependency issues or use useCallback
-  const handleConfirmStyle = async () => {
+  const handleConfirmStyle = () => {
     if (!prompt.trim()) return
-    
     triggerHaptic(hapticPatterns.medium)
     setShowContextModal(false)
-    setIsGenerating(true)
     
     const finalContext = {
       city: manualCity,
@@ -133,24 +171,8 @@ function StyleContent() {
       condition: manualCond
     }
     
-    try {
-      const res = await fetch('/api/style/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, weatherContext: finalContext })
-      })
-      
-      const data = await res.json()
-      
-      if (!res.ok) throw new Error(data.error || 'Failed to generate style')
-      
-      router.push(`/style/get-ready?id=${data.outfitId}`)
-    } catch (err: any) {
-      console.error(err)
-      toast.error(err.message)
-      triggerHaptic(hapticPatterns.error)
-      setIsGenerating(false)
-    }
+    localStorage.setItem('weatherContextCache', JSON.stringify({ timestamp: Date.now(), context: finalContext }))
+    executeGeneration(prompt, finalContext)
   }
 
   useEffect(() => {

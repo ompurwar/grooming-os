@@ -117,7 +117,11 @@ function GetReadyContent() {
 
   const handleTryAlternatives = () => {
     triggerHaptic(hapticPatterns.light)
-    router.back()
+    if (outfitData) {
+      router.push(`/style?prompt=${encodeURIComponent(outfitData.occasion)}`)
+    } else {
+      router.back()
+    }
   }
 
   const handleFeedback = (type: string) => {
