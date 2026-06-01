@@ -24,12 +24,12 @@ export default function SavedLooks() {
   useEffect(() => {
     async function fetchSaved() {
       const supabase = createClient()
-      const { data: userData } = await supabase.auth.getUser()
-      if (!userData?.user) {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.user) {
         setLoading(false)
         return
       }
-      const userId = userData.user.id
+      const userId = session.user.id
 
       // Step 1: Fetch saved outfits
       const { data: outfits, error: outfitErr } = await supabase

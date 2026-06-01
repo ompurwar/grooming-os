@@ -33,11 +33,11 @@ export default function GroomScanPage() {
 
     try {
       const supabase = createClient()
-      const { data: userData } = await supabase.auth.getUser()
-      if (!userData?.user) throw new Error('Not authenticated')
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.user) throw new Error('Not authenticated')
 
       // 1. Upload to Supabase Storage
-      const fileName = `face-scans/${userData.user.id}/${Date.now()}.jpg`
+      const fileName = `face-scans/${session.user.id}/${Date.now()}.jpg`
       const { error: uploadError } = await supabase.storage
         .from('wardrobe-images')
         .upload(fileName, blob, { contentType: 'image/jpeg', upsert: true })

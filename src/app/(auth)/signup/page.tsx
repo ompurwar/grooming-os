@@ -41,8 +41,7 @@ export default function SignupPage() {
       setError(signUpError.message)
       setLoading(false)
     } else {
-      router.push('/onboarding')
-      router.refresh()
+      window.location.href = '/onboarding'
     }
   }
 

@@ -24,13 +24,16 @@ export default function WardrobePage() {
   useEffect(() => {
     async function fetchItems() {
       const supabase = createClient()
-      const { data: userData } = await supabase.auth.getUser()
-      if (!userData.user) return
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.user) {
+        setIsLoading(false)
+        return
+      }
 
       const { data, error } = await supabase
         .from('wardrobe_items')
         .select('*')
-        .eq('user_id', userData.user.id)
+        .eq('user_id', session.user.id)
         .eq('is_active', true)
         .order('added_at', { ascending: false })
 

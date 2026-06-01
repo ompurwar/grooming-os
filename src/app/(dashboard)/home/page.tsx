@@ -23,10 +23,10 @@ export default function DashboardHome() {
   useEffect(() => {
     async function fetchStats() {
       const supabase = createClient()
-      const { data: userData } = await supabase.auth.getUser()
-      if (!userData?.user) return
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.user) return
       
-      const userId = userData.user.id
+      const userId = session.user.id
 
       // Fetch user profile for name (optional)
       const { data: profile } = await supabase.from('users').select('full_name').eq('id', userId).single()
@@ -38,7 +38,7 @@ export default function DashboardHome() {
       const { count: oCount } = await supabase.from('outfits').select('*', { count: 'exact', head: true }).eq('user_id', userId)
 
       setStats({
-        name: profile?.full_name || userData.user.email?.split('@')[0] || 'Explorer',
+        name: profile?.full_name || session.user.email?.split('@')[0] || 'Explorer',
         wardrobeCount: wCount || 0,
         outfitCount: oCount || 0
       })

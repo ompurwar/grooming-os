@@ -53,20 +53,23 @@ function StyleContent() {
   const [savedLooks, setSavedLooks] = useState<any[]>([])
 
   useEffect(() => {
-    async function fetchSavedLooks() {
+    async function initStyle() {
       const supabase = createClient()
-      const { data: userData } = await supabase.auth.getUser()
-      if (!userData?.user) return
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.user) {
+        return
+      }
+
       const { data } = await supabase
         .from('outfits')
         .select('id, occasion, created_at')
-        .eq('user_id', userData.user.id)
+        .eq('user_id', session.user.id)
         .eq('is_saved', true)
         .order('created_at', { ascending: false })
         .limit(4)
       setSavedLooks(data ?? [])
     }
-    fetchSavedLooks()
+    initStyle()
   }, [])
 
   const handleInitialStyleClick = (e?: React.FormEvent, directPrompt?: string) => {

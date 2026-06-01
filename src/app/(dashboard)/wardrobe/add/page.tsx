@@ -79,9 +79,9 @@ export default function AddWardrobeItemPage() {
       setUploadedUrl(publicUrl)
 
       // Get user ID
-      const { data: userData } = await supabase.auth.getUser()
-      if (!userData.user) throw new Error('Not authenticated')
-      const userId = userData.user.id
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.user) throw new Error('Not authenticated')
+      const userId = session.user.id
 
       // Call AI analysis API
       const res = await fetch('/api/analyze/wardrobe', {
@@ -144,8 +144,8 @@ export default function AddWardrobeItemPage() {
     setIsSaving(true)
     try {
       const supabase = createClient()
-      const { data: userData } = await supabase.auth.getUser()
-      const userId = userData?.user?.id
+      const { data: { session } } = await supabase.auth.getSession()
+      const userId = session?.user?.id
       
       if (!userId) throw new Error('Not logged in')
 

@@ -34,12 +34,12 @@ export default function GroomPage() {
   useEffect(() => {
     async function fetchData() {
       const supabase = createClient()
-      const { data: userData } = await supabase.auth.getUser()
-      if (!userData?.user) {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.user) {
         setLoading(false)
         return
       }
-      const userId = userData.user.id
+      const userId = session.user.id
 
       // Fetch face profile
       const { data: faceData } = await supabase
