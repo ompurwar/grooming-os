@@ -158,8 +158,7 @@ export default function AddWardrobeItemPage() {
           sub_category: tags.subCategory,
           primary_color: tags.color,
           pattern: tags.pattern,
-          formality_score: tags.formality,
-          season: ['All'] // Simplified for now
+          formality_score: tags.formality
         })
 
       if (error) throw new Error(error.message)
