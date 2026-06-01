@@ -158,7 +158,7 @@ export default function AddWardrobeItemPage() {
           sub_category: tags.subCategory,
           primary_color: tags.color,
           pattern: tags.pattern,
-          formality: tags.formality >= 4 ? 'Formal' : tags.formality <= 2 ? 'Casual' : 'Smart Casual',
+          formality_score: tags.formality,
           season: ['All'] // Simplified for now
         })
 
