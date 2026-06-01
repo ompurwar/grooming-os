@@ -28,20 +28,24 @@ export default function DashboardHome() {
       
       const userId = session.user.id
 
-      // Fetch user profile for name (optional)
-      const { data: profile } = await supabase.from('users').select('full_name').eq('id', userId).single()
+      try {
+        // Fetch user profile for name (optional)
+        const { data: profile } = await supabase.from('users').select('full_name').eq('id', userId).maybeSingle()
 
-      // Fetch wardrobe count
-      const { count: wCount } = await supabase.from('wardrobe_items').select('*', { count: 'exact', head: true }).eq('user_id', userId).eq('is_active', true)
-      
-      // Fetch outfit count
-      const { count: oCount } = await supabase.from('outfits').select('*', { count: 'exact', head: true }).eq('user_id', userId)
+        // Fetch wardrobe count
+        const { count: wCount } = await supabase.from('wardrobe_items').select('*', { count: 'exact', head: true }).eq('user_id', userId).eq('is_active', true)
+        
+        // Fetch outfit count
+        const { count: oCount } = await supabase.from('outfits').select('*', { count: 'exact', head: true }).eq('user_id', userId)
 
-      setStats({
-        name: profile?.full_name || session.user.email?.split('@')[0] || 'Explorer',
-        wardrobeCount: wCount || 0,
-        outfitCount: oCount || 0
-      })
+        setStats({
+          name: profile?.full_name || session.user.email?.split('@')[0] || 'Explorer',
+          wardrobeCount: wCount || 0,
+          outfitCount: oCount || 0
+        })
+      } catch (err) {
+        console.error('Error fetching dashboard stats', err)
+      }
     }
     fetchStats()
   }, [])
