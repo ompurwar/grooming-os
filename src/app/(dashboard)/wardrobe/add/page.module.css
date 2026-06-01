@@ -25,25 +25,40 @@
   padding: var(--space-2);
 }
 
-.uploadCard {
-  background: rgba(255, 255, 255, 0.03);
-  border: 2px dashed rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius-xl);
-  padding: var(--space-12) var(--space-6);
-  text-align: center;
+.optionsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
   margin-bottom: var(--space-8);
+}
+
+.optionCard {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-xl);
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 250px;
 }
 
-.uploadCard:hover, .uploadCard:focus-within {
+.optionCard:hover, .optionCard:focus-within {
   border-color: var(--color-accent);
   background: rgba(255, 255, 255, 0.05);
+}
+
+.optionIcon {
+  font-size: 2rem;
+  margin-bottom: var(--space-3);
+}
+
+.optionTitle {
+  font-size: var(--text-sm);
+  font-weight: 600;
 }
 
 .cameraIcon {

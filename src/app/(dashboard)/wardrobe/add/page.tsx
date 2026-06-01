@@ -11,7 +11,8 @@ import styles from './page.module.css'
 
 export default function AddWardrobeItemPage() {
   const router = useRouter()
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const cameraInputRef = useRef<HTMLInputElement>(null)
+  const galleryInputRef = useRef<HTMLInputElement>(null)
   const [cropSrc, setCropSrc] = useState<string | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null)
@@ -32,6 +33,9 @@ export default function AddWardrobeItemPage() {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
+
+    // Reset input so the same file can be selected again if needed
+    e.target.value = ''
 
     // Show Cropper instead of uploading immediately
     const reader = new FileReader()
@@ -115,9 +119,18 @@ export default function AddWardrobeItemPage() {
   }
 
   const handleRetake = () => {
+    if (imagePreview) URL.revokeObjectURL(imagePreview)
     setImagePreview(null)
     setUploadedUrl(null)
-    setTags({ category: '', subCategory: '', color: '', pattern: '', material: '', formality: 3, aiTags: [] })
+    setTags({
+      category: '',
+      subCategory: '',
+      color: '',
+      pattern: '',
+      material: '',
+      formality: 3,
+      aiTags: []
+    })
   }
 
   const handleSave = async () => {
@@ -146,7 +159,7 @@ export default function AddWardrobeItemPage() {
           primary_color: tags.color,
           pattern: tags.pattern,
           formality: tags.formality >= 4 ? 'Formal' : tags.formality <= 2 ? 'Casual' : 'Smart Casual',
-          season: ['All']
+          season: ['All'] // Simplified for now
         })
 
       if (error) throw new Error(error.message)
@@ -180,20 +193,43 @@ export default function AddWardrobeItemPage() {
       )}
 
       {!imagePreview && !cropSrc ? (
-        <div 
-          className={styles.uploadCard}
-          onClick={() => fileInputRef.current?.click()}
-        >
-          <div className={styles.cameraIcon}>📸</div>
-          <h3 className={styles.uploadTitle}>Tap to photograph</h3>
-          <p className={styles.uploadSub}>Or choose from library</p>
-          <input 
-            type="file" 
-            accept="image/*"
-            className={styles.hiddenInput}
-            ref={fileInputRef}
-            onChange={handleImageUpload}
-          />
+        <div className={styles.optionsGrid}>
+          <div 
+            className={styles.optionCard}
+            onClick={() => {
+              triggerHaptic(hapticPatterns.light)
+              cameraInputRef.current?.click()
+            }}
+          >
+            <div className={styles.optionIcon}>📸</div>
+            <h3 className={styles.optionTitle}>Take Photo</h3>
+            <input 
+              type="file" 
+              accept="image/*"
+              capture="environment"
+              className={styles.hiddenInput}
+              ref={cameraInputRef}
+              onChange={handleImageUpload}
+            />
+          </div>
+          
+          <div 
+            className={styles.optionCard}
+            onClick={() => {
+              triggerHaptic(hapticPatterns.light)
+              galleryInputRef.current?.click()
+            }}
+          >
+            <div className={styles.optionIcon}>🖼️</div>
+            <h3 className={styles.optionTitle}>Upload</h3>
+            <input 
+              type="file" 
+              accept="image/*"
+              className={styles.hiddenInput}
+              ref={galleryInputRef}
+              onChange={handleImageUpload}
+            />
+          </div>
         </div>
       ) : (
         <>
