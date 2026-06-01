@@ -1,5 +1,7 @@
 'use client'
 
+import Link from 'next/link'
+import { createClient } from '@/utils/supabase/client'
 import styles from './page.module.css'
 
 const MOCK_PROFILE = {
@@ -15,6 +17,16 @@ const MOCK_PROFILE = {
 }
 
 export default function ProfilePage() {
+  const handleLogout = async () => {
+    try {
+      const supabase = createClient()
+      await supabase.auth.signOut()
+      window.location.href = '/login'
+    } catch (err) {
+      console.error('Logout error', err)
+    }
+  }
+
   return (
     <div className={styles.container}>
       {/* Header */}
@@ -96,9 +108,9 @@ export default function ProfilePage() {
       {/* Settings Links */}
       <section className={styles.section}>
         <div className={styles.settingsList}>
-          <button className={styles.settingsItem}>
+          <Link href="/profile/settings" className={styles.settingsItem}>
             <span className={styles.settingsIcon}>⚙️</span> Account Settings
-          </button>
+          </Link>
           <button className={styles.settingsItem}>
             <span className={styles.settingsIcon}>🔒</span> Privacy & Data
           </button>
@@ -111,7 +123,7 @@ export default function ProfilePage() {
           <button className={styles.settingsItem}>
             <span className={styles.settingsIcon}>❓</span> Help & Support
           </button>
-          <button className={`${styles.settingsItem} ${styles.logoutItem}`}>
+          <button className={`${styles.settingsItem} ${styles.logoutItem}`} onClick={handleLogout}>
             <span className={styles.settingsIcon}>🚪</span> Log Out
           </button>
         </div>
