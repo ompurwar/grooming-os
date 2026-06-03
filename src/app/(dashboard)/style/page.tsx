@@ -94,7 +94,11 @@ function StyleContent() {
     }
   }
 
-  const handleInitialStyleClick = (e?: React.FormEvent, directPrompt?: string) => {
+  const [existingMatch, setExistingMatch] = useState<{ id: string, occasion: string } | null>(null)
+  const [showDuplicateModal, setShowDuplicateModal] = useState(false)
+  const [pendingPrompt, setPendingPrompt] = useState('')
+
+  const handleInitialStyleClick = async (e?: React.FormEvent, directPrompt?: string) => {
     if (e) e.preventDefault()
     
     const textToSubmit = directPrompt || prompt
@@ -102,6 +106,28 @@ function StyleContent() {
 
     triggerHaptic(hapticPatterns.light)
 
+    // Check for existing similar outfits first
+    try {
+      const checkRes = await fetch('/api/style/check-existing', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: textToSubmit })
+      })
+      const checkData = await checkRes.json()
+      if (checkData.match) {
+        setExistingMatch(checkData.match)
+        setPendingPrompt(textToSubmit)
+        setShowDuplicateModal(true)
+        return
+      }
+    } catch (err) {
+      console.warn('Failed to check existing outfits', err)
+    }
+
+    proceedWithStyle(textToSubmit)
+  }
+
+  const proceedWithStyle = (textToSubmit: string) => {
     // Check cache
     try {
       const cached = localStorage.getItem('weatherContextCache')
@@ -173,6 +199,15 @@ function StyleContent() {
     
     localStorage.setItem('weatherContextCache', JSON.stringify({ timestamp: Date.now(), context: finalContext }))
     executeGeneration(prompt, finalContext)
+  }
+
+  const handleDuplicateAction = (action: 'view' | 'new') => {
+    setShowDuplicateModal(false)
+    if (action === 'view' && existingMatch) {
+      router.push(`/style/get-ready?id=${existingMatch.id}`)
+    } else {
+      proceedWithStyle(pendingPrompt)
+    }
   }
 
   useEffect(() => {
@@ -332,6 +367,37 @@ function StyleContent() {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Duplicate Check Modal */}
+      {showDuplicateModal && existingMatch && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <h3 className={styles.modalTitle}>Similar Look Found</h3>
+            <div className={styles.contextForm}>
+              <p className={styles.contextIntro} style={{ marginBottom: '24px' }}>
+                You already have a saved look for <strong>"{existingMatch.occasion}"</strong>. Would you like to view this look or generate a brand new one?
+              </p>
+              
+              <div className={styles.modalActions} style={{ flexDirection: 'column', gap: '12px' }}>
+                <button 
+                  className={styles.confirmBtn} 
+                  style={{ width: '100%', padding: '14px' }}
+                  onClick={() => handleDuplicateAction('view')}
+                >
+                  View Existing Look
+                </button>
+                <button 
+                  className={styles.cancelBtn} 
+                  style={{ width: '100%', padding: '14px', background: 'transparent', color: 'var(--color-primary)', border: '1px solid var(--color-primary)' }}
+                  onClick={() => handleDuplicateAction('new')}
+                >
+                  Generate Something Else
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

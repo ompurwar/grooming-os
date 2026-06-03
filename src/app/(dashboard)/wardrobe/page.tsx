@@ -48,7 +48,11 @@ export default function WardrobePage() {
 
   const filteredItems = activeFilter === 'All' 
     ? items 
-    : items.filter(item => item.category === activeFilter || item.category === activeFilter.slice(0, -1)) // Handle 'Tops' vs 'Top'
+    : items.filter(item => 
+        item.category === activeFilter || 
+        item.category === activeFilter.slice(0, -1) || 
+        (activeFilter === 'Accessories' && item.category === 'Accessory')
+      )
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to remove this item? Past looks using it will be preserved.')) return;

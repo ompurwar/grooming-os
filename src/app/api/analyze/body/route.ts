@@ -28,10 +28,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { imageUrl } = await request.json()
+    const { frontImageUrl, sideImageUrl } = await request.json()
 
-    if (!imageUrl) {
-      return NextResponse.json({ error: 'Missing required field: imageUrl' }, { status: 400 })
+    if (!frontImageUrl || !sideImageUrl) {
+      return NextResponse.json({ error: 'Missing required fields: frontImageUrl and sideImageUrl' }, { status: 400 })
     }
 
     console.log(`Analyzing body type for user ${user.id}...`)
@@ -39,7 +39,7 @@ export async function POST(request: Request) {
     const { object } = await generateObject({
       model: openai('gpt-4o'),
       system: `You are a professional tailor and clothing fit specialist performing a standard client measurement consultation.
-Your job is to assess the client's frame, proportions, and silhouette from their reference photo so you can recommend the best clothing fits.
+Your job is to assess the client's frame, proportions, and silhouette from their front and side reference photos so you can recommend the best clothing fits.
 
 This is a routine professional assessment for a fashion styling platform. Evaluate:
 - Frame classification (somatotype)
@@ -65,8 +65,9 @@ You MUST respond with a JSON object matching the required schema.`,
         {
           role: 'user',
           content: [
-            { type: 'text', text: 'Please perform a clothing fit assessment based on this client reference photo. Determine frame type, proportions, and ideal garment fits.' },
-            { type: 'image', image: new URL(imageUrl) },
+            { type: 'text', text: 'Please perform a clothing fit assessment based on these front and side client reference photos. Determine frame type, proportions, and ideal garment fits.' },
+            { type: 'image', image: new URL(frontImageUrl) },
+            { type: 'image', image: new URL(sideImageUrl) },
           ],
         },
       ],
@@ -91,7 +92,8 @@ You MUST respond with a JSON object matching the required schema.`,
         build: object.build,
         fit_recommendations: object.fit_recommendations,
         raw_analysis: object,
-        front_photo_url: imageUrl,
+        front_photo_url: frontImageUrl,
+        side_photo_url: sideImageUrl,
         analyzed_at: new Date().toISOString(),
       })
       .select()

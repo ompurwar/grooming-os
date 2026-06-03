@@ -86,7 +86,12 @@ export default function ProfilePage() {
 
       {/* Body Profile */}
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Body Profile</h2>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <h2 className={styles.sectionTitle} style={{ margin: 0 }}>Body Profile</h2>
+          <Link href="/profile/body" className={styles.textBtn} style={{ textDecoration: 'none' }}>
+            View Details & Rescan
+          </Link>
+        </div>
         
         <div className={styles.glassCard}>
           <div className={styles.cardRow}>
@@ -94,7 +99,9 @@ export default function ProfilePage() {
               <div className={styles.cardLabel}>Body Type</div>
               <div className={styles.cardValue}>{MOCK_PROFILE.bodyType}</div>
             </div>
-            <button className={styles.textBtn}>Rescan</button>
+            <Link href="/onboarding/body-scan" className={styles.textBtn} style={{ textDecoration: 'none' }}>
+              Rescan
+            </Link>
           </div>
           
           <div className={styles.divider} />

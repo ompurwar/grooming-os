@@ -137,6 +137,7 @@ export default function SavedLooks() {
               reasoning={outfit.reasoning}
               isSaved={true}
               onTryAlternatives={() => router.push('/style')}
+              onDelete={() => handleDelete(outfit.id)}
             />
           ))}
         </div>

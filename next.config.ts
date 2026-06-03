@@ -12,7 +12,7 @@ const nextConfig: NextConfig = {
     ],
   },
   // Allow access from local network IP for testing on other devices
-  allowedDevOrigins: ['192.168.0.100'],
+  allowedDevOrigins: ['192.168.0.100','172.25.171.246'],
 };
 
 export default nextConfig;

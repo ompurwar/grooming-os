@@ -26,6 +26,9 @@ function GetReadyContent() {
   const [outfitData, setOutfitData] = useState<OutfitData | null>(null)
   const [isSaving, setIsSaving] = useState(false)
   const [isSaved, setIsSaved] = useState(false)
+  const [savedAsLabel, setSavedAsLabel] = useState<string | undefined>(undefined)
+  const [tryOnImageUrl, setTryOnImageUrl] = useState<string | null>(null)
+  const [isGeneratingTryOn, setIsGeneratingTryOn] = useState(false)
 
   useEffect(() => {
     if (!outfitId) {
@@ -67,11 +70,12 @@ function GetReadyContent() {
         if (wItem?.category === 'Bottom') icon = '👖'
         if (wItem?.category === 'Footwear') icon = '👞'
         if (wItem?.category === 'Outerwear') icon = '🧥'
+        if (wItem?.category === 'Accessory') icon = '⌚'
 
         return {
           type: wItem?.category || 'Top',
           icon,
-          name: `${wItem?.primary_color} ${wItem?.sub_category || wItem?.category}`,
+          name: `${wItem?.primary_color || ''} ${wItem?.sub_category || wItem?.category || ''}`.trim(),
           source: 'From Wardrobe',
           imageUrl: wItem?.image_url
         }
@@ -86,18 +90,70 @@ function GetReadyContent() {
       })
       
       setIsSaved(outfit.is_saved)
+      setTryOnImageUrl(outfit.try_on_image_url)
+      if (outfit.vto_status === 'processing') {
+        setIsGeneratingTryOn(true)
+      }
+
+      // Duplicate hash check
+      if (outfit.items_hash && !outfit.is_saved) {
+        const { data: duplicate } = await supabase
+          .from('outfits')
+          .select('occasion')
+          .eq('user_id', outfit.user_id)
+          .eq('items_hash', outfit.items_hash)
+          .eq('is_saved', true)
+          .neq('id', outfit.id)
+          .limit(1)
+          .single()
+
+        if (duplicate) {
+          setIsSaved(true)
+          setSavedAsLabel(duplicate.occasion)
+        }
+      }
       
       setIsGenerating(false)
       triggerHaptic(hapticPatterns.success)
+
+      // Supabase Realtime Subscription for Webhook VTO updates
+      const channel = supabase
+        .channel('outfits_vto_updates')
+        .on('postgres_changes', { 
+          event: 'UPDATE', 
+          schema: 'public', 
+          table: 'outfits', 
+          filter: `id=eq.${outfit.id}` 
+        }, (payload: any) => {
+          if (payload.new.vto_status === 'completed' && payload.new.try_on_image_url) {
+            setTryOnImageUrl(payload.new.try_on_image_url)
+            setIsGeneratingTryOn(false)
+            triggerHaptic(hapticPatterns.success)
+          } else if (payload.new.vto_status === 'failed') {
+            setIsGeneratingTryOn(false)
+            toast.error('Virtual try-on failed to generate.')
+            triggerHaptic(hapticPatterns.error)
+          }
+        })
+        .subscribe()
+
+      return () => {
+        supabase.removeChannel(channel)
+      }
     }
 
-    fetchOutfit()
-  }, [outfitId])
+    const cleanup = fetchOutfit()
+    
+    return () => {
+      cleanup.then(fn => fn && fn())
+    }
+  }, [outfitId, router])
 
   const handleSaveLook = async () => {
-    if (!outfitData) return
-    triggerHaptic(hapticPatterns.light)
+    if (!outfitData || isSaved) return
     setIsSaving(true)
+    triggerHaptic(hapticPatterns.light)
+
     const supabase = createClient()
     const { error } = await supabase
       .from('outfits')
@@ -124,9 +180,63 @@ function GetReadyContent() {
     }
   }
 
+  const handleDeleteLook = async () => {
+    if (!outfitData) return
+    triggerHaptic(hapticPatterns.medium)
+    const confirmDelete = window.confirm('Are you sure you want to delete this look?')
+    if (!confirmDelete) return
+
+    setIsSaving(true)
+    const supabase = createClient()
+    const { error } = await supabase
+      .from('outfits')
+      .update({ is_saved: false, is_active: false })
+      .eq('id', outfitData.id)
+
+    if (!error) {
+      toast.success('Look deleted')
+      triggerHaptic(hapticPatterns.success)
+      router.push('/style')
+    } else {
+      toast.error('Failed to delete look')
+      triggerHaptic(hapticPatterns.error)
+      setIsSaving(false)
+    }
+  }
+
   const handleFeedback = (type: string) => {
     triggerHaptic(hapticPatterns.medium)
     toast.success(`Feedback recorded: ${type}`)
+  }
+
+  const handleGenerateTryOn = async () => {
+    if (!outfitData) return
+    setIsGeneratingTryOn(true)
+    triggerHaptic(hapticPatterns.light)
+    
+    try {
+      const response = await fetch('/api/style/try-on', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ outfitId: outfitData.id })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        if (data.tryOnImageUrl) {
+          setTryOnImageUrl(data.tryOnImageUrl)
+          triggerHaptic(hapticPatterns.success)
+        }
+      } else {
+        const data = await response.json()
+        toast.error(data.error || 'Failed to generate virtual try-on')
+      }
+    } catch (error) {
+      console.error('Failed to generate try on', error)
+      toast.error('Failed to connect to try-on service')
+    } finally {
+      setIsGeneratingTryOn(false)
+    }
   }
 
   return (
@@ -164,7 +274,12 @@ function GetReadyContent() {
             {...outfitData} 
             onSave={handleSaveLook}
             onTryAlternatives={handleTryAlternatives}
+            onDelete={handleDeleteLook}
+            onGenerateTryOn={handleGenerateTryOn}
             isSaved={isSaved}
+            savedAsLabel={savedAsLabel}
+            tryOnImageUrl={tryOnImageUrl}
+            isGeneratingTryOn={isGeneratingTryOn}
           />
           
           <div className={styles.feedbackSection}>

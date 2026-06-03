@@ -1,47 +1,95 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import { createClient } from '@/utils/supabase/client'
+import { toast } from 'sonner'
 import styles from './page.module.css'
 
 type ScanState = 'instructions' | 'front' | 'side' | 'analyzing' | 'results'
 
-const MOCK_RESULTS = {
-  bodyType: 'Mesomorph',
-  build: 'Athletic',
-  shoulders: 'Broad',
-  torsoRatio: 'Proportional',
-  fitRecs: {
-    tops: 'Fitted or regular fit to showcase physique',
-    bottoms: 'Straight or regular fit with clean taper',
-    outerwear: 'Leather jackets and blazers look great',
-  },
-  tips: [
-    'Your body type is the most versatile — most fits work',
-    'V-necks accentuate your broad shoulders',
-    'Well-fitted clothes showcase your natural physique',
-  ],
-}
-
 export default function BodyScanPage() {
   const router = useRouter()
   const [state, setState] = useState<ScanState>('instructions')
-  const [frontDone, setFrontDone] = useState(false)
+  
+  const [frontImageFile, setFrontImageFile] = useState<File | null>(null)
+  const [sideImageFile, setSideImageFile] = useState<File | null>(null)
+  const [frontImageUrl, setFrontImageUrl] = useState<string | null>(null)
+  const [sideImageUrl, setSideImageUrl] = useState<string | null>(null)
+  
+  const [results, setResults] = useState<any>(null)
+  
+  const cameraInputRef = useRef<HTMLInputElement>(null)
 
   const handleStartScan = () => {
     setState('front')
   }
 
-  const handleCapture = () => {
+  const handleCaptureClick = () => {
+    cameraInputRef.current?.click()
+  }
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    e.target.value = '' // reset input
+    
+    // We create a local preview URL immediately for better UX
+    const previewUrl = URL.createObjectURL(file)
+
     if (state === 'front') {
-      setFrontDone(true)
+      setFrontImageFile(file)
+      setFrontImageUrl(previewUrl)
       setState('side')
     } else if (state === 'side') {
+      setSideImageFile(file)
+      setSideImageUrl(previewUrl)
+      
+      // Both images captured, proceed to analysis
       setState('analyzing')
-      // Simulate AI analysis
-      setTimeout(() => {
-        setState('results')
-      }, 3000)
+      await uploadAndAnalyze(frontImageFile!, file)
+    }
+  }
+
+  const uploadAndAnalyze = async (frontFile: File, sideFile: File) => {
+    try {
+      const supabase = createClient()
+      
+      // Upload front image
+      const frontName = `front_${Math.random().toString(36).substring(2)}.jpg`
+      const { error: frontErr } = await supabase.storage.from('wardrobe-images').upload(`uploads/${frontName}`, frontFile)
+      if (frontErr) throw new Error('Failed to upload front image')
+      
+      const { data: { publicUrl: frontUrl } } = supabase.storage.from('wardrobe-images').getPublicUrl(`uploads/${frontName}`)
+      
+      // Upload side image
+      const sideName = `side_${Math.random().toString(36).substring(2)}.jpg`
+      const { error: sideErr } = await supabase.storage.from('wardrobe-images').upload(`uploads/${sideName}`, sideFile)
+      if (sideErr) throw new Error('Failed to upload side image')
+      
+      const { data: { publicUrl: sideUrl } } = supabase.storage.from('wardrobe-images').getPublicUrl(`uploads/${sideName}`)
+      
+      // Call API
+      const res = await fetch('/api/analyze/body', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ frontImageUrl: frontUrl, sideImageUrl: sideUrl })
+      })
+      
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Analysis failed')
+      
+      setResults(data.data)
+      setState('results')
+      
+    } catch (err: any) {
+      console.error(err)
+      toast.error(err.message || 'Something went wrong during analysis')
+      // Reset back to front scan
+      setState('front')
+      setFrontImageFile(null)
+      setSideImageFile(null)
     }
   }
 
@@ -65,7 +113,7 @@ export default function BodyScanPage() {
           <div className={styles.instructionsView}>
             <h1 className={styles.title}>Body Scan</h1>
             <p className={styles.subtitle}>
-              We&apos;ll analyze your physique from just 2 photos to recommend the perfect fits.
+              We&apos;ll analyze your physique from a front and side photo to recommend the perfect fits.
             </p>
 
             <div className={styles.tipsCard}>
@@ -121,18 +169,37 @@ export default function BodyScanPage() {
                 : 'Turn 90° to your left or right'}
             </p>
 
-            {/* Camera placeholder */}
-            <div className={styles.cameraFrame}>
-              <div className={styles.cameraPlaceholder}>
-                <div className={styles.silhouette}>
-                  <div className={styles.silhouetteHead} />
-                  <div className={styles.silhouetteBody} />
-                  <div className={styles.silhouetteLegs} />
+            {/* Hidden file input */}
+            <input 
+              type="file" 
+              accept="image/*"
+              capture="environment"
+              className={styles.hiddenInput}
+              style={{ display: 'none' }}
+              ref={cameraInputRef}
+              onChange={handleImageUpload}
+            />
+
+            {/* Camera placeholder / Preview */}
+            <div className={styles.cameraFrame} onClick={handleCaptureClick}>
+              {state === 'side' && frontImageUrl ? (
+                 <div className={styles.cameraPlaceholder} style={{ background: `url(${frontImageUrl}) center/cover`, opacity: 0.3 }}>
+                   <p className={styles.cameraGuide} style={{ color: '#fff', textShadow: '0 0 4px #000' }}>
+                     Tap to capture side photo
+                   </p>
+                 </div>
+              ) : (
+                <div className={styles.cameraPlaceholder}>
+                  <div className={styles.silhouette}>
+                    <div className={styles.silhouetteHead} />
+                    <div className={styles.silhouetteBody} />
+                    <div className={styles.silhouetteLegs} />
+                  </div>
+                  <p className={styles.cameraGuide}>
+                    Tap anywhere inside to take photo
+                  </p>
                 </div>
-                <p className={styles.cameraGuide}>
-                  Align your body within the frame
-                </p>
-              </div>
+              )}
 
               {/* Corner guides */}
               <div className={`${styles.cornerGuide} ${styles.cornerTL}`} />
@@ -143,8 +210,8 @@ export default function BodyScanPage() {
 
             {/* Photo indicators */}
             <div className={styles.photoIndicators}>
-              <div className={`${styles.photoIndicator} ${frontDone ? styles.photoIndicatorDone : state === 'front' ? styles.photoIndicatorActive : ''}`}>
-                {frontDone ? '✓' : '1'}
+              <div className={`${styles.photoIndicator} ${state === 'side' ? styles.photoIndicatorDone : styles.photoIndicatorActive}`}>
+                {state === 'side' ? '✓' : '1'}
               </div>
               <div className={styles.photoIndicatorLine} />
               <div className={`${styles.photoIndicator} ${state === 'side' ? styles.photoIndicatorActive : ''}`}>
@@ -155,7 +222,7 @@ export default function BodyScanPage() {
             <button
               id="body-scan-capture"
               className={styles.captureButton}
-              onClick={handleCapture}
+              onClick={handleCaptureClick}
             >
               <div className={styles.captureRing}>
                 <div className={styles.captureCenter} />
@@ -180,7 +247,7 @@ export default function BodyScanPage() {
             </p>
             <div className={styles.analyzingSteps}>
               <div className={styles.analyzingStep}>
-                <span className={styles.checkmark}>✓</span> Detecting body outline
+                <span className={styles.checkmark}>✓</span> Extracting silhouette
               </div>
               <div className={styles.analyzingStep}>
                 <span className={styles.checkmark}>✓</span> Measuring proportions
@@ -188,40 +255,37 @@ export default function BodyScanPage() {
               <div className={`${styles.analyzingStep} ${styles.analyzingStepActive}`}>
                 <span className={styles.spinner}>◌</span> Classifying body type
               </div>
-              <div className={styles.analyzingStepPending}>
-                <span className={styles.pending}>○</span> Generating fit recommendations
-              </div>
             </div>
           </div>
         )}
 
         {/* Results state */}
-        {state === 'results' && (
+        {state === 'results' && results && (
           <div className={styles.resultsView}>
             <h1 className={styles.title}>Body Analysis Complete</h1>
 
             <div className={styles.resultCardMain}>
               <div className={styles.resultBadge}>
                 <span className={styles.resultBadgeIcon}>🏋️</span>
-                <span className={styles.resultBadgeText}>{MOCK_RESULTS.bodyType}</span>
+                <span className={styles.resultBadgeText}>{results.body_type}</span>
               </div>
               <p className={styles.resultBadgeDesc}>
-                Athletic and muscular build with broad shoulders and a medium frame.
+                {results.height_estimate} with {results.shoulder_width?.toLowerCase()} shoulders and a {results.torso_ratio?.toLowerCase()}.
               </p>
             </div>
 
             <div className={styles.metricsGrid}>
               <div className={styles.metricCard}>
                 <span className={styles.metricLabel}>Build</span>
-                <span className={styles.metricValue}>{MOCK_RESULTS.build}</span>
+                <span className={styles.metricValue}>{results.build}</span>
               </div>
               <div className={styles.metricCard}>
                 <span className={styles.metricLabel}>Shoulders</span>
-                <span className={styles.metricValue}>{MOCK_RESULTS.shoulders}</span>
+                <span className={styles.metricValue}>{results.shoulder_width}</span>
               </div>
               <div className={styles.metricCard}>
-                <span className={styles.metricLabel}>Torso Ratio</span>
-                <span className={styles.metricValue}>{MOCK_RESULTS.torsoRatio}</span>
+                <span className={styles.metricLabel}>Proportions</span>
+                <span className={styles.metricValue}>{results.shoulder_to_hip || results.torso_ratio}</span>
               </div>
             </div>
 
@@ -229,21 +293,21 @@ export default function BodyScanPage() {
               <h3 className={styles.fitRecsTitle}>👔 Your Fit Recommendations</h3>
               <div className={styles.fitRecItem}>
                 <span className={styles.fitRecLabel}>Tops</span>
-                <span className={styles.fitRecValue}>{MOCK_RESULTS.fitRecs.tops}</span>
+                <span className={styles.fitRecValue}>{results.fit_recommendations?.top_fit || 'Regular'}</span>
               </div>
               <div className={styles.fitRecItem}>
                 <span className={styles.fitRecLabel}>Bottoms</span>
-                <span className={styles.fitRecValue}>{MOCK_RESULTS.fitRecs.bottoms}</span>
+                <span className={styles.fitRecValue}>{results.fit_recommendations?.bottom_fit || 'Regular'}</span>
               </div>
               <div className={styles.fitRecItem}>
                 <span className={styles.fitRecLabel}>Outerwear</span>
-                <span className={styles.fitRecValue}>{MOCK_RESULTS.fitRecs.outerwear}</span>
+                <span className={styles.fitRecValue}>{results.fit_recommendations?.outerwear_fit || 'Regular'}</span>
               </div>
             </div>
 
             <div className={styles.tipsSection}>
               <h3 className={styles.tipsTitle}>💡 Style Tips for Your Body</h3>
-              {MOCK_RESULTS.tips.map((tip, i) => (
+              {(results.style_tips || []).map((tip: string, i: number) => (
                 <div key={i} className={styles.tipItem}>
                   <span className={styles.tipBullet}>•</span>
                   {tip}
