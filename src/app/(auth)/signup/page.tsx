@@ -150,18 +150,7 @@ export default function SignupPage() {
             </button>
           </form>
 
-          {/* Divider */}
-          {/* <div className={styles.divider}>
-            <span className={styles.dividerLine} />
-            <span className={styles.dividerText}>or continue with</span>
-            <span className={styles.dividerLine} />
-          </div> */}
 
-          {/* Google Sign Up */}
-          {/* <button id="signup-google" type="button" className={styles.googleBtn} onClick={handleGoogleSignup}>
-            <span className={styles.googleIcon}>G</span>
-            <span>Continue with Google</span>
-          </button> */}
 
           {/* Sign In Link */}
           <p className={styles.switchText}>

@@ -105,18 +105,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Divider */}
-          {/* <div className={styles.divider}>
-            <span className={styles.dividerLine} />
-            <span className={styles.dividerText}>or continue with</span>
-            <span className={styles.dividerLine} />
-          </div> */}
 
-          {/* Google Sign In */}
-          {/* <button id="login-google" type="button" className={styles.googleBtn} onClick={handleGoogleLogin}>
-            <span className={styles.googleIcon}>G</span>
-            <span>Continue with Google</span>
-          </button> */}
 
           {/* Sign Up Link */}
           <p className={styles.switchText}>

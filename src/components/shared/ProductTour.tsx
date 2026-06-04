@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Joyride, CallBackProps, STATUS, Step } from 'react-joyride'
+import { Joyride, STATUS, Step } from 'react-joyride'
 
 const TOUR_STEPS: Step[] = [
   {
@@ -44,7 +44,7 @@ export default function ProductTour() {
     }
   }, [])
 
-  const handleJoyrideCallback = (data: CallBackProps) => {
+  const handleJoyrideCallback = (data: any) => {
     const { status } = data
     const finishedStatuses: string[] = [STATUS.FINISHED, STATUS.SKIPPED]
 
