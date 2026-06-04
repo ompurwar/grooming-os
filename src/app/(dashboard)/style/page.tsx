@@ -142,10 +142,11 @@ function StyleContent() {
   }
 
   const [existingMatch, setExistingMatch] = useState<{ id: string, occasion: string } | null>(null)
+  const [duplicateOutfitId, setDuplicateOutfitId] = useState<string | null>(null)
   const [showDuplicateModal, setShowDuplicateModal] = useState(false)
   const [pendingPrompt, setPendingPrompt] = useState('')
 
-  const handleInitialStyleClick = async (e?: React.FormEvent, directPrompt?: string) => {
+  const handleInitialStyleClick = async (e?: React.FormEvent, directPrompt?: string, capsuleId?: string) => {
     if (e) e.preventDefault()
     
     const textToSubmit = directPrompt || prompt
@@ -154,9 +155,6 @@ function StyleContent() {
     triggerHaptic(hapticPatterns.light)
 
     // Check for existing similar outfits first
-    try {
-      const checkRes = await fetch('/api/style/check-existing', {
-        method: 'POST',
     try {
       const supabase = createClient()
       const { data: { session } } = await supabase.auth.getSession()
