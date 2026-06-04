@@ -67,7 +67,7 @@ export default function DashboardHome() {
   return (
     <div className={styles.container}>
       {/* Header */}
-      <header className={styles.header}>
+      <header id="tour-home-overview" className={styles.header}>
         <div className={styles.greeting}>
           <h1 className={styles.title}>Good evening, {stats.name}</h1>
           <p className={styles.subtitle}>What would you like to wear today?</p>

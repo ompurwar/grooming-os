@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import BottomNav from '@/components/shared/BottomNav'
+import ProductTour from '@/components/shared/ProductTour'
 import styles from './layout.module.css'
 
 export const metadata: Metadata = {
@@ -13,6 +14,7 @@ export default function DashboardLayout({
 }) {
   return (
     <div className={styles.dashboardContainer}>
+      <ProductTour />
       <main className={styles.mainContent}>
         {children}
       </main>

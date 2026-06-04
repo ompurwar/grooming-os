@@ -140,9 +140,11 @@ export default function WardrobePage() {
         /* Empty State */
         <div className={styles.emptyState}>
           <div className={styles.emptyIcon}>👔</div>
-          <h2>No items found</h2>
-          <p>You don&apos;t have any {activeFilter.toLowerCase()} in your wardrobe yet.</p>
-          <Link href="/wardrobe/add" className={styles.emptyButton}>Add First Item</Link>
+          <h2>Your Virtual Wardrobe is Empty</h2>
+          <p style={{ maxWidth: '400px', margin: '8px auto 24px', lineHeight: '1.5' }}>
+            Digitize your closet to unlock the power of AI styling. Add your favorite clothes, shoes, and accessories so your Personal Stylist can start building your daily looks and travel capsules!
+          </p>
+          <Link href="/wardrobe/add" className={styles.emptyButton}>Add Your First Item</Link>
         </div>
       )}
     </div>

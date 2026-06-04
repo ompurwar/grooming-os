@@ -8,42 +8,42 @@
 
 ```mermaid
 graph TB
-    subgraph Client["Client (Browser / PWA)"]
-        UI["Next.js React App<br/>(App Router)"]
+    subgraph Client["Client - Browser / PWA"]
+        UI["Next.js React App - App Router"]
     end
 
-    subgraph NextServer["Next.js Server (Node.js)"]
-        Pages["Server Components<br/>(Pages & Layouts)"]
-        API["API Route Handlers<br/>(/api/*)"]
+    subgraph NextServer["Next.js Server - Node.js"]
+        Pages["Server Components - Pages and Layouts"]
+        API["API Route Handlers - /api/*"]
     end
 
     subgraph ExternalAI["AI Services"]
-        OpenAI["OpenAI GPT-4o<br/>(Vision + Text)"]
-        Replicate["Replicate<br/>(Virtual Try-On)"]
+        OpenAI["OpenAI GPT-4o - Vision and Text"]
+        Replicate["Replicate - Virtual Try-On"]
     end
 
     subgraph Orchestration["Workflow Orchestration"]
         TemporalCloud["Temporal Cloud"]
-        Worker["Temporal Worker<br/>(tsx src/temporal/worker.ts)"]
+        Worker["Temporal Worker - tsx worker.ts"]
     end
 
     subgraph Backend["Backend Services"]
-        Supabase["Supabase<br/>(PostgreSQL + Auth + Storage)"]
-        Weather["Open-Meteo API<br/>(Weather Context)"]
+        Supabase["Supabase - PostgreSQL, Auth, Storage"]
+        Weather["Open-Meteo API - Weather Context"]
     end
 
-    UI -->|HTTP Requests| API
-    UI -->|RSC Streaming| Pages
-    Pages -->|SQL via Supabase Client| Supabase
-    API -->|SQL via Supabase Client| Supabase
-    API -->|generateObject / embed| OpenAI
-    API -->|Prediction API| Replicate
-    API -->|Start Workflow| TemporalCloud
-    TemporalCloud -->|Dispatch Activity| Worker
-    Worker -->|generateObject (Vision)| OpenAI
-    Worker -->|Write Results| Supabase
-    Replicate -->|Webhook Callback| API
-    UI -->|Geolocation → Weather| Weather
+    UI -->|"HTTP Requests"| API
+    UI -->|"RSC Streaming"| Pages
+    Pages -->|"SQL via Supabase Client"| Supabase
+    API -->|"SQL via Supabase Client"| Supabase
+    API -->|"generateObject / embed"| OpenAI
+    API -->|"Prediction API"| Replicate
+    API -->|"Start Workflow"| TemporalCloud
+    TemporalCloud -->|"Dispatch Activity"| Worker
+    Worker -->|"generateObject Vision"| OpenAI
+    Worker -->|"Write Results"| Supabase
+    Replicate -->|"Webhook Callback"| API
+    UI -->|"Geolocation to Weather"| Weather
 
     style Client fill:#1a1a2e,stroke:#e94560,color:#eee
     style NextServer fill:#16213e,stroke:#0f3460,color:#eee
@@ -59,13 +59,13 @@ graph TB
 ```mermaid
 graph LR
     subgraph Public["Public Routes"]
-        Landing["/ <br/>Landing Page"]
+        Landing["/ Landing Page"]
         Login["/login"]
         Signup["/signup"]
-        Onboarding["/onboarding/*"]
+        Onboarding["/onboarding"]
     end
 
-    subgraph Dashboard["Dashboard (Authenticated)"]
+    subgraph Dashboard["Dashboard - Authenticated"]
         Home["/home"]
         Wardrobe["/wardrobe"]
         WardrobeAdd["/wardrobe/add"]
@@ -132,14 +132,14 @@ erDiagram
     OUTFITS ||--o{ OUTFIT_ITEMS : "contains"
     OUTFIT_ITEMS }o--o| WARDROBE_ITEMS : "references"
     OUTFIT_ITEMS }o--o| MARKETPLACE_ITEMS : "suggests"
-    OUTFITS }o--o| CAPSULES : "scoped to"
+    OUTFITS }o--o| CAPSULES : "scoped_to"
     OUTFIT_HISTORY }o--|| OUTFITS : "records"
 
     CAPSULES ||--o{ CAPSULE_ITEMS : "includes"
     CAPSULE_ITEMS }o--|| WARDROBE_ITEMS : "packs"
 
     MARKETPLACE_RECOMMENDATIONS }o--|| MARKETPLACE_ITEMS : "recommends"
-    MARKETPLACE_RECOMMENDATIONS }o--o| OUTFITS : "related to"
+    MARKETPLACE_RECOMMENDATIONS }o--o| OUTFITS : "related_to"
 
     USERS {
         uuid id PK
@@ -211,26 +211,27 @@ erDiagram
 
 ```mermaid
 graph LR
-    User(("👤 User"))
+    User["User"]
     System["Grooming OS"]
-    OpenAI["OpenAI<br/>GPT-4o"]
-    Replicate["Replicate<br/>VTO"]
-    Supabase["Supabase<br/>DB + Auth + Storage"]
-    Weather["Open-Meteo<br/>Weather API"]
+    OpenAI["OpenAI GPT-4o"]
+    ReplicateVTO["Replicate VTO"]
+    SupabaseDB["Supabase DB + Auth + Storage"]
+    WeatherSvc["Open-Meteo Weather API"]
 
     User -->|"Photos, Prompts, Preferences"| System
     System -->|"Outfits, Grooming Recs, Looks"| User
 
-    System -->|"Image + Text Analysis Requests"| OpenAI
+    System -->|"Image and Text Analysis Requests"| OpenAI
     OpenAI -->|"Structured JSON Responses"| System
 
-    System -->|"Try-On Prediction Requests"| Replicate
-    Replicate -->|"Generated Images (via Webhook)"| System
+    System -->|"Try-On Prediction Requests"| ReplicateVTO
+    ReplicateVTO -->|"Generated Images via Webhook"| System
 
-    System <-->|"CRUD Operations, Auth, File Storage"| Supabase
+    System -->|"CRUD Operations, Auth, Storage"| SupabaseDB
+    SupabaseDB -->|"Query Results, Sessions"| System
 
-    System -->|"Lat/Long Coords"| Weather
-    Weather -->|"Temperature, Conditions"| System
+    System -->|"Lat/Long Coords"| WeatherSvc
+    WeatherSvc -->|"Temperature, Conditions"| System
 ```
 
 ---
@@ -239,30 +240,30 @@ graph LR
 
 ```mermaid
 graph TB
-    User(("👤 User"))
+    User["User"]
 
-    subgraph P1["P1: Authentication & Onboarding"]
-        Auth["1.1 Auth<br/>(Login / Signup)"]
-        Onboard["1.2 Onboarding<br/>(Style Quiz)"]
+    subgraph P1["P1: Authentication and Onboarding"]
+        Auth["1.1 Auth - Login / Signup"]
+        Onboard["1.2 Onboarding - Style Quiz"]
     end
 
-    subgraph P2["P2: Body & Face Analysis"]
-        BodyAnalysis["2.1 Analyze Body<br/>(2 Photos → GPT-4o Vision)"]
-        FaceAnalysis["2.2 Analyze Face<br/>(Photo → GPT-4o Vision)"]
+    subgraph P2["P2: Body and Face Analysis"]
+        BodyAnalysis["2.1 Analyze Body - 2 Photos via GPT-4o"]
+        FaceAnalysis["2.2 Analyze Face - Photo via GPT-4o"]
     end
 
     subgraph P3["P3: Wardrobe Management"]
-        Upload["3.1 Upload Item<br/>(Camera / Gallery)"]
-        AutoTag["3.2 AI Auto-Tag<br/>(GPT-4o Vision)"]
-        Embed["3.3 Generate Embedding<br/>(text-embedding-3-small)"]
+        Upload["3.1 Upload Item - Camera / Gallery"]
+        AutoTag["3.2 AI Auto-Tag via GPT-4o Vision"]
+        Embed["3.3 Generate Embedding"]
         Browse["3.4 Browse Wardrobe"]
     end
 
     subgraph P4["P4: AI Styling Engine"]
         PromptInput["4.1 Occasion Prompt"]
         WeatherCtx["4.2 Weather Context"]
-        SemanticSearch["4.3 Semantic Search<br/>(pgvector RAG)"]
-        GenerateLook["4.4 Generate Outfit<br/>(GPT-4o)"]
+        SemanticSearch["4.3 Semantic Search - pgvector RAG"]
+        GenerateLook["4.4 Generate Outfit via GPT-4o"]
         SaveLook["4.5 Save / Discard"]
     end
 
@@ -275,13 +276,13 @@ graph TB
 
     subgraph P6["P6: Grooming Intelligence"]
         GroomScan["6.1 Face Scan"]
-        GroomRec["6.2 AI Recommendations<br/>(Hair, Beard, Glasses)"]
-        VTO["6.3 Virtual Try-On<br/>(Replicate)"]
+        GroomRec["6.2 AI Recommendations - Hair, Beard, Glasses"]
+        VTO["6.3 Virtual Try-On via Replicate"]
     end
 
     subgraph DS["Data Stores"]
-        DB[("Supabase<br/>PostgreSQL")]
-        Storage[("Supabase<br/>Storage")]
+        DB[("Supabase PostgreSQL")]
+        Storage[("Supabase Storage")]
     end
 
     User --> Auth --> DB
@@ -312,89 +313,89 @@ graph TB
 
 ---
 
-## 6. DFD Level 2 — Wardrobe Upload Flow (Process 3 Detail)
+## 6. DFD Level 2 — Wardrobe Upload Flow
 
 ```mermaid
 graph TB
-    User(("👤 User"))
-    Camera["Camera / Gallery<br/>Capture"]
-    Crop["Image Cropper<br/>(react-easy-crop)"]
-    SupaStorage[("Supabase Storage<br/>(wardrobe-items bucket)")]
+    User["User"]
+    Camera["Camera / Gallery Capture"]
+    Crop["Image Cropper - react-easy-crop"]
+    SupaStorage[("Supabase Storage - wardrobe bucket")]
     APIRoute["POST /api/analyze/wardrobe"]
-    GPT4oVision["OpenAI GPT-4o<br/>Vision Analysis"]
-    EmbeddingModel["OpenAI<br/>text-embedding-3-small"]
-    DB[("Supabase PostgreSQL<br/>wardrobe_items table")]
+    GPT4oVision["OpenAI GPT-4o Vision Analysis"]
+    EmbeddingModel["OpenAI text-embedding-3-small"]
+    DB[("Supabase PostgreSQL - wardrobe_items")]
 
-    User -->|"Selects / Captures Photo"| Camera
+    User -->|"Selects or Captures Photo"| Camera
     Camera -->|"Raw Image"| Crop
     Crop -->|"Cropped Blob"| SupaStorage
     SupaStorage -->|"Public URL"| APIRoute
     APIRoute -->|"Image URL"| GPT4oVision
-    GPT4oVision -->|"category, color, pattern,<br/>material, formality, ai_tags"| APIRoute
+    GPT4oVision -->|"category, color, pattern, material, formality, ai_tags"| APIRoute
     APIRoute -->|"Tag Description String"| EmbeddingModel
     EmbeddingModel -->|"1536-dim Vector"| APIRoute
-    APIRoute -->|"INSERT wardrobe_item<br/>+ embedding"| DB
+    APIRoute -->|"INSERT wardrobe_item + embedding"| DB
     DB -->|"Success Response"| User
 ```
 
 ---
 
-## 7. DFD Level 2 — Outfit Generation Flow (Process 4 Detail)
+## 7. DFD Level 2 — Outfit Generation Flow
 
 ```mermaid
 graph TB
-    User(("👤 User"))
-    StylePage["Style Page<br/>(Prompt + Occasion Chips)"]
+    User["User"]
+    StylePage["Style Page - Prompt + Occasion Chips"]
     GeoAPI["Browser Geolocation API"]
-    WeatherAPI["Open-Meteo<br/>Weather API"]
-    EmbedPrompt["OpenAI Embed<br/>(text-embedding-3-small)"]
-    PGVector["pgvector RPC<br/>match_wardrobe_items"]
-    GPT4o["OpenAI GPT-4o<br/>generateObject"]
+    WeatherAPI["Open-Meteo Weather API"]
+    EmbedPrompt["OpenAI Embed - text-embedding-3-small"]
+    PGVector["pgvector RPC - match_wardrobe_items"]
+    GPT4o["OpenAI GPT-4o - generateObject"]
     DB[("Supabase PostgreSQL")]
-    GetReady["Get Ready Page<br/>(LookCard Component)"]
+    GetReady["Get Ready Page - LookCard Component"]
 
     User -->|"Types Occasion Prompt"| StylePage
     StylePage -->|"Request Location"| GeoAPI
     GeoAPI -->|"lat, lon"| WeatherAPI
     WeatherAPI -->|"city, temp, condition"| StylePage
-    StylePage -->|"POST /api/style/generate<br/>{prompt, weatherContext}"| EmbedPrompt
+    StylePage -->|"POST /api/style/generate"| EmbedPrompt
     EmbedPrompt -->|"Prompt Embedding"| PGVector
     PGVector -->|"Top-N Wardrobe Items"| DB
-    DB -->|"Item Details<br/>(id, category, color, tags)"| GPT4o
-    GPT4o -->|"Outfit Selection,<br/>Reasoning, Grooming Tips"| DB
+    DB -->|"Item Details - id, category, color, tags"| GPT4o
+    GPT4o -->|"Outfit Selection, Reasoning, Grooming Tips"| DB
     DB -->|"Saved Outfit ID"| GetReady
     GetReady -->|"Full Look Card + VTO"| User
 ```
 
 ---
 
-## 8. DFD Level 2 — Grooming & Virtual Try-On Flow (Process 6 Detail)
+## 8. DFD Level 2 — Grooming and Virtual Try-On Flow
 
 ```mermaid
 graph TB
-    User(("👤 User"))
-    ScanPage["Groom Scan Page<br/>(CameraCapture)"]
+    User["User"]
+    ScanPage["Groom Scan Page - CameraCapture"]
     SupaStorage[("Supabase Storage")]
     GroomAPI["POST /api/groom/recommendations"]
-    GPT4o["OpenAI GPT-4o Vision<br/>(Face Analysis)"]
-    DB[("Supabase PostgreSQL<br/>grooming_recommendations)"]
-    GroomPage["Groom Dashboard<br/>(Recommendation Cards)"]
+    GPT4o["OpenAI GPT-4o Vision - Face Analysis"]
+    DB[("Supabase PostgreSQL - grooming_recommendations")]
+    GroomPage["Groom Dashboard - Recommendation Cards"]
     TryOnAPI["POST /api/style/try-on"]
-    ReplicateAPI["Replicate API<br/>(Virtual Try-On Model)"]
-    WebhookAPI["POST /api/webhooks/vto<br/>(Callback)"]
+    ReplicateAPI["Replicate API - Virtual Try-On Model"]
+    WebhookAPI["POST /api/webhooks/vto - Callback"]
 
     User -->|"Capture Face Photo"| ScanPage
     ScanPage -->|"Upload Image"| SupaStorage
     SupaStorage -->|"Photo URL"| GroomAPI
     GroomAPI -->|"Face Image"| GPT4o
-    GPT4o -->|"face_shape, hair recs,<br/>beard recs, glasses recs"| GroomAPI
+    GPT4o -->|"face_shape, hair recs, beard recs, glasses recs"| GroomAPI
     GroomAPI -->|"INSERT recommendations"| DB
     DB -->|"Recommendation List"| GroomPage
     GroomPage -->|"User Selects Style"| User
 
     User -->|"Try This Look"| TryOnAPI
     TryOnAPI -->|"face_url + style_ref"| ReplicateAPI
-    ReplicateAPI -->|"Async Processing..."| WebhookAPI
+    ReplicateAPI -->|"Async Processing"| WebhookAPI
     WebhookAPI -->|"UPDATE visualization_url"| DB
     DB -->|"Rendered Preview"| GroomPage
     GroomPage -->|"Virtual Try-On Result"| User
@@ -406,32 +407,32 @@ graph TB
 
 ```mermaid
 graph TB
-    subgraph RootLayout["Root Layout (src/app/layout.tsx)"]
-        subgraph AuthGroup["(auth) Route Group"]
+    subgraph RootLayout["Root Layout"]
+        subgraph AuthGroup["Auth Route Group"]
             LoginPage["/login"]
             SignupPage["/signup"]
-            OnboardingPages["/onboarding/*<br/>(Style Quiz)"]
+            OnboardingPages["/onboarding - Style Quiz"]
         end
 
-        subgraph DashLayout["(dashboard) Layout<br/>+ BottomNav"]
+        subgraph DashLayout["Dashboard Layout + BottomNav"]
             HomePage["/home"]
 
             subgraph WardrobeSection["Wardrobe"]
                 WardrobePage["/wardrobe"]
-                WardrobeAddPage["/wardrobe/add<br/>+ ImageCropper"]
+                WardrobeAddPage["/wardrobe/add + ImageCropper"]
                 WardrobeDetailPage["/wardrobe/:id"]
             end
 
             subgraph StyleSection["Styling"]
-                StylePage["/style<br/>(Daily + Capsule Mode)"]
-                GetReadyPage["/style/get-ready<br/>+ LookCard"]
+                StylePage["/style - Daily + Capsule Mode"]
+                GetReadyPage["/style/get-ready + LookCard"]
                 SavedPage["/style/saved"]
-                CapsuleDetailPage["/style/capsule/:id<br/>+ DeleteCapsuleButton"]
+                CapsuleDetailPage["/style/capsule/:id + DeleteBtn"]
             end
 
             subgraph GroomSection["Grooming"]
                 GroomPage["/groom"]
-                GroomScanPage["/groom/scan<br/>+ CameraCapture"]
+                GroomScanPage["/groom/scan + CameraCapture"]
             end
 
             subgraph ProfileSection["Profile"]
@@ -441,7 +442,7 @@ graph TB
             end
         end
 
-        LandingPage["/ (Landing Page)"]
+        LandingPage["/ Landing Page"]
     end
 
     style RootLayout fill:#1a1a2e,stroke:#e94560,color:#eee
@@ -459,34 +460,34 @@ sequenceDiagram
     participant API as Next.js API Route
     participant TC as Temporal Cloud
     participant Worker as Temporal Worker
-    participant OpenAI as OpenAI GPT-4o
+    participant OAI as OpenAI GPT-4o
     participant DB as Supabase DB
 
     Note over Client,DB: Wardrobe Upload Workflow
-    Client->>API: POST /api/analyze/wardrobe<br/>{imageUrl}
-    API->>TC: startWorkflow<br/>(processWardrobeUploadWorkflow)
-    API-->>Client: 202 Accepted<br/>{workflowId}
-    TC->>Worker: dispatch activity<br/>(analyzeWardrobeItemImage)
-    Worker->>OpenAI: generateObject (GPT-4o Vision)<br/>{image, schema}
-    OpenAI-->>Worker: {category, color, pattern,<br/>material, formality, ai_tags}
+    Client->>API: POST /api/analyze/wardrobe
+    API->>TC: startWorkflow processWardrobeUpload
+    API-->>Client: 202 Accepted with workflowId
+    TC->>Worker: dispatch analyzeWardrobeItemImage
+    Worker->>OAI: generateObject GPT-4o Vision
+    OAI-->>Worker: category, color, pattern, tags
     Worker-->>TC: Activity Complete
     TC->>DB: Save analysis result
 
     Note over Client,DB: Styling Workflow
-    Client->>API: POST /api/style/generate<br/>{prompt, weatherContext}
-    API->>TC: startWorkflow<br/>(generateStylingWorkflow)
-    TC->>Worker: dispatch activity<br/>(generateOutfitRecommendation)
-    Worker->>OpenAI: generateObject (GPT-4o)<br/>{wardrobe, occasion, body}
-    OpenAI-->>Worker: {items, reasoning,<br/>grooming_notes, hairstyle}
+    Client->>API: POST /api/style/generate
+    API->>TC: startWorkflow generateStyling
+    TC->>Worker: dispatch generateOutfitRec
+    Worker->>OAI: generateObject GPT-4o
+    OAI-->>Worker: items, reasoning, grooming
     Worker-->>TC: Activity Complete
     TC-->>API: Workflow Result
     API->>DB: INSERT outfit + outfit_items
-    API-->>Client: {outfitId}
+    API-->>Client: outfitId
 ```
 
 ---
 
-## 11. Authentication & Session Flow
+## 11. Authentication and Session Flow
 
 ```mermaid
 sequenceDiagram
@@ -497,24 +498,24 @@ sequenceDiagram
 
     User->>Browser: Navigate to /login
     Browser->>NextServer: GET /login
-    NextServer-->>Browser: Login Page (Client Component)
+    NextServer-->>Browser: Login Page
 
     User->>Browser: Enter email + password
-    Browser->>Supabase: supabase.auth.signInWithPassword()
-    Supabase-->>Browser: Set session cookies<br/>(access_token, refresh_token)
+    Browser->>Supabase: signInWithPassword
+    Supabase-->>Browser: Set session cookies
     Browser->>NextServer: Redirect to /home
 
     Note over Browser,Supabase: Subsequent Requests
-    Browser->>NextServer: GET /home (with cookies)
-    NextServer->>Supabase: createServerClient(cookies)<br/>supabase.auth.getSession()
-    Supabase-->>NextServer: {session, user}
+    Browser->>NextServer: GET /home with cookies
+    NextServer->>Supabase: createServerClient getSession
+    Supabase-->>NextServer: session + user
     NextServer-->>Browser: Rendered Dashboard
 
     Note over Browser,Supabase: API Calls
     Browser->>NextServer: POST /api/style/generate
-    NextServer->>Supabase: createServerClient(cookies)<br/>supabase.auth.getUser()
-    Supabase-->>NextServer: {user} (RLS enforced)
-    NextServer-->>Browser: {outfitId}
+    NextServer->>Supabase: createServerClient getUser
+    Supabase-->>NextServer: user with RLS enforced
+    NextServer-->>Browser: outfitId
 ```
 
 ---
@@ -527,22 +528,22 @@ graph TB
         Browser["Browser / PWA"]
     end
 
-    subgraph Vercel["Vercel (or Node.js Host)"]
-        NextApp["Next.js 16 App<br/>(SSR + API Routes)"]
+    subgraph Vercel["Vercel or Node.js Host"]
+        NextApp["Next.js 16 App - SSR + API Routes"]
     end
 
-    subgraph TemporalCloud["Temporal Cloud"]
-        TemporalServer["Temporal Server<br/>(Workflow Orchestration)"]
+    subgraph TCloud["Temporal Cloud"]
+        TemporalServer["Temporal Server - Workflow Orchestration"]
     end
 
-    subgraph WorkerHost["Worker Process<br/>(Long-Running)"]
-        TemporalWorker["Temporal Worker<br/>(npm run worker)"]
+    subgraph WorkerHost["Worker Process - Long-Running"]
+        TemporalWorker["Temporal Worker - npm run worker"]
     end
 
     subgraph SupabaseCloud["Supabase Cloud"]
         SupaAuth["Auth Service"]
-        SupaDB["PostgreSQL<br/>+ pgvector"]
-        SupaStorage["Object Storage<br/>(Images)"]
+        SupaDB["PostgreSQL + pgvector"]
+        SupaStorage["Object Storage - Images"]
     end
 
     subgraph AIProviders["AI Providers"]
@@ -550,28 +551,28 @@ graph TB
         Replicate["Replicate API"]
     end
 
-    subgraph ExternalAPIs["External APIs"]
-        OpenMeteo["Open-Meteo<br/>Weather"]
-        Ngrok["ngrok tunnel<br/>(Dev Only)"]
+    subgraph ExtAPIs["External APIs"]
+        OpenMeteo["Open-Meteo Weather"]
+        Ngrok["ngrok tunnel - Dev Only"]
     end
 
-    Browser <-->|HTTPS| NextApp
-    NextApp <-->|HTTPS| SupaAuth
-    NextApp <-->|SQL + REST| SupaDB
-    NextApp <-->|REST| SupaStorage
-    NextApp <-->|gRPC| TemporalServer
-    TemporalServer <-->|gRPC| TemporalWorker
-    TemporalWorker -->|HTTPS| OpenAI
-    NextApp -->|HTTPS| OpenAI
-    NextApp -->|HTTPS| Replicate
-    Replicate -->|Webhook via ngrok| NextApp
-    Browser -->|HTTPS| OpenMeteo
+    Browser -->|"HTTPS"| NextApp
+    NextApp -->|"HTTPS"| SupaAuth
+    NextApp -->|"SQL + REST"| SupaDB
+    NextApp -->|"REST"| SupaStorage
+    NextApp -->|"gRPC"| TemporalServer
+    TemporalServer -->|"gRPC"| TemporalWorker
+    TemporalWorker -->|"HTTPS"| OpenAI
+    NextApp -->|"HTTPS"| OpenAI
+    NextApp -->|"HTTPS"| Replicate
+    Replicate -->|"Webhook via ngrok"| NextApp
+    Browser -->|"HTTPS"| OpenMeteo
 
     style UserDevice fill:#1a1a2e,stroke:#e94560,color:#eee
     style Vercel fill:#16213e,stroke:#0f3460,color:#eee
-    style TemporalCloud fill:#533483,stroke:#e94560,color:#eee
+    style TCloud fill:#533483,stroke:#e94560,color:#eee
     style WorkerHost fill:#533483,stroke:#e94560,color:#eee
     style SupabaseCloud fill:#0f3460,stroke:#e94560,color:#eee
     style AIProviders fill:#1a1a2e,stroke:#533483,color:#eee
-    style ExternalAPIs fill:#1a1a2e,stroke:#0f3460,color:#eee
+    style ExtAPIs fill:#1a1a2e,stroke:#0f3460,color:#eee
 ```
