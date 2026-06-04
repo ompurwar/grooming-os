@@ -91,7 +91,7 @@ function StyleContent() {
         return
       }
 
-      const [looksRes, capsulesRes] = await Promise.all([
+      const [looksRes, capsulesResponse] = await Promise.all([
         supabase
           .from('outfits')
           .select('id, occasion, created_at')
@@ -99,16 +99,11 @@ function StyleContent() {
           .eq('is_saved', true)
           .order('created_at', { ascending: false })
           .limit(4),
-        supabase
-          .from('capsules')
-          .select('id, title, destinations, created_at')
-          .eq('user_id', session.user.id)
-          .order('created_at', { ascending: false })
-          .limit(4)
+        fetch('/api/style/capsules').then(res => res.json())
       ])
 
       setSavedLooks(looksRes.data ?? [])
-      setSavedCapsules(capsulesRes.data ?? [])
+      setSavedCapsules(capsulesResponse.capsules ?? [])
     }
     initStyle()
   }, [])

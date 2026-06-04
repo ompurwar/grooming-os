@@ -2,7 +2,17 @@ import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
+import { MapPin, Calendar, Backpack, CheckCircle, Shirt, Footprints, Watch, Scissors, ShoppingCart } from 'lucide-react'
 import styles from './page.module.css'
+
+const CATEGORY_ICONS: Record<string, any> = {
+  Top: Shirt,
+  Bottom: Shirt,
+  Footwear: Footprints,
+  Accessory: Watch,
+  Hairstyle: Scissors,
+  Other: ShoppingCart,
+}
 
 export default async function CapsulePage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params
@@ -60,11 +70,16 @@ export default async function CapsulePage({ params }: { params: Promise<{ id: st
     <div className={styles.container}>
       <header className={styles.header}>
         <Link href="/style" className={styles.backBtn}>← Back</Link>
-        <h1>{capsule.title}</h1>
-        <div className={styles.meta}>
-          <span>🌍 {capsule.destinations}</span>
-          <span>📅 {capsule.days} Days</span>
-          <span>🎒 {capsule.bag_size}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+          <h1>{capsule.title}</h1>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '14px', color: 'var(--color-success)', background: 'var(--color-success-bg)', padding: '4px 10px', borderRadius: '16px' }}>
+            <CheckCircle size={14} /> Saved
+          </span>
+        </div>
+        <div className={styles.meta} style={{ display: 'flex', gap: '16px', marginTop: '12px', color: 'var(--color-text-secondary)', fontSize: '14px' }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><MapPin size={16} /> {capsule.destinations}</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Calendar size={16} /> {capsule.days} Days</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Backpack size={16} /> {capsule.bag_size}L Limit</span>
         </div>
       </header>
 
@@ -76,30 +91,35 @@ export default async function CapsulePage({ params }: { params: Promise<{ id: st
       <section className={styles.packingList}>
         <h3>Your Packing List ({capsuleItems.length} Items)</h3>
         
-        {Object.entries(categorizedItems).map(([category, items]: [string, any]) => (
-          <div key={category} className={styles.categoryGroup}>
-            <h4 className={styles.categoryTitle}>{category} <span className={styles.countBadge}>{items.length}</span></h4>
-            <div className={styles.itemGrid}>
-              {items.map((item: any) => (
-                <Link key={item.id} href={`/wardrobe/${item.id}`} className={styles.itemCard}>
-                  <div className={styles.imageWrapper}>
-                    <Image 
-                      src={item.image_url} 
-                      alt={item.sub_category || category}
-                      fill
-                      className={styles.image}
-                      sizes="(max-width: 768px) 33vw, 20vw"
-                    />
-                    {item.is_core && <div className={styles.coreBadge}>Core Base</div>}
-                  </div>
-                  <div className={styles.itemInfo}>
-                    <span className={styles.itemName}>{item.primary_color} {item.sub_category}</span>
-                  </div>
-                </Link>
-              ))}
+        {Object.entries(categorizedItems).map(([category, items]: [string, any]) => {
+          const Icon = CATEGORY_ICONS[category] || CATEGORY_ICONS.Other
+          return (
+            <div key={category} className={styles.categoryGroup}>
+              <h4 className={styles.categoryTitle} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Icon size={18} /> {category} <span className={styles.countBadge}>{items.length}</span>
+              </h4>
+              <div className={styles.itemGrid}>
+                {items.map((item: any) => (
+                  <Link key={item.id} href={`/wardrobe/${item.id}`} className={styles.itemCard}>
+                    <div className={styles.imageWrapper}>
+                      <Image 
+                        src={item.image_url} 
+                        alt={item.sub_category || category}
+                        fill
+                        className={styles.image}
+                        sizes="(max-width: 768px) 33vw, 20vw"
+                      />
+                      {item.is_core && <div className={styles.coreBadge}>Core Base</div>}
+                    </div>
+                    <div className={styles.itemInfo}>
+                      <span className={styles.itemName}>{item.primary_color} {item.sub_category}</span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          )
+        })}
       </section>
     </div>
   )

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
+import { ScanFace, User, Palette, Thermometer, Smile, Scissors, Eye, UserRound, Flower, Glasses, Sparkles, Brush } from 'lucide-react'
 import styles from './page.module.css'
 
 interface FaceProfile {
@@ -85,7 +86,7 @@ export default function GroomPage() {
         </header>
 
         <div className={styles.emptyState}>
-          <div className={styles.emptyIcon}>🧑‍🔬</div>
+          <div className={styles.emptyIcon}><ScanFace size={64} /></div>
           <h2 className={styles.emptyTitle}>No Face Scan Yet</h2>
           <p className={styles.emptyText}>
             Take a quick selfie and our AI will analyze your face shape, skin tone, and features to give you personalized grooming recommendations.
@@ -126,56 +127,56 @@ export default function GroomPage() {
         </div>
         <div className={styles.faceGrid}>
           <div className={styles.faceStat}>
-            <span className={styles.statIcon}>👱</span>
+            <span className={styles.statIcon}><User size={24} /></span>
             <div className={styles.statInfo}>
               <span className={styles.statLabel}>Face Shape</span>
               <span className={styles.statValue}>{raw.face_shape || faceProfile.face_shape}</span>
             </div>
           </div>
           <div className={styles.faceStat}>
-            <span className={styles.statIcon}>🎨</span>
+            <span className={styles.statIcon}><Palette size={24} /></span>
             <div className={styles.statInfo}>
               <span className={styles.statLabel}>Skin Tone</span>
               <span className={styles.statValue}>{raw.skin_tone || faceProfile.skin_tone}</span>
             </div>
           </div>
           <div className={styles.faceStat}>
-            <span className={styles.statIcon}>🌡️</span>
+            <span className={styles.statIcon}><Thermometer size={24} /></span>
             <div className={styles.statInfo}>
               <span className={styles.statLabel}>Undertone</span>
               <span className={styles.statValue}>{raw.undertone || 'Unknown'}</span>
             </div>
           </div>
           <div className={styles.faceStat}>
-            <span className={styles.statIcon}>💪</span>
+            <span className={styles.statIcon}><Smile size={24} /></span>
             <div className={styles.statInfo}>
               <span className={styles.statLabel}>Jawline</span>
               <span className={styles.statValue}>{raw.jawline || 'Unknown'}</span>
             </div>
           </div>
           <div className={styles.faceStat}>
-            <span className={styles.statIcon}>💇‍♂️</span>
+            <span className={styles.statIcon}><Scissors size={24} /></span>
             <div className={styles.statInfo}>
               <span className={styles.statLabel}>Hair Type</span>
               <span className={styles.statValue}>{faceProfile.hair_type}</span>
             </div>
           </div>
           <div className={styles.faceStat}>
-            <span className={styles.statIcon}>👁️</span>
+            <span className={styles.statIcon}><Eye size={24} /></span>
             <div className={styles.statInfo}>
               <span className={styles.statLabel}>Eye Shape</span>
               <span className={styles.statValue}>{raw.eye_shape || 'Unknown'}</span>
             </div>
           </div>
           <div className={styles.faceStat}>
-            <span className={styles.statIcon}>🧔</span>
+            <span className={styles.statIcon}><UserRound size={24} /></span>
             <div className={styles.statInfo}>
               <span className={styles.statLabel}>Facial Hair</span>
               <span className={styles.statValue}>{faceProfile.facial_hair_status}</span>
             </div>
           </div>
           <div className={styles.faceStat}>
-            <span className={styles.statIcon}>🌺</span>
+            <span className={styles.statIcon}><Flower size={24} /></span>
             <div className={styles.statInfo}>
               <span className={styles.statLabel}>Color Season</span>
               <span className={styles.statValue}>{colorPalette.season || raw.color_season || 'Unknown'}</span>
@@ -187,7 +188,7 @@ export default function GroomPage() {
       {/* Color Palette */}
       {(colorPalette.best_colors?.length > 0 || raw.best_colors?.length > 0) && (
         <section className={styles.paletteSection}>
-          <h3 className={styles.sectionTitle}>🎨 Your Color Palette</h3>
+          <h3 className={styles.sectionTitle}><Palette size={24} style={{display: 'inline', verticalAlign: 'middle', marginRight: '8px'}} /> Your Color Palette</h3>
           <div className={styles.paletteCard}>
             <div className={styles.paletteRow}>
               <span className={styles.paletteLabel}>Best Colors</span>
@@ -223,10 +224,10 @@ export default function GroomPage() {
           {/* Hairstyles */}
           {hairstyles.length > 0 && (
             <section className={styles.recSection}>
-              <h3 className={styles.sectionTitle}>💇‍♂️ Hairstyles</h3>
+              <h3 className={styles.sectionTitle}><Scissors size={24} style={{display: 'inline', verticalAlign: 'middle', marginRight: '8px'}} /> Hairstyles</h3>
               <div className={styles.scrollRow}>
                 {hairstyles.map((rec) => (
-                  <RecCard key={rec.id} rec={rec} emoji="✂️" />
+                  <RecCard key={rec.id} rec={rec} icon={<Scissors size={32} />} />
                 ))}
               </div>
             </section>
@@ -235,10 +236,10 @@ export default function GroomPage() {
           {/* Facial Hair */}
           {facialHair.length > 0 && (
             <section className={styles.recSection}>
-              <h3 className={styles.sectionTitle}>🧔 Facial Hair</h3>
+              <h3 className={styles.sectionTitle}><UserRound size={24} style={{display: 'inline', verticalAlign: 'middle', marginRight: '8px'}} /> Facial Hair</h3>
               <div className={styles.scrollRow}>
                 {facialHair.map((rec) => (
-                  <RecCard key={rec.id} rec={rec} emoji="🪒" />
+                  <RecCard key={rec.id} rec={rec} icon={<UserRound size={32} />} />
                 ))}
               </div>
             </section>
@@ -247,10 +248,10 @@ export default function GroomPage() {
           {/* Glasses */}
           {glasses.length > 0 && (
             <section className={styles.recSection}>
-              <h3 className={styles.sectionTitle}>👓 Eyewear</h3>
+              <h3 className={styles.sectionTitle}><Glasses size={24} style={{display: 'inline', verticalAlign: 'middle', marginRight: '8px'}} /> Eyewear</h3>
               <div className={styles.scrollRow}>
                 {glasses.map((rec) => (
-                  <RecCard key={rec.id} rec={rec} emoji="🕶️" />
+                  <RecCard key={rec.id} rec={rec} icon={<Glasses size={32} />} />
                 ))}
               </div>
             </section>
@@ -259,7 +260,7 @@ export default function GroomPage() {
           {/* Skincare */}
           {skincare && (
             <section className={styles.recSection}>
-              <h3 className={styles.sectionTitle}>🧴 Skincare</h3>
+              <h3 className={styles.sectionTitle}><Sparkles size={24} style={{display: 'inline', verticalAlign: 'middle', marginRight: '8px'}} /> Skincare</h3>
               <div className={styles.infoCard}>
                 <h4>{skincare.title}</h4>
                 <p>{skincare.description}</p>
@@ -271,7 +272,7 @@ export default function GroomPage() {
           {/* Eyebrows */}
           {eyebrows && (
             <section className={styles.recSection}>
-              <h3 className={styles.sectionTitle}>🧹 Eyebrow Grooming</h3>
+              <h3 className={styles.sectionTitle}><Brush size={24} style={{display: 'inline', verticalAlign: 'middle', marginRight: '8px'}} /> Eyebrow Grooming</h3>
               <div className={styles.infoCard}>
                 <h4>{eyebrows.title}</h4>
                 <p>{eyebrows.description}</p>
@@ -296,11 +297,11 @@ export default function GroomPage() {
   )
 }
 
-function RecCard({ rec, emoji }: { rec: Recommendation; emoji: string }) {
+function RecCard({ rec, icon }: { rec: Recommendation; icon: React.ReactNode }) {
   return (
     <div className={styles.recCard}>
       <div className={styles.recVisual}>
-        <div className={styles.placeholderImg}>{emoji}</div>
+        <div className={styles.placeholderImg}>{icon}</div>
         <div className={styles.confidenceBadge}>
           {Math.round(rec.confidence_score * 100)}% Match
         </div>
