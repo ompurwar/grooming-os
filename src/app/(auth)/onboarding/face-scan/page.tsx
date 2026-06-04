@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import CameraCapture from '@/components/grooming/CameraCapture'
+import { Camera, CheckCircle2, CircleDashed, Circle, User, Palette, Thermometer, Scissors, Lightbulb } from 'lucide-react'
 import styles from './page.module.css'
 
 type ScanState = 'instructions' | 'scanning' | 'analyzing' | 'results'
@@ -115,7 +116,7 @@ export default function FaceScanPage() {
             )}
 
             <div className={styles.tipsCard}>
-              <h3 className={styles.tipsTitle}>📸 For best results:</h3>
+              <h3 className={styles.tipsTitle}><Camera size={20} style={{display: 'inline', verticalAlign: 'middle', marginRight: 8}} /> For best results:</h3>
               <ul className={styles.tipsList}>
                 <li>Look directly at the camera</li>
                 <li>Ensure good, even lighting (no harsh shadows)</li>
@@ -173,7 +174,7 @@ export default function FaceScanPage() {
                   }`}
                 >
                   <span className={i < currentStep ? styles.checkmark : i === currentStep ? styles.spinner : styles.pending}>
-                    {i < currentStep ? '✓' : i === currentStep ? '◌' : '○'}
+                    {i < currentStep ? <CheckCircle2 size={16}/> : i === currentStep ? <CircleDashed size={16}/> : <Circle size={16}/>}
                   </span>
                   {step}
                 </div>
@@ -189,22 +190,22 @@ export default function FaceScanPage() {
 
             <div className={styles.metricsGrid}>
               <div className={styles.metricCard}>
-                <span className={styles.metricIcon}>👱</span>
+                <span className={styles.metricIcon}><User size={24}/></span>
                 <span className={styles.metricLabel}>Face Shape</span>
                 <span className={styles.metricValue}>{results.face_shape}</span>
               </div>
               <div className={styles.metricCard}>
-                <span className={styles.metricIcon}>🎨</span>
+                <span className={styles.metricIcon}><Palette size={24}/></span>
                 <span className={styles.metricLabel}>Skin Tone</span>
                 <span className={styles.metricValue}>{results.skin_tone}</span>
               </div>
               <div className={styles.metricCard}>
-                <span className={styles.metricIcon}>🌡️</span>
+                <span className={styles.metricIcon}><Thermometer size={24}/></span>
                 <span className={styles.metricLabel}>Undertone</span>
                 <span className={styles.metricValue}>{results.undertone}</span>
               </div>
               <div className={styles.metricCard}>
-                <span className={styles.metricIcon}>💇</span>
+                <span className={styles.metricIcon}><Scissors size={24}/></span>
                 <span className={styles.metricLabel}>Hair Type</span>
                 <span className={styles.metricValue}>{results.hair_type}</span>
               </div>
@@ -235,7 +236,7 @@ export default function FaceScanPage() {
 
             {results.grooming_tips?.length > 0 && (
               <div className={styles.tipsSection}>
-                <h3 className={styles.tipsTitle}>💡 Grooming Insights</h3>
+                <h3 className={styles.tipsTitle}><Lightbulb size={20} style={{display: 'inline', verticalAlign: 'middle', marginRight: 8}} /> Grooming Insights</h3>
                 {results.grooming_tips.map((tip: string, i: number) => (
                   <div key={i} className={styles.tipItem}>
                     <span className={styles.tipBullet}>•</span>

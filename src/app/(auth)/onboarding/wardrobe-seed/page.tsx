@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { Camera } from 'lucide-react'
 import styles from './page.module.css'
 
 type CapturingState = 'idle' | 'capturing' | 'tagging'
@@ -57,7 +58,7 @@ export default function WardrobeSeedPage() {
         <div className={styles.captureArea}>
           {state === 'idle' ? (
             <button className={styles.captureButton} onClick={handleCapture}>
-              <div className={styles.cameraIcon}>📸</div>
+              <div className={styles.cameraIcon}><Camera size={32} /></div>
               <span>Tap to photograph an item</span>
               <p className={styles.captureHelp}>Lay flat or hang against a plain background</p>
             </button>

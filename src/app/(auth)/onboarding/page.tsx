@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import styles from './page.module.css'
 import Link from 'next/link'
+import { Timer } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Welcome — Begin Your Style Journey',
@@ -76,7 +77,7 @@ export default function OnboardingPage() {
 
         {/* Info card */}
         <div className={styles.infoCard}>
-          <div className={styles.infoIcon}>⏱️</div>
+          <div className={styles.infoIcon}><Timer size={24} /></div>
           <div>
             <p className={styles.infoTitle}>Takes under 8 minutes</p>
             <p className={styles.infoDesc}>

@@ -4,6 +4,7 @@ import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import { toast } from 'sonner'
+import { Camera, User, Activity, Shirt, Lightbulb } from 'lucide-react'
 import styles from './page.module.css'
 
 type ScanState = 'instructions' | 'front' | 'side' | 'analyzing' | 'results'
@@ -117,7 +118,7 @@ export default function BodyScanPage() {
             </p>
 
             <div className={styles.tipsCard}>
-              <h3 className={styles.tipsTitle}>📸 For best results:</h3>
+              <h3 className={styles.tipsTitle}><Camera size={20} style={{display: 'inline', verticalAlign: 'middle', marginRight: 8}} /> For best results:</h3>
               <ul className={styles.tipsList}>
                 <li>Stand in a well-lit area</li>
                 <li>Wear fitted clothing (not oversized)</li>
@@ -129,12 +130,12 @@ export default function BodyScanPage() {
 
             <div className={styles.scanTypes}>
               <div className={styles.scanTypeCard}>
-                <div className={styles.scanTypeIcon}>👤</div>
+                <div className={styles.scanTypeIcon}><User size={32} /></div>
                 <span className={styles.scanTypeLabel}>Front View</span>
               </div>
               <div className={styles.scanConnector}>+</div>
               <div className={styles.scanTypeCard}>
-                <div className={styles.scanTypeIcon}>👤</div>
+                <div className={styles.scanTypeIcon}><User size={32} /></div>
                 <span className={styles.scanTypeLabel}>Side View</span>
               </div>
             </div>
@@ -266,7 +267,7 @@ export default function BodyScanPage() {
 
             <div className={styles.resultCardMain}>
               <div className={styles.resultBadge}>
-                <span className={styles.resultBadgeIcon}>🏋️</span>
+                <span className={styles.resultBadgeIcon}><Activity size={24} /></span>
                 <span className={styles.resultBadgeText}>{results.body_type}</span>
               </div>
               <p className={styles.resultBadgeDesc}>
@@ -290,7 +291,7 @@ export default function BodyScanPage() {
             </div>
 
             <div className={styles.fitRecsCard}>
-              <h3 className={styles.fitRecsTitle}>👔 Your Fit Recommendations</h3>
+              <h3 className={styles.fitRecsTitle}><Shirt size={20} style={{display: 'inline', verticalAlign: 'middle', marginRight: 8}} /> Your Fit Recommendations</h3>
               <div className={styles.fitRecItem}>
                 <span className={styles.fitRecLabel}>Tops</span>
                 <span className={styles.fitRecValue}>{results.fit_recommendations?.top_fit || 'Regular'}</span>
@@ -306,7 +307,7 @@ export default function BodyScanPage() {
             </div>
 
             <div className={styles.tipsSection}>
-              <h3 className={styles.tipsTitle}>💡 Style Tips for Your Body</h3>
+              <h3 className={styles.tipsTitle}><Lightbulb size={20} style={{display: 'inline', verticalAlign: 'middle', marginRight: 8}} /> Style Tips for Your Body</h3>
               {(results.style_tips || []).map((tip: string, i: number) => (
                 <div key={i} className={styles.tipItem}>
                   <span className={styles.tipBullet}>•</span>

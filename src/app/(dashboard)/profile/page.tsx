@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
+import { User, Settings, Lock, Bell, Gem, HelpCircle, LogOut } from 'lucide-react'
 import styles from './page.module.css'
 
 const MOCK_PROFILE = {
@@ -32,7 +33,7 @@ export default function ProfilePage() {
       {/* Header */}
       <header className={styles.header}>
         <div className={styles.avatarSection}>
-          <div className={styles.avatar}>👤</div>
+          <div className={styles.avatar}><User size={32} color="#1E1E24" /></div>
           <div className={styles.userInfo}>
             <h1 className={styles.name}>{MOCK_PROFILE.name}</h1>
             <span className={styles.memberSince}>Member since {MOCK_PROFILE.memberSince}</span>
@@ -116,22 +117,22 @@ export default function ProfilePage() {
       <section className={styles.section}>
         <div className={styles.settingsList}>
           <Link href="/profile/settings" className={styles.settingsItem}>
-            <span className={styles.settingsIcon}>⚙️</span> Account Settings
+            <span className={styles.settingsIcon}><Settings size={20} /></span> Account Settings
           </Link>
           <button className={styles.settingsItem}>
-            <span className={styles.settingsIcon}>🔒</span> Privacy & Data
+            <span className={styles.settingsIcon}><Lock size={20} /></span> Privacy & Data
           </button>
           <button className={styles.settingsItem}>
-            <span className={styles.settingsIcon}>🔔</span> Notifications
+            <span className={styles.settingsIcon}><Bell size={20} /></span> Notifications
           </button>
           <button className={styles.settingsItem}>
-            <span className={styles.settingsIcon}>💎</span> Subscription
+            <span className={styles.settingsIcon}><Gem size={20} /></span> Subscription
           </button>
           <button className={styles.settingsItem}>
-            <span className={styles.settingsIcon}>❓</span> Help & Support
+            <span className={styles.settingsIcon}><HelpCircle size={20} /></span> Help & Support
           </button>
           <button className={`${styles.settingsItem} ${styles.logoutItem}`} onClick={handleLogout}>
-            <span className={styles.settingsIcon}>🚪</span> Log Out
+            <span className={styles.settingsIcon}><LogOut size={20} /></span> Log Out
           </button>
         </div>
       </section>
