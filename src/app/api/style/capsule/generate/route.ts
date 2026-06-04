@@ -92,7 +92,7 @@ export async function POST(request: Request) {
       Rules:
       - Strictly respect the Bag Size Constraints: ${itemLimits}.
       - Choose items that can be mixed and matched to create multiple outfits for the ${days} days.
-      - Return the precise database IDs of the items you selected.
+      - Return the precise database IDs of the items you selected. ONLY use IDs present in the Pre-filtered Inventory. Do not invent new IDs.
       - Write a short, engaging explanation (2-3 sentences) of your packing strategy and why these items work well together for ${destinations}.
       - Give the capsule a catchy title (e.g. 'Parisian Summer Chic', 'Tokyo Streetwear Weekend').`,
       messages: [
@@ -109,8 +109,12 @@ export async function POST(request: Request) {
       })
     })
 
-    if (object.selected_item_ids.length === 0) {
-      return NextResponse.json({ error: 'AI failed to curate a capsule.' }, { status: 500 })
+    const validItemIds = new Set(wardrobeItems.map(item => item.id))
+    const safeSelectedIds = object.selected_item_ids.filter(id => validItemIds.has(id))
+    const safeCoreIds = object.core_item_ids.filter(id => validItemIds.has(id))
+
+    if (safeSelectedIds.length === 0) {
+      return NextResponse.json({ error: 'AI failed to curate a capsule with valid items.' }, { status: 500 })
     }
 
     // 7. Save the Capsule to Supabase using Admin client to bypass RLS issues
@@ -141,11 +145,11 @@ export async function POST(request: Request) {
     const capsuleId = capsuleData.id
 
     // 8. Save Capsule Items
-    const capsuleItemsPayload = object.selected_item_ids.map(itemId => {
+    const capsuleItemsPayload = safeSelectedIds.map(itemId => {
       return {
         capsule_id: capsuleId,
         wardrobe_item_id: itemId,
-        is_core_item: object.core_item_ids.includes(itemId)
+        is_core_item: safeCoreIds.includes(itemId)
       }
     })
 
