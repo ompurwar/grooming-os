@@ -7,6 +7,7 @@ import { createClient } from '@/utils/supabase/client'
 import { fetchWeatherContext, WeatherContext } from '@/utils/weather'
 import { toast } from 'sonner'
 import { triggerHaptic, hapticPatterns } from '@/utils/haptics'
+import { Sparkles, Briefcase, Globe } from 'lucide-react'
 import styles from './page.module.css'
 
 const OCCASION_CHIPS = [
@@ -338,7 +339,7 @@ function StyleContent() {
               className={`${styles.styleBtn} ${!prompt.trim() || isGenerating ? styles.styleBtnDisabled : ''}`}
               disabled={!prompt.trim() || isGenerating}
             >
-              {isGenerating ? 'Curating Look...' : 'Style Me ✨'}
+              {isGenerating ? 'Curating Look...' : <>Style Me <Sparkles size={16} style={{display: 'inline', verticalAlign: 'text-bottom', marginLeft: 4}} /></>}
             </button>
           </form>
         ) : (
@@ -387,7 +388,7 @@ function StyleContent() {
               className={`${styles.styleBtn} ${(!destinations.trim() || !days) || isGenerating ? styles.styleBtnDisabled : ''}`}
               disabled={!destinations.trim() || !days || isGenerating}
             >
-              {isGenerating ? 'Curating Capsule...' : 'Generate Capsule ✨'}
+              {isGenerating ? 'Curating Capsule...' : <>Generate Capsule <Sparkles size={16} style={{display: 'inline', verticalAlign: 'text-bottom', marginLeft: 4}} /></>}
             </button>
           </form>
         )}
@@ -413,7 +414,7 @@ function StyleContent() {
         <div className={styles.ootdCard}>
           <div className={styles.ootdBadge}>Daily AI Curated</div>
           <div className={styles.ootdContent}>
-            <div className={styles.ootdIcon}>👔</div>
+            <div className={styles.ootdIcon}><Briefcase size={32} /></div>
             <div className={styles.ootdText}>
               <h4>Smart Casual Friday</h4>
               <p>Based on your schedule and today's weather in your city.</p>
@@ -441,7 +442,7 @@ function StyleContent() {
               return (
                 <Link key={look.id} href={`/style/get-ready?id=${look.id}`} className={styles.savedCard} style={{ textDecoration: 'none' }}>
                   <div className={styles.savedVisual}>
-                    <div className={styles.miniItem}>✨</div>
+                    <div className={styles.miniItem}><Sparkles size={16} /></div>
                   </div>
                   <div className={styles.savedInfo}>
                     <h4>{look.occasion || 'Untitled'}</h4>
@@ -472,7 +473,7 @@ function StyleContent() {
               return (
                 <Link key={capsule.id} href={`/style/capsule/${capsule.id}`} className={styles.savedCard} style={{ textDecoration: 'none' }}>
                   <div className={styles.savedVisual}>
-                    <div className={styles.miniItem}>🌍</div>
+                    <div className={styles.miniItem}><Globe size={16} /></div>
                   </div>
                   <div className={styles.savedInfo}>
                     <h4>{capsule.title || 'Untitled'}</h4>
@@ -530,7 +531,9 @@ function StyleContent() {
 
                 <div className={styles.modalActions}>
                   <button className={styles.cancelBtn} onClick={() => setShowContextModal(false)}>Cancel</button>
-                  <button className={styles.confirmBtn} onClick={handleContextConfirm}>Confirm & Style Me ✨</button>
+                  <button className={styles.confirmBtn} onClick={handleContextConfirm}>
+                    Confirm & Style Me <Sparkles size={16} style={{display: 'inline', verticalAlign: 'text-bottom', marginLeft: 4}} />
+                  </button>
                 </div>
               </div>
             )}
