@@ -4,12 +4,14 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import styles from './BottomNav.module.css'
 
+import { Home, Shirt, Sparkles, Scissors, User } from 'lucide-react'
+
 const NAV_ITEMS = [
-  { href: '/home', label: 'Home', icon: '🏠' },
-  { href: '/wardrobe', label: 'Wardrobe', icon: '👔' },
-  { href: '/style', label: 'Style', icon: '✨' },
-  { href: '/groom', label: 'Groom', icon: '💇‍♂️' },
-  { href: '/profile', label: 'Profile', icon: '👤' },
+  { href: '/home', label: 'Home', icon: Home },
+  { href: '/wardrobe', label: 'Wardrobe', icon: Shirt },
+  { href: '/style', label: 'Style', icon: Sparkles },
+  { href: '/groom', label: 'Groom', icon: Scissors },
+  { href: '/profile', label: 'Profile', icon: User },
 ]
 
 export default function BottomNav() {
@@ -25,6 +27,7 @@ export default function BottomNav() {
         {NAV_ITEMS.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)
 
+          const Icon = item.icon
           return (
             <li key={item.href} className={styles.navItem}>
               <Link 
@@ -32,7 +35,7 @@ export default function BottomNav() {
                 className={`${styles.navLink} ${isActive ? styles.navLinkActive : ''}`}
                 id={`nav-${item.label.toLowerCase()}`}
               >
-                <span className={styles.icon}>{item.icon}</span>
+                <span className={styles.icon}><Icon size={24} /></span>
                 <span className={styles.label}>{item.label}</span>
                 {isActive && <span className={styles.indicator} />}
               </Link>

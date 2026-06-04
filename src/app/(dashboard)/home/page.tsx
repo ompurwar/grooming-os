@@ -6,13 +6,15 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import styles from './page.module.css'
 
+import { Wine, Briefcase, Coffee, PartyPopper, Dumbbell, ShoppingCart, User, Shirt, Sparkles, BarChart3, Camera, Scissors, ClipboardList } from 'lucide-react'
+
 const POPULAR_OCCASIONS = [
-  { id: 'dinner_date', label: 'Dinner Date', icon: '🍷' },
-  { id: 'office', label: 'Office', icon: '💼' },
-  { id: 'casual_friday', label: 'Casual Friday', icon: '☕' },
-  { id: 'wedding', label: 'Wedding Guest', icon: '🎉' },
-  { id: 'gym', label: 'Gym', icon: '🏋️' },
-  { id: 'weekend', label: 'Weekend Errands', icon: '🛒' },
+  { id: 'dinner_date', label: 'Dinner Date', icon: Wine },
+  { id: 'office', label: 'Office', icon: Briefcase },
+  { id: 'casual_friday', label: 'Casual Friday', icon: Coffee },
+  { id: 'wedding', label: 'Wedding Guest', icon: PartyPopper },
+  { id: 'gym', label: 'Gym', icon: Dumbbell },
+  { id: 'weekend', label: 'Weekend Errands', icon: ShoppingCart },
 ]
 
 export default function DashboardHome() {
@@ -70,14 +72,14 @@ export default function DashboardHome() {
           <h1 className={styles.title}>Good evening, {stats.name}</h1>
           <p className={styles.subtitle}>What would you like to wear today?</p>
         </div>
-        <div className={styles.avatar}>👤</div>
+        <div className={styles.avatar}><User size={24} /></div>
       </header>
 
       {/* Main Action - Get Me Ready */}
       <section className={styles.heroSection}>
         <div className={styles.heroCard}>
           <div className={styles.heroGlow} />
-          <h2 className={styles.heroTitle}>✨ Get Me Ready</h2>
+          <h2 className={styles.heroTitle}><Sparkles size={24} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '8px' }} /> Get Me Ready</h2>
           
           <form onSubmit={handleStyleMe} className={styles.promptForm}>
             <input
@@ -104,7 +106,7 @@ export default function DashboardHome() {
                 className={styles.occasionPill}
                 onClick={() => handleOccasionClick(occ.label)}
               >
-                <span>{occ.icon}</span> {occ.label}
+                <span><occ.icon size={16} /></span> {occ.label}
               </button>
             ))}
           </div>
@@ -115,21 +117,21 @@ export default function DashboardHome() {
       <section className={styles.statsSection}>
         <div className={styles.statsScroll}>
           <div className={styles.statCard}>
-            <span className={styles.statIcon}>👔</span>
+            <span className={styles.statIcon}><Shirt size={24} /></span>
             <div className={styles.statInfo}>
               <span className={styles.statValue}>{stats.wardrobeCount}</span>
               <span className={styles.statLabel}>Wardrobe Items</span>
             </div>
           </div>
           <div className={styles.statCard}>
-            <span className={styles.statIcon}>✨</span>
+            <span className={styles.statIcon}><Sparkles size={24} /></span>
             <div className={styles.statInfo}>
               <span className={styles.statValue}>{stats.outfitCount}</span>
               <span className={styles.statLabel}>Outfits Styled</span>
             </div>
           </div>
           <div className={styles.statCard}>
-            <span className={styles.statIcon}>📊</span>
+            <span className={styles.statIcon}><BarChart3 size={24} /></span>
             <div className={styles.statInfo}>
               <span className={styles.statValue}>8.5</span>
               <span className={styles.statLabel}>Style Score</span>
@@ -144,25 +146,25 @@ export default function DashboardHome() {
         <div className={styles.actionsGrid}>
           <Link href="/wardrobe/add" className={styles.actionCard}>
             <div className={styles.actionIconWrapper}>
-              <span className={styles.actionIcon}>📸</span>
+              <span className={styles.actionIcon}><Camera size={24} /></span>
             </div>
             <span className={styles.actionLabel}>Add to Wardrobe</span>
           </Link>
           <Link href="/groom" className={styles.actionCard}>
             <div className={styles.actionIconWrapper}>
-              <span className={styles.actionIcon}>💇</span>
+              <span className={styles.actionIcon}><Scissors size={24} /></span>
             </div>
             <span className={styles.actionLabel}>Grooming Tips</span>
           </Link>
           <Link href="/style/marketplace" className={styles.actionCard}>
             <div className={styles.actionIconWrapper}>
-              <span className={styles.actionIcon}>🛒</span>
+              <span className={styles.actionIcon}><ShoppingCart size={24} /></span>
             </div>
             <span className={styles.actionLabel}>Smart Shop</span>
           </Link>
           <Link href="/style/saved" className={styles.actionCard}>
             <div className={styles.actionIconWrapper}>
-              <span className={styles.actionIcon}>📋</span>
+              <span className={styles.actionIcon}><ClipboardList size={24} /></span>
             </div>
             <span className={styles.actionLabel}>My Looks</span>
           </Link>

@@ -7,6 +7,7 @@ import { createClient } from '@/utils/supabase/client'
 import LookCard from '@/components/styling/LookCard'
 import { toast } from 'sonner'
 import { triggerHaptic, hapticPatterns } from '@/utils/haptics'
+import { Shirt, Footprints, Watch, ThumbsUp, ThumbsDown, RefreshCcw } from 'lucide-react'
 import styles from './page.module.css'
 
 interface OutfitData {
@@ -15,6 +16,7 @@ interface OutfitData {
   confidence: number
   reasoning: string
   items: any[]
+  capsuleInfo?: { id: string, title: string }
 }
 
 function GetReadyContent() {
@@ -41,7 +43,13 @@ function GetReadyContent() {
       
       const { data: outfit } = await supabase
         .from('outfits')
-        .select('*')
+        .select(`
+          *,
+          capsules (
+            id,
+            title
+          )
+        `)
         .eq('id', outfitId)
         .single()
 
@@ -66,11 +74,11 @@ function GetReadyContent() {
 
       const mappedItems = (outfitItems || []).map(item => {
         const wItem = item.wardrobe_items as any
-        let icon = '👔'
-        if (wItem?.category === 'Bottom') icon = '👖'
-        if (wItem?.category === 'Footwear') icon = '👞'
-        if (wItem?.category === 'Outerwear') icon = '🧥'
-        if (wItem?.category === 'Accessory') icon = '⌚'
+        let icon: any = Shirt
+        if (wItem?.category === 'Bottom') icon = Shirt
+        if (wItem?.category === 'Footwear') icon = Footprints
+        if (wItem?.category === 'Outerwear') icon = Shirt
+        if (wItem?.category === 'Accessory') icon = Watch
 
         return {
           type: wItem?.category || 'Top',
@@ -86,7 +94,8 @@ function GetReadyContent() {
         occasion: outfit.occasion || 'Your Custom Look',
         confidence: 95,
         reasoning: outfit.reasoning || 'This combination was selected specifically for your occasion.',
-        items: mappedItems
+        items: mappedItems,
+        capsuleInfo: outfit.capsules ? { id: outfit.capsules.id, title: outfit.capsules.title } : undefined
       })
       
       setIsSaved(outfit.is_saved)
@@ -285,9 +294,9 @@ function GetReadyContent() {
           <div className={styles.feedbackSection}>
             <p>How do you like this look?</p>
             <div className={styles.feedbackButtons}>
-              <button className={styles.feedbackBtn} onClick={() => handleFeedback('Perfect')}>👍 Perfect</button>
-              <button className={styles.feedbackBtn} onClick={() => handleFeedback('Tweak')}>🔄 Tweak it</button>
-              <button className={styles.feedbackBtn} onClick={() => handleFeedback('Not for me')}>👎 Not for me</button>
+              <button className={styles.feedbackBtn} onClick={() => handleFeedback('Perfect')}><ThumbsUp size={16} style={{marginRight: 4, verticalAlign: 'text-bottom'}} /> Perfect</button>
+              <button className={styles.feedbackBtn} onClick={() => handleFeedback('Tweak')}><RefreshCcw size={16} style={{marginRight: 4, verticalAlign: 'text-bottom'}} /> Tweak it</button>
+              <button className={styles.feedbackBtn} onClick={() => handleFeedback('Not for me')}><ThumbsDown size={16} style={{marginRight: 4, verticalAlign: 'text-bottom'}} /> Not for me</button>
             </div>
           </div>
         </div>

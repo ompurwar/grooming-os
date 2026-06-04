@@ -105,7 +105,8 @@ export default function AddWardrobeItemPage() {
         pattern: metadata.pattern || '',
         material: metadata.material || '',
         formality: Math.round(metadata.formalityScore || 3),
-        aiTags: metadata.tags || []
+        aiTags: metadata.aiTags || [],
+        embedding: metadata.embedding || []
       })
       triggerHaptic(hapticPatterns.success)
     } catch (err: any) {
@@ -129,7 +130,8 @@ export default function AddWardrobeItemPage() {
       pattern: '',
       material: '',
       formality: 3,
-      aiTags: []
+      aiTags: [],
+      embedding: []
     })
   }
 
@@ -158,7 +160,10 @@ export default function AddWardrobeItemPage() {
           sub_category: tags.subCategory,
           primary_color: tags.color,
           pattern: tags.pattern,
-          formality_score: tags.formality
+          formality_score: tags.formality,
+          material: tags.material,
+          ai_tags: tags.aiTags,
+          embedding: tags.embedding.length > 0 ? tags.embedding : null
         })
 
       if (error) throw new Error(error.message)

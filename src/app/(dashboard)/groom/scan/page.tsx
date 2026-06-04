@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import CameraCapture from '@/components/grooming/CameraCapture'
+import { User, Palette, Thermometer, Smile, Eye, Scissors, UserRound, Flower, AlertTriangle, Camera, Lightbulb, CheckCircle2, CircleDashed, Circle, Sparkles } from 'lucide-react'
 import styles from './page.module.css'
 
 type ScanState = 'instructions' | 'camera' | 'uploading' | 'analyzing' | 'results'
@@ -107,12 +108,12 @@ export default function GroomScanPage() {
 
           {error && (
             <div className={styles.errorBanner}>
-              <span>⚠️</span> {error}
+              <span><AlertTriangle size={16} style={{display: 'inline', verticalAlign: 'text-bottom'}} /></span> {error}
             </div>
           )}
 
           <div className={styles.tipsCard}>
-            <h3 className={styles.tipsTitle}>📸 For best results:</h3>
+            <h3 className={styles.tipsTitle}><Camera size={20} style={{display: 'inline', verticalAlign: 'middle', marginRight: 8}} /> For best results:</h3>
             <ul className={styles.tipsList}>
               <li>Look directly at the camera</li>
               <li>Ensure good, even lighting</li>
@@ -167,7 +168,7 @@ export default function GroomScanPage() {
                 className={`${styles.stepItem} ${i < currentStep ? styles.stepDone : ''} ${i === currentStep ? styles.stepActive : ''}`}
               >
                 <span className={styles.stepIcon}>
-                  {i < currentStep ? '✓' : i === currentStep ? '◌' : '○'}
+                  {i < currentStep ? <CheckCircle2 size={16}/> : i === currentStep ? <CircleDashed size={16}/> : <Circle size={16}/>}
                 </span>
                 {step}
               </div>
@@ -179,18 +180,18 @@ export default function GroomScanPage() {
       {/* Results */}
       {state === 'results' && analysisResult && (
         <div className={styles.section}>
-          <h1 className={styles.title}>Analysis Complete ✨</h1>
+          <h1 className={styles.title}>Analysis Complete <Sparkles size={28} style={{display: 'inline', verticalAlign: 'middle', marginLeft: 8}}/></h1>
 
           {/* Feature grid */}
           <div className={styles.featuresGrid}>
-            <FeatureCard icon="👱" label="Face Shape" value={analysisResult.face_shape} />
-            <FeatureCard icon="🎨" label="Skin Tone" value={analysisResult.skin_tone} />
-            <FeatureCard icon="🌡️" label="Undertone" value={analysisResult.undertone} />
-            <FeatureCard icon="💪" label="Jawline" value={analysisResult.jawline} />
-            <FeatureCard icon="👁️" label="Eye Shape" value={analysisResult.eye_shape} />
-            <FeatureCard icon="💇" label="Hair Type" value={analysisResult.hair_type} />
-            <FeatureCard icon="🧔" label="Facial Hair" value={analysisResult.facial_hair_status} />
-            <FeatureCard icon="🌺" label="Color Season" value={analysisResult.color_season} />
+            <FeatureCard icon={User} label="Face Shape" value={analysisResult.face_shape} />
+            <FeatureCard icon={Palette} label="Skin Tone" value={analysisResult.skin_tone} />
+            <FeatureCard icon={Thermometer} label="Undertone" value={analysisResult.undertone} />
+            <FeatureCard icon={Smile} label="Jawline" value={analysisResult.jawline} />
+            <FeatureCard icon={Eye} label="Eye Shape" value={analysisResult.eye_shape} />
+            <FeatureCard icon={Scissors} label="Hair Type" value={analysisResult.hair_type} />
+            <FeatureCard icon={UserRound} label="Facial Hair" value={analysisResult.facial_hair_status} />
+            <FeatureCard icon={Flower} label="Color Season" value={analysisResult.color_season} />
           </div>
 
           {/* Color Palette */}
@@ -216,7 +217,7 @@ export default function GroomScanPage() {
           {/* Grooming Tips */}
           {analysisResult.grooming_tips?.length > 0 && (
             <div className={styles.tipsCard}>
-              <h3 className={styles.tipsTitle}>💡 Grooming Insights</h3>
+              <h3 className={styles.tipsTitle}><Lightbulb size={20} style={{display: 'inline', verticalAlign: 'middle', marginRight: 8}} /> Grooming Insights</h3>
               <ul className={styles.tipsList}>
                 {analysisResult.grooming_tips.map((tip: string, i: number) => (
                   <li key={i}>{tip}</li>
@@ -235,10 +236,10 @@ export default function GroomScanPage() {
   )
 }
 
-function FeatureCard({ icon, label, value }: { icon: string; label: string; value: string }) {
+function FeatureCard({ icon: Icon, label, value }: { icon: any; label: string; value: string }) {
   return (
     <div className={styles.featureCard}>
-      <span className={styles.featureIcon}>{icon}</span>
+      <span className={styles.featureIcon}><Icon size={24} /></span>
       <span className={styles.featureLabel}>{label}</span>
       <span className={styles.featureValue}>{value}</span>
     </div>

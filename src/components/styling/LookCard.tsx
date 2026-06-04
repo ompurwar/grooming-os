@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import Image from 'next/image'
+import { Shirt, Camera, ShoppingCart, Trash2, X } from 'lucide-react'
 import styles from './LookCard.module.css'
 
 export interface LookCardProps {
@@ -7,7 +8,7 @@ export interface LookCardProps {
   confidence: number;
   items: {
     type: 'Hairstyle' | 'Top' | 'Bottom' | 'Footwear' | 'Accessory' | 'Upgrade' | string;
-    icon: string;
+    icon: any;
     name: string;
     source: string;
     isUpgrade?: boolean;
@@ -23,6 +24,7 @@ export interface LookCardProps {
   savedAsLabel?: string;
   tryOnImageUrl?: string | null;
   isGeneratingTryOn?: boolean;
+  capsuleInfo?: { id: string, title: string };
 }
 
 export default function LookCard({ 
@@ -37,7 +39,8 @@ export default function LookCard({
   isSaved, 
   savedAsLabel,
   tryOnImageUrl,
-  isGeneratingTryOn
+  isGeneratingTryOn,
+  capsuleInfo
 }: LookCardProps) {
   const [showImages, setShowImages] = useState(false)
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null)
@@ -70,12 +73,19 @@ export default function LookCard({
       <div className={styles.header} style={isHeroMode ? { paddingTop: '24px' } : undefined}>
         <div className={styles.headerTitleArea}>
           <h2 className={styles.occasion}>{occasion}</h2>
-          <span className={styles.subtitle}>AI Curated Look</span>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <span className={styles.subtitle}>AI Curated Look</span>
+            {capsuleInfo && (
+              <span style={{ fontSize: '12px', padding: '2px 8px', background: 'rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff', border: '1px solid rgba(255,255,255,0.2)' }}>
+                🌍 From Capsule: {capsuleInfo.title}
+              </span>
+            )}
+          </div>
         </div>
         {!isHeroMode && (
           <div className={styles.headerBadges}>
             <div className={styles.toggleContainer}>
-              <span className={styles.toggleIcon}>👔</span>
+              <span className={styles.toggleIcon}><Shirt size={16} /></span>
               <label className={styles.switch}>
                 <input 
                   type="checkbox" 
@@ -84,7 +94,7 @@ export default function LookCard({
                 />
                 <span className={styles.slider}></span>
               </label>
-              <span className={styles.toggleIcon}>📸</span>
+              <span className={styles.toggleIcon}><Camera size={16} /></span>
             </div>
             <div className={styles.confidenceBadge}>
               {confidence}% Match ✨
@@ -111,7 +121,7 @@ export default function LookCard({
         <div className={styles.itemsList}>
           {isHeroMode && (
             <div className={styles.toggleContainer} style={{ alignSelf: 'flex-end', marginBottom: '16px' }}>
-              <span className={styles.toggleIcon}>👔</span>
+              <span className={styles.toggleIcon}><Shirt size={16} /></span>
               <label className={styles.switch}>
                 <input 
                   type="checkbox" 
@@ -120,7 +130,7 @@ export default function LookCard({
                 />
                 <span className={styles.slider}></span>
               </label>
-              <span className={styles.toggleIcon}>📸</span>
+              <span className={styles.toggleIcon}><Camera size={16} /></span>
             </div>
           )}
           {items.map((item, index) => (
@@ -139,7 +149,10 @@ export default function LookCard({
                     <Image src={item.imageUrl} alt={item.name} fill style={{ objectFit: 'cover' }} unoptimized={true} />
                   </div>
                 ) : (
-                  item.icon
+                  (() => {
+                    const Icon = item.icon
+                    return typeof Icon === 'string' ? Icon : <Icon size={24} />
+                  })()
                 )}
               </div>
               <div className={styles.itemDetails}>
@@ -150,7 +163,7 @@ export default function LookCard({
                   {item.price && <span className={styles.price}> — {item.price}</span>}
                 </div>
               </div>
-              {item.isUpgrade && <div className={styles.cartIcon}>🛒</div>}
+              {item.isUpgrade && <div className={styles.cartIcon}><ShoppingCart size={16} /></div>}
             </div>
           ))}
         </div>
@@ -176,7 +189,7 @@ export default function LookCard({
               onClick={onDelete}
               title="Delete Look"
             >
-              🗑️
+              <Trash2 size={20} />
             </button>
           )}
           <button className={styles.btnSecondary} style={{ flex: 1 }} onClick={onTryAlternatives}>Alternatives</button>
@@ -193,7 +206,7 @@ export default function LookCard({
 
       {fullscreenImage && (
         <div className={styles.fullscreenOverlay} onClick={() => setFullscreenImage(null)}>
-          <div className={styles.fullscreenClose}>✕</div>
+          <div className={styles.fullscreenClose}><X size={24} /></div>
           <div className={styles.fullscreenImageContainer}>
             <Image 
               src={fullscreenImage} 

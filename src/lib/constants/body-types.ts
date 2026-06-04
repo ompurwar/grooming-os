@@ -1,4 +1,5 @@
 // Body type definitions and fit recommendation rules
+import { Square, Landmark, Flame, Sparkles, Briefcase, Gem, Activity, TreePine } from 'lucide-react'
 
 export const BODY_TYPES = {
   ectomorph: {
@@ -83,42 +84,42 @@ export const STYLE_ARCHETYPES = {
   minimalist: {
     label: 'Minimalist',
     description: 'Clean lines, neutral palette, understated elegance.',
-    icon: '◻️',
+    icon: Square,
   },
   old_money: {
     label: 'Old Money',
     description: 'Timeless, preppy, quietly luxurious.',
-    icon: '🏛️',
+    icon: Landmark,
   },
   streetwear: {
     label: 'Streetwear',
     description: 'Urban, bold, trend-forward with an edge.',
-    icon: '🔥',
+    icon: Flame,
   },
   smart_casual: {
     label: 'Smart Casual',
     description: 'Polished yet relaxed — the versatile sweet spot.',
-    icon: '✨',
+    icon: Sparkles,
   },
   classic: {
     label: 'Classic / Tailored',
     description: 'Structured, refined, investment dressing.',
-    icon: '👔',
+    icon: Briefcase,
   },
   ethnic_modern: {
     label: 'Ethnic Modern',
     description: 'Traditional silhouettes with a contemporary twist.',
-    icon: '🪔',
+    icon: Gem,
   },
   athleisure: {
     label: 'Athleisure',
     description: 'Sport-inspired, comfortable, functional fashion.',
-    icon: '🏃',
+    icon: Activity,
   },
   rugged: {
     label: 'Rugged',
     description: 'Workwear-inspired, durable, masculine.',
-    icon: '🪵',
+    icon: TreePine,
   },
 } as const;
 

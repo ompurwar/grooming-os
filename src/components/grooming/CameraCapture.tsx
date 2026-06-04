@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useState, useEffect, useCallback } from 'react'
+import { Camera, X, RefreshCw } from 'lucide-react'
 import styles from './CameraCapture.module.css'
 
 interface CameraCaptureProps {
@@ -144,7 +145,7 @@ export default function CameraCapture({ mode, onCapture, onCancel }: CameraCaptu
     return (
       <div className={styles.container}>
         <div className={styles.errorState}>
-          <span className={styles.errorIcon}>📷</span>
+          <span className={styles.errorIcon}><Camera size={32} /></span>
           <p className={styles.errorText}>{error}</p>
           
           <label className={styles.retryBtn} style={{ cursor: 'pointer', textAlign: 'center' }}>
@@ -210,7 +211,7 @@ export default function CameraCapture({ mode, onCapture, onCancel }: CameraCaptu
       <div className={styles.controls}>
         {onCancel && (
           <button className={styles.controlBtn} onClick={onCancel}>
-            ✕
+            <X size={24} />
           </button>
         )}
         <button
@@ -223,7 +224,7 @@ export default function CameraCapture({ mode, onCapture, onCancel }: CameraCaptu
           </div>
         </button>
         <button className={styles.controlBtn} onClick={handleFlipCamera}>
-          🔄
+          <RefreshCw size={24} />
         </button>
       </div>
 

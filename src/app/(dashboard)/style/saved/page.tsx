@@ -5,15 +5,16 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import LookCard from '@/components/styling/LookCard'
+import { Shirt, Footprints, Watch, Scissors, ShoppingCart, ClipboardList, Sparkles } from 'lucide-react'
 import styles from './page.module.css'
 
-const SLOT_ICONS: Record<string, string> = {
-  Top: '👔',
-  Bottom: '👖',
-  Footwear: '👟',
-  Accessory: '💍',
-  Hairstyle: '💇',
-  Upgrade: '🛒',
+const SLOT_ICONS: Record<string, any> = {
+  Top: Shirt,
+  Bottom: Shirt,
+  Footwear: Footprints,
+  Accessory: Watch,
+  Hairstyle: Scissors,
+  Upgrade: ShoppingCart,
 }
 
 export default function SavedLooks() {
@@ -73,7 +74,7 @@ export default function SavedLooks() {
               name: `${w?.primary_color || ''} ${w?.sub_category || w?.category || 'Item'}`.trim(),
               source: 'Your Wardrobe',
               imageUrl: w?.image_url || undefined,
-              icon: SLOT_ICONS[cat] || '👔',
+              icon: SLOT_ICONS[cat] || Shirt,
             }
           })
 
@@ -119,11 +120,11 @@ export default function SavedLooks() {
 
       {savedOutfits.length === 0 ? (
         <div className={styles.empty}>
-          <span className={styles.emptyIcon}>📋</span>
+          <span className={styles.emptyIcon}><ClipboardList size={32} /></span>
           You haven't saved any looks yet.
           <br />
           <Link href="/style" className={styles.emptyAction}>
-            Style Me ✨
+            Style Me <Sparkles size={16} style={{display: 'inline', verticalAlign: 'text-bottom', marginLeft: 4}}/>
           </Link>
         </div>
       ) : (

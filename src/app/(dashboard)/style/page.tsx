@@ -46,11 +46,42 @@ function StyleContent() {
   const [manualTemp, setManualTemp] = useState('')
   const [manualCond, setManualCond] = useState('')
 
+  // Capsule Form States
+  const [mode, setMode] = useState<'daily' | 'capsule'>('daily')
+  const [destinations, setDestinations] = useState('')
+  const [days, setDays] = useState('')
+  const [bagSize, setBagSize] = useState('40')
+
   const [isGenerating, setIsGenerating] = useState(false)
   const hasAutoRun = useRef(false)
 
-  // Saved looks for the preview section
+  // Saved looks and capsules for the preview section
   const [savedLooks, setSavedLooks] = useState<any[]>([])
+  const [savedCapsules, setSavedCapsules] = useState<any[]>([])
+  const [selectedCapsuleId, setSelectedCapsuleId] = useState<string>('')
+
+  const handleCapsuleGenerate = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!destinations.trim() || !days) return
+    setIsGenerating(true)
+    try {
+      const res = await fetch('/api/style/capsule/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ destinations, days, bagSize })
+      })
+      
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Failed to generate capsule')
+      
+      router.push(`/style/capsule/${data.capsuleId}`)
+    } catch (err: any) {
+      console.error(err)
+      toast.error(err.message)
+      triggerHaptic(hapticPatterns.error)
+      setIsGenerating(false)
+    }
+  }
 
   useEffect(() => {
     async function initStyle() {
@@ -60,25 +91,41 @@ function StyleContent() {
         return
       }
 
-      const { data } = await supabase
-        .from('outfits')
-        .select('id, occasion, created_at')
-        .eq('user_id', session.user.id)
-        .eq('is_saved', true)
-        .order('created_at', { ascending: false })
-        .limit(4)
-      setSavedLooks(data ?? [])
+      const [looksRes, capsulesRes] = await Promise.all([
+        supabase
+          .from('outfits')
+          .select('id, occasion, created_at')
+          .eq('user_id', session.user.id)
+          .eq('is_saved', true)
+          .order('created_at', { ascending: false })
+          .limit(4),
+        supabase
+          .from('capsules')
+          .select('id, title, destinations, created_at')
+          .eq('user_id', session.user.id)
+          .order('created_at', { ascending: false })
+          .limit(4)
+      ])
+
+      setSavedLooks(looksRes.data ?? [])
+      setSavedCapsules(capsulesRes.data ?? [])
     }
     initStyle()
   }, [])
 
-  const executeGeneration = async (textToSubmit: string, finalContext: any) => {
+  const executeGeneration = async (textToSubmit: string, finalContext: any, capsuleId?: string) => {
     setIsGenerating(true)
+    triggerHaptic(hapticPatterns.medium)
+
     try {
       const res = await fetch('/api/style/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: textToSubmit, weatherContext: finalContext })
+        body: JSON.stringify({ 
+          prompt: textToSubmit, 
+          weatherContext: finalContext,
+          capsuleId: capsuleId || undefined
+        })
       })
       
       const data = await res.json()
@@ -110,13 +157,21 @@ function StyleContent() {
     try {
       const checkRes = await fetch('/api/style/check-existing', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: textToSubmit })
-      })
-      const checkData = await checkRes.json()
-      if (checkData.match) {
-        setExistingMatch(checkData.match)
-        setPendingPrompt(textToSubmit)
+    try {
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      const { data: duplicate } = await supabase
+        .from('outfits')
+        .select('id')
+        .eq('user_id', session?.user?.id || '')
+        .eq('prompt_text', textToSubmit)
+        .eq('is_saved', false)
+        .order('created_at', { ascending: false })
+        .limit(1)
+
+      if (duplicate && duplicate.length > 0) {
+        setDuplicateOutfitId(duplicate[0].id)
         setShowDuplicateModal(true)
         return
       }
@@ -124,17 +179,17 @@ function StyleContent() {
       console.warn('Failed to check existing outfits', err)
     }
 
-    proceedWithStyle(textToSubmit)
+    proceedWithStyle(textToSubmit, capsuleId)
   }
 
-  const proceedWithStyle = (textToSubmit: string) => {
+  const proceedWithStyle = (textToSubmit: string, capsuleId?: string) => {
     // Check cache
     try {
       const cached = localStorage.getItem('weatherContextCache')
       if (cached) {
         const parsed = JSON.parse(cached)
         if (Date.now() - parsed.timestamp < 2 * 60 * 60 * 1000) {
-          executeGeneration(textToSubmit, parsed.context)
+          executeGeneration(textToSubmit, parsed.context, capsuleId)
           return
         }
       }
@@ -161,7 +216,7 @@ function StyleContent() {
           // Auto-confirm after successful fetch to save a click
           localStorage.setItem('weatherContextCache', JSON.stringify({ timestamp: Date.now(), context }))
           setShowContextModal(false)
-          executeGeneration(textToSubmit, context)
+          executeGeneration(textToSubmit, context, capsuleId)
         },
         (error) => {
           console.warn('Geolocation denied or failed', error)
@@ -186,19 +241,16 @@ function StyleContent() {
     }
   }
 
-  const handleConfirmStyle = () => {
-    if (!prompt.trim()) return
-    triggerHaptic(hapticPatterns.medium)
-    setShowContextModal(false)
-    
-    const finalContext = {
-      city: manualCity,
-      temperature: parseFloat(manualTemp) || 20,
-      condition: manualCond
+  const handleContextConfirm = () => {
+    const context = {
+      city: manualCity || 'Unknown',
+      temperature: parseInt(manualTemp) || 20,
+      condition: manualCond || 'Clear'
     }
-    
-    localStorage.setItem('weatherContextCache', JSON.stringify({ timestamp: Date.now(), context: finalContext }))
-    executeGeneration(prompt, finalContext)
+    setContextData(context)
+    localStorage.setItem('weatherContextCache', JSON.stringify({ timestamp: Date.now(), context }))
+    setShowContextModal(false)
+    executeGeneration(prompt, context, selectedCapsuleId)
   }
 
   const handleDuplicateAction = (action: 'view' | 'new') => {
@@ -239,22 +291,113 @@ function StyleContent() {
         <h2>What's the occasion?</h2>
         <p>Describe your event or mood, and AI will craft the perfect look.</p>
         
-        <form onSubmit={handleInitialStyleClick} className={styles.form}>
-          <textarea 
-            className={styles.promptInput}
-            placeholder="E.g., I'm going to a rooftop dinner in a slightly chilly city..."
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            rows={3}
-          />
+        <div className={styles.modeToggle}>
           <button 
-            type="submit"
-            className={`${styles.styleBtn} ${!prompt.trim() || isGenerating ? styles.styleBtnDisabled : ''}`}
-            disabled={!prompt.trim() || isGenerating}
+            type="button" 
+            className={`${styles.modeBtn} ${mode === 'daily' ? styles.modeBtnActive : ''}`}
+            onClick={() => setMode('daily')}
           >
-            {isGenerating ? 'Curating Look...' : 'Style Me ✨'}
+            Daily Look
           </button>
-        </form>
+          <button 
+            type="button" 
+            className={`${styles.modeBtn} ${mode === 'capsule' ? styles.modeBtnActive : ''}`}
+            onClick={() => setMode('capsule')}
+          >
+            Travel Capsule
+          </button>
+        </div>
+
+        {mode === 'daily' ? (
+          <form 
+            onSubmit={(e) => {
+              e.preventDefault()
+              handleInitialStyleClick(undefined, prompt, selectedCapsuleId)
+            }} 
+            className={styles.form}
+          >
+            <textarea 
+              className={styles.promptInput}
+              placeholder="E.g., I'm going to a rooftop dinner in a slightly chilly city..."
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              rows={3}
+            />
+            
+            {savedCapsules.length > 0 && (
+              <div className={styles.inputGroup} style={{ marginTop: '-8px', marginBottom: '8px' }}>
+                <label>Styling Source</label>
+                <select 
+                  value={selectedCapsuleId} 
+                  onChange={(e) => setSelectedCapsuleId(e.target.value)}
+                  className={styles.selectInput}
+                >
+                  <option value="">Entire Wardrobe</option>
+                  {savedCapsules.map((capsule: any) => (
+                    <option key={capsule.id} value={capsule.id}>Capsule: {capsule.title}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+            
+            <button 
+              type="submit"
+              className={`${styles.styleBtn} ${!prompt.trim() || isGenerating ? styles.styleBtnDisabled : ''}`}
+              disabled={!prompt.trim() || isGenerating}
+            >
+              {isGenerating ? 'Curating Look...' : 'Style Me ✨'}
+            </button>
+          </form>
+        ) : (
+          <form onSubmit={handleCapsuleGenerate} className={styles.capsuleForm}>
+            <div className={styles.inputGroup}>
+              <label>Destinations</label>
+              <input 
+                type="text" 
+                placeholder="e.g. Paris & Rome"
+                value={destinations}
+                onChange={(e) => setDestinations(e.target.value)}
+                className={styles.textInput}
+              />
+            </div>
+            
+            <div className={styles.inputRow}>
+              <div className={styles.inputGroup}>
+                <label>Days</label>
+                <input 
+                  type="number" 
+                  placeholder="e.g. 7"
+                  min="1"
+                  max="30"
+                  value={days}
+                  onChange={(e) => setDays(e.target.value)}
+                  className={styles.textInput}
+                />
+              </div>
+              
+              <div className={styles.inputGroup}>
+                <label>Bag Capacity (Liters)</label>
+                <input 
+                  type="number" 
+                  placeholder="e.g. 40"
+                  min="10"
+                  max="120"
+                  value={bagSize} 
+                  onChange={(e) => setBagSize(e.target.value)}
+                  className={styles.textInput}
+                />
+              </div>
+            </div>
+
+            <button 
+              type="submit"
+              className={`${styles.styleBtn} ${(!destinations.trim() || !days) || isGenerating ? styles.styleBtnDisabled : ''}`}
+              disabled={!destinations.trim() || !days || isGenerating}
+            >
+              {isGenerating ? 'Curating Capsule...' : 'Generate Capsule ✨'}
+            </button>
+          </form>
+        )}
 
         <div className={styles.chipsLabel}>Popular Occasions</div>
         <div className={styles.chipsGrid}>
@@ -310,6 +453,37 @@ function StyleContent() {
                   <div className={styles.savedInfo}>
                     <h4>{look.occasion || 'Untitled'}</h4>
                     <span>{ago}</span>
+                  </div>
+                </Link>
+              )
+            })}
+          </div>
+        )}
+      </section>
+
+      {/* Saved Capsules */}
+      <section className={styles.savedSection}>
+        <div className={styles.savedHeader}>
+          <h3 className={styles.sectionTitle}>Saved Capsules</h3>
+          {/* We don't have a /style/capsules/saved page yet, but could add one */}
+        </div>
+        
+        {savedCapsules.length === 0 ? (
+          <p style={{ color: 'var(--color-text-tertiary)', fontSize: 'var(--text-sm)' }}>
+            No travel capsules yet. Switch to Travel Capsule mode to build one!
+          </p>
+        ) : (
+          <div className={styles.savedScroll}>
+            {savedCapsules.map((capsule: any) => {
+              const ago = getTimeAgo(capsule.created_at)
+              return (
+                <Link key={capsule.id} href={`/style/capsule/${capsule.id}`} className={styles.savedCard} style={{ textDecoration: 'none' }}>
+                  <div className={styles.savedVisual}>
+                    <div className={styles.miniItem}>🌍</div>
+                  </div>
+                  <div className={styles.savedInfo}>
+                    <h4>{capsule.title || 'Untitled'}</h4>
+                    <span>{capsule.destinations} • {ago}</span>
                   </div>
                 </Link>
               )

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { generateObject } from 'ai'
+import { generateObject, embed } from 'ai'
 import { openai } from '@ai-sdk/openai'
 import { z } from 'zod'
 
@@ -46,6 +46,13 @@ export async function POST(request: Request) {
       })
     })
 
+    const embedString = `Category: ${object.category}, Sub-category: ${object.sub_category}, Color: ${object.primary_color}, Pattern: ${object.pattern}, Material: ${object.material}, Formality: ${object.formality_score}, Tags: ${object.ai_tags.join(', ')}`
+    
+    const { embedding } = await embed({
+      model: openai.embedding('text-embedding-3-small'),
+      value: embedString,
+    })
+
     return NextResponse.json({ 
       success: true, 
       data: {
@@ -55,7 +62,8 @@ export async function POST(request: Request) {
         pattern: object.pattern,
         material: object.material,
         formalityScore: object.formality_score,
-        aiTags: object.ai_tags
+        aiTags: object.ai_tags,
+        embedding
       }
     })
   } catch (error: any) {

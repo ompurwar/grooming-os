@@ -1,9 +1,10 @@
 // Occasion categories for outfit requests
+import { Briefcase, PartyPopper, Coffee, Award, Gem, Activity } from 'lucide-react'
 
 export const OCCASION_CATEGORIES = {
   professional: {
     label: 'Professional',
-    icon: '💼',
+    icon: Briefcase,
     occasions: {
       office_daily: 'Office — Daily',
       important_meeting: 'Important Meeting',
@@ -15,7 +16,7 @@ export const OCCASION_CATEGORIES = {
   },
   social: {
     label: 'Social',
-    icon: '🎉',
+    icon: PartyPopper,
     occasions: {
       dinner_date: 'Dinner Date',
       house_party: 'House Party',
@@ -28,7 +29,7 @@ export const OCCASION_CATEGORIES = {
   },
   casual: {
     label: 'Casual',
-    icon: '☕',
+    icon: Coffee,
     occasions: {
       weekend_errands: 'Weekend Errands',
       coffee_catchup: 'Coffee Catch-up',
@@ -40,7 +41,7 @@ export const OCCASION_CATEGORIES = {
   },
   formal: {
     label: 'Formal',
-    icon: '🎩',
+    icon: Award,
     occasions: {
       black_tie: 'Black Tie Event',
       award_ceremony: 'Award Ceremony',
@@ -50,7 +51,7 @@ export const OCCASION_CATEGORIES = {
   },
   cultural: {
     label: 'Cultural',
-    icon: '🪔',
+    icon: Gem,
     occasions: {
       diwali: 'Diwali',
       eid: 'Eid',
@@ -63,7 +64,7 @@ export const OCCASION_CATEGORIES = {
   },
   active: {
     label: 'Active',
-    icon: '🏃',
+    icon: Activity,
     occasions: {
       gym: 'Gym / Workout',
       running: 'Running',

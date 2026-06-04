@@ -44,7 +44,83 @@
 .heroCard p {
   font-size: var(--text-sm);
   color: var(--color-text-tertiary);
-  margin-bottom: var(--space-5);
+  margin-bottom: var(--space-4);
+}
+
+.modeToggle {
+  display: flex;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: 4px;
+  margin-bottom: var(--space-6);
+  border: 1px solid var(--color-glass-border);
+}
+
+.modeBtn {
+  flex: 1;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  transition: all 0.2s ease;
+}
+
+.modeBtnActive {
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.capsuleForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+  background: var(--color-bg-tertiary);
+  padding: var(--space-4);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-glass-border);
+}
+
+.inputRow {
+  display: flex;
+  gap: var(--space-4);
+}
+
+.inputRow .inputGroup {
+  flex: 1;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.inputGroup label {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.textInput, .selectInput {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius-lg);
+  color: var(--color-text-primary);
+  font-size: var(--text-sm);
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.textInput:focus, .selectInput:focus {
+  outline: none;
+  border-color: var(--color-accent-border);
+  background: var(--color-bg-primary);
 }
 
 .form {

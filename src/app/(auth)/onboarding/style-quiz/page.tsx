@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { STYLE_ARCHETYPES } from '@/lib/constants/body-types'
+import { X, Heart, Sparkles } from 'lucide-react'
 import styles from './page.module.css'
 
 // Style quiz looks — each represents a style archetype
@@ -141,7 +142,10 @@ export default function StyleQuizPage() {
                 </div>
                 <div className={styles.cardOverlay}>
                   <span className={styles.cardIcon}>
-                    {STYLE_ARCHETYPES[currentLook.archetype as keyof typeof STYLE_ARCHETYPES]?.icon}
+                    {(() => {
+                      const Icon = STYLE_ARCHETYPES[currentLook.archetype as keyof typeof STYLE_ARCHETYPES]?.icon;
+                      return Icon ? <Icon size={48} /> : null;
+                    })()}
                   </span>
                 </div>
               </div>
@@ -160,7 +164,7 @@ export default function StyleQuizPage() {
                 onClick={() => handleSwipe('left')}
                 type="button"
               >
-                <span className={styles.swipeBtnIcon}>✕</span>
+                <span className={styles.swipeBtnIcon}><X size={24} /></span>
                 <span className={styles.swipeBtnLabel}>Skip</span>
               </button>
               <button
@@ -169,7 +173,7 @@ export default function StyleQuizPage() {
                 onClick={() => handleSwipe('right')}
                 type="button"
               >
-                <span className={styles.swipeBtnIcon}>♥</span>
+                <span className={styles.swipeBtnIcon}><Heart size={24} /></span>
                 <span className={styles.swipeBtnLabel}>Love it</span>
               </button>
             </div>
@@ -190,7 +194,7 @@ export default function StyleQuizPage() {
           /* Results */
           <div className={styles.results}>
             <div className={styles.resultCard}>
-              <div className={styles.resultIcon}>✨</div>
+              <div className={styles.resultIcon}><Sparkles size={48} /></div>
               <h2 className={styles.resultTitle}>
                 {dominantStyle?.label || 'Eclectic'}
               </h2>
