@@ -27,7 +27,8 @@ export default function AddWardrobeItemPage() {
     pattern: '',
     material: '',
     formality: 3,
-    aiTags: [] as string[]
+    aiTags: [] as string[],
+    embedding: [] as number[]
   })
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
