@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { MapPin, Calendar, Backpack, CheckCircle, Shirt, Footprints, Watch, Scissors, ShoppingCart } from 'lucide-react'
 import styles from './page.module.css'
+import DeleteCapsuleButton from './DeleteCapsuleButton'
 
 const CATEGORY_ICONS: Record<string, any> = {
   Top: Shirt,
@@ -55,6 +56,14 @@ export default async function CapsulePage({ params }: { params: Promise<{ id: st
   if (itemsError || !capsuleItems) {
     return <div>Failed to load capsule items.</div>
   }
+  
+  // 3. Count associated outfits to determine if we can delete this capsule
+  const { count: outfitCount } = await supabaseAdmin
+    .from('outfits')
+    .select('*', { count: 'exact', head: true })
+    .eq('capsule_id', resolvedParams.id)
+    
+  const canDelete = outfitCount === 0
 
   // Group items by category for the packing list view
   const categorizedItems = capsuleItems.reduce((acc: any, ci: any) => {
@@ -69,8 +78,11 @@ export default async function CapsulePage({ params }: { params: Promise<{ id: st
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <Link href="/style" className={styles.backBtn}>← Back</Link>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+          <Link href="/style" className={styles.backBtn}>← Back</Link>
+          {canDelete && <DeleteCapsuleButton capsuleId={capsule.id} />}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginTop: '16px' }}>
           <h1>{capsule.title}</h1>
           <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '14px', color: 'var(--color-success)', background: 'var(--color-success-bg)', padding: '4px 10px', borderRadius: '16px' }}>
             <CheckCircle size={14} /> Saved

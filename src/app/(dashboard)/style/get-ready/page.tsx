@@ -127,7 +127,7 @@ function GetReadyContent() {
 
       // Supabase Realtime Subscription for Webhook VTO updates
       const channel = supabase
-        .channel('outfits_vto_updates')
+        .channel(`outfits_vto_updates_${outfit.id}`)
         .on('postgres_changes', { 
           event: 'UPDATE', 
           schema: 'public', 

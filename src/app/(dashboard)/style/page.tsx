@@ -530,7 +530,7 @@ function StyleContent() {
 
                 <div className={styles.modalActions}>
                   <button className={styles.cancelBtn} onClick={() => setShowContextModal(false)}>Cancel</button>
-                  <button className={styles.confirmBtn} onClick={handleConfirmStyle}>Confirm & Style Me ✨</button>
+                  <button className={styles.confirmBtn} onClick={handleContextConfirm}>Confirm & Style Me ✨</button>
                 </div>
               </div>
             )}
