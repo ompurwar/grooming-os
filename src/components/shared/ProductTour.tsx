@@ -8,7 +8,6 @@ const TOUR_STEPS: Step[] = [
     target: 'body',
     content: 'Welcome to Grooming OS! Let\'s take a quick tour of your new AI Personal Stylist.',
     placement: 'center',
-    disableBeacon: true,
   },
   {
     target: '#tour-home-overview',
