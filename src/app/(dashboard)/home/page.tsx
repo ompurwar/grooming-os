@@ -41,7 +41,7 @@ export default function DashboardHome() {
         const { count: oCount } = await supabase.from('outfits').select('*', { count: 'exact', head: true }).eq('user_id', userId)
 
         setStats({
-          name: profile?.full_name || session.user.email?.split('@')[0] || 'Explorer',
+          name: profile?.full_name || session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'Explorer',
           wardrobeCount: wCount || 0,
           outfitCount: oCount || 0
         })
