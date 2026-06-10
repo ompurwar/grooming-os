@@ -55,27 +55,26 @@ export default function ProductTour() {
 
   return (
     <Joyride
-      callback={handleJoyrideCallback}
+      onEvent={handleJoyrideCallback}
       continuous
-      hideCloseButton
       run={run}
       scrollToFirstStep
-      showProgress
-      showSkipButton
       steps={TOUR_STEPS}
+      options={{
+        primaryColor: '#8a2be2',
+        textColor: '#e1e1e1',
+        backgroundColor: '#1a1a1a',
+        arrowColor: '#1a1a1a',
+        overlayColor: 'rgba(0, 0, 0, 0.75)',
+        zIndex: 10000,
+        showProgress: true,
+        buttons: ['back', 'primary', 'skip'],
+      }}
       styles={{
-        options: {
-          primaryColor: '#8a2be2', // Matching var(--color-primary)
-          textColor: '#e1e1e1',
-          backgroundColor: '#1a1a1a',
-          arrowColor: '#1a1a1a',
-          overlayColor: 'rgba(0, 0, 0, 0.75)',
-          zIndex: 10000,
-        },
         tooltipContainer: {
           textAlign: 'left'
         },
-        buttonNext: {
+        buttonPrimary: {
           backgroundColor: '#8a2be2',
           borderRadius: '8px',
           fontWeight: 600,
