@@ -42,7 +42,7 @@ export default function SignupPage() {
       setError(signUpError.message)
       setLoading(false)
     } else {
-      window.location.href = '/onboarding'
+      window.location.href = '/plans'
     }
   }
 

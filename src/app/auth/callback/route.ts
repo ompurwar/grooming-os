@@ -6,13 +6,12 @@ export async function GET(request: Request) {
   const code = searchParams.get('code')
   
   if (code) {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
       // Successfully exchanged code for session
-      // For new users, we redirect to onboarding. For existing users, home.
-      // Since this is email verification from signup, onboarding makes the most sense.
-      return NextResponse.redirect(`${origin}/onboarding`)
+      // For new users, we redirect to plans selection.
+      return NextResponse.redirect(`${origin}/plans`)
     }
   }
 
