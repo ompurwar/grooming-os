@@ -49,7 +49,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Toaster position="top-center" theme="dark" toastOptions={{ style: { background: 'var(--color-glass-bg)', border: '1px solid var(--color-glass-border)', color: 'var(--color-text-primary)' } }} />
+        <Toaster position="top-center" theme="dark" closeButton toastOptions={{ style: { background: 'var(--color-bg-elevated)', border: '1px solid var(--color-glass-border)', color: 'var(--color-text-primary)' } }} />
         {children}
       </body>
     </html>
