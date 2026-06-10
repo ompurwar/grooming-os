@@ -34,6 +34,7 @@ export default function SignupPage() {
         data: {
           full_name: fullName,
         },
+        emailRedirectTo: `${location.origin}/auth/callback`,
       },
     })
 
