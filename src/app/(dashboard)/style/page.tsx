@@ -166,6 +166,8 @@ function StyleContent() {
 
       if (duplicate && duplicate.length > 0) {
         setDuplicateOutfitId(duplicate[0].id)
+        setExistingMatch({ id: duplicate[0].id, occasion: textToSubmit })
+        setPendingPrompt(textToSubmit)
         setShowDuplicateModal(true)
         return
       }
