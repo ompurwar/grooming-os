@@ -61,7 +61,7 @@ export async function POST(request: Request) {
       .single()
 
     if (!wardrobeItems || wardrobeItems.length === 0) {
-      return NextResponse.json({ error: 'No wardrobe items found to style.' }, { status: 400 })
+      return NextResponse.json({ error: `No wardrobe items found to style. Debug: capsuleId=${capsuleId || 'none'}, userId=${userId}, length=${wardrobeItems?.length || 0}` }, { status: 400 })
     }
 
     // 3. Ask OpenAI to select the best items
@@ -137,7 +137,7 @@ export async function POST(request: Request) {
 
     if (outfitError) {
       console.error('Failed to save outfit:', outfitError)
-      return NextResponse.json({ error: 'Failed to save outfit.' }, { status: 500 })
+      return NextResponse.json({ error: `Failed to save outfit. ${outfitError.message}` }, { status: 500 })
     }
 
     const outfitId = outfitData.id
@@ -158,7 +158,7 @@ export async function POST(request: Request) {
 
     if (linkingError) {
       console.error('Failed to link outfit items:', linkingError)
-      return NextResponse.json({ error: 'Failed to link items.' }, { status: 500 })
+      return NextResponse.json({ error: `Failed to link items. ${linkingError.message}` }, { status: 500 })
     }
 
     // Return the generated outfit details
