@@ -355,3 +355,16 @@ input:checked + .slider:before {
   flex-direction: column;
   gap: var(--space-3);
 }
+
+/* ─── Desktop ─── */
+@media (min-width: 1024px) {
+  .itemsList {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3);
+  }
+
+  .actions {
+    flex-direction: row;
+  }
+}

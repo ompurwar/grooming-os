@@ -141,3 +141,13 @@
   background: var(--color-bg-tertiary);
   border-color: var(--color-glass-border-hover);
 }
+
+/* ─── Desktop ─── */
+@media (min-width: 1024px) {
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 32px 40px;
+    padding-bottom: var(--space-8);
+  }
+}

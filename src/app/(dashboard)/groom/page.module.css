@@ -377,3 +377,36 @@
   align-items: center;
   gap: var(--space-4);
 }
+
+/* ── Desktop ── */
+@media (min-width: 1024px) {
+  .container {
+    max-width: 800px;
+    padding: 32px 40px;
+  }
+
+  .faceGrid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-4);
+  }
+
+  .scrollRow {
+    flex-wrap: wrap;
+    overflow-x: visible;
+    gap: var(--space-4);
+  }
+
+  .recCard {
+    width: auto;
+    max-width: none;
+    flex: 1 1 calc(50% - var(--space-4));
+  }
+
+  .faceCard {
+    padding: var(--space-6);
+  }
+
+  .paletteCard {
+    padding: var(--space-5);
+  }
+}

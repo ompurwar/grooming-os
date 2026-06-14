@@ -237,3 +237,28 @@
   font-size: var(--text-sm);
   font-weight: var(--font-medium);
 }
+
+/* ── Desktop ── */
+@media (min-width: 1024px) {
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 40px;
+    gap: var(--space-8);
+  }
+
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: var(--space-5);
+  }
+
+  .filtersScroll {
+    flex-wrap: wrap;
+    overflow-x: visible;
+    gap: 8px;
+  }
+
+  .filterPill {
+    white-space: normal;
+  }
+}

@@ -238,3 +238,37 @@
   font-weight: var(--font-medium);
   color: var(--color-text-secondary);
 }
+
+/* ── Desktop ── */
+@media (min-width: 1024px) {
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 32px 40px;
+    gap: var(--space-10);
+  }
+
+  .statsScroll {
+    flex-wrap: wrap;
+    overflow-x: visible;
+    gap: var(--space-4);
+  }
+
+  .statCard {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  .actionsGrid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-4);
+  }
+
+  .heroCard {
+    padding: var(--space-6);
+  }
+
+  .occasionsGrid {
+    gap: var(--space-3);
+  }
+}

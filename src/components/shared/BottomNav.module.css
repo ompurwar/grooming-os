@@ -1,3 +1,4 @@
+/* ===== Mobile: Bottom Navigation Bar ===== */
 .bottomNav {
   position: fixed;
   bottom: 0;
@@ -9,6 +10,10 @@
   z-index: 100;
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
   padding-bottom: env(safe-area-inset-bottom);
+}
+
+.brand {
+  display: none;
 }
 
 .navList {
@@ -50,7 +55,8 @@
   transition: color var(--transition-base);
 }
 
-.indicator {
+/* Mobile active indicator (dot on top) */
+.activeBar {
   position: absolute;
   top: 4px;
   width: 4px;
@@ -75,4 +81,115 @@
 @keyframes popIn {
   0% { transform: scale(0); opacity: 0; }
   100% { transform: scale(1); opacity: 1; }
+}
+
+/* ===== Desktop: Sidebar Navigation ===== */
+@media (min-width: 1024px) {
+  .bottomNav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: var(--sidebar-width);
+    height: 100vh;
+    border-top: none;
+    border-right: 1px solid var(--color-border);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
+    padding-bottom: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--color-bg-primary);
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 28px 24px 24px;
+    border-bottom: 1px solid var(--color-border);
+    margin-bottom: 8px;
+  }
+
+  .brandIcon {
+    font-size: 24px;
+    color: var(--color-accent);
+    filter: drop-shadow(0 0 8px var(--color-accent));
+  }
+
+  .brandText {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    letter-spacing: -0.02em;
+  }
+
+  .navList {
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    gap: 4px;
+    padding: 8px 12px;
+    height: auto;
+    flex: 1;
+  }
+
+  .navItem {
+    flex: unset;
+  }
+
+  .navLink {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 14px;
+    padding: 12px 16px;
+    border-radius: var(--radius-lg);
+    height: auto;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .navLink:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--color-text-primary);
+  }
+
+  .navLinkActive {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--color-accent-light);
+  }
+
+  .navLinkActive .icon {
+    transform: none;
+  }
+
+  /* Desktop active indicator (left bar) */
+  .activeBar {
+    position: absolute;
+    top: 6px;
+    left: 0;
+    bottom: 6px;
+    width: 3px;
+    height: auto;
+    border-radius: 0 4px 4px 0;
+    background: var(--color-accent);
+    animation: slideIn 0.25s ease-out;
+  }
+
+  .icon {
+    font-size: var(--text-xl);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .label {
+    font-size: 15px;
+    font-weight: var(--font-medium);
+    letter-spacing: -0.01em;
+  }
+
+  @keyframes slideIn {
+    0% { transform: scaleY(0); opacity: 0; }
+    100% { transform: scaleY(1); opacity: 1; }
+  }
 }

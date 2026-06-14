@@ -291,3 +291,20 @@
   border-radius: var(--radius-full);
   color: #ef4444;
 }
+
+/* ─── Desktop ─── */
+@media (min-width: 1024px) {
+  .container {
+    max-width: 700px;
+    padding: 32px 40px;
+    padding-bottom: var(--space-8);
+  }
+
+  .featuresGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .stepsList {
+    max-width: 400px;
+  }
+}

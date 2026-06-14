@@ -207,3 +207,25 @@
 .logoutItem {
   color: #ff4d4f;
 }
+
+/* ── Desktop ── */
+@media (min-width: 1024px) {
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 32px 40px;
+    gap: var(--space-10);
+  }
+
+  .statsGrid {
+    gap: var(--space-4);
+  }
+
+  .statCard {
+    padding: var(--space-5) var(--space-2);
+  }
+
+  .glassCard {
+    padding: var(--space-6);
+  }
+}

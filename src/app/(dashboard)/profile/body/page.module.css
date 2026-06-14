@@ -106,3 +106,23 @@
   line-height: 1.5;
   color: var(--color-gray-200);
 }
+
+/* ─── Desktop ─── */
+@media (min-width: 1024px) {
+  .page {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 32px 40px;
+    padding-bottom: var(--space-8);
+  }
+
+  .metricGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .visualContainer {
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}

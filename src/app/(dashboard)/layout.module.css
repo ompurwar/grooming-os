@@ -14,3 +14,13 @@
   overflow-x: hidden;
   width: 100%;
 }
+
+/* ===== Desktop: Offset for sidebar ===== */
+@media (min-width: 1024px) {
+  .mainContent {
+    margin-left: var(--sidebar-width);
+    padding-bottom: 0;
+    width: calc(100% - var(--sidebar-width));
+    max-width: calc(100% - var(--sidebar-width));
+  }
+}

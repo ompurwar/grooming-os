@@ -23,6 +23,10 @@ export default function BottomNav() {
 
   return (
     <nav className={styles.bottomNav}>
+      <div className={styles.brand}>
+        <span className={styles.brandIcon}>✦</span>
+        <span className={styles.brandText}>Grooming OS</span>
+      </div>
       <ul className={styles.navList}>
         {NAV_ITEMS.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)
@@ -35,9 +39,9 @@ export default function BottomNav() {
                 className={`${styles.navLink} ${isActive ? styles.navLinkActive : ''}`}
                 id={`nav-${item.label.toLowerCase()}`}
               >
+                {isActive && <span className={styles.activeBar} />}
                 <span className={styles.icon}><Icon size={24} /></span>
                 <span className={styles.label}>{item.label}</span>
-                {isActive && <span className={styles.indicator} />}
               </Link>
             </li>
           )

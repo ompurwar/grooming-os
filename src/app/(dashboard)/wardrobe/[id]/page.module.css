@@ -111,3 +111,24 @@
   text-align: center;
   padding: var(--space-4);
 }
+
+/* ─── Desktop ─── */
+@media (min-width: 1024px) {
+  .page {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 32px 40px;
+    padding-bottom: var(--space-8);
+  }
+
+  .statsGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .imageContainer {
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: var(--space-8);
+  }
+}

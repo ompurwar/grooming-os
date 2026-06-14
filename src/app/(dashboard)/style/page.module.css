@@ -452,3 +452,36 @@
   font-weight: 600;
   cursor: pointer;
 }
+
+/* ── Desktop ── */
+@media (min-width: 1024px) {
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 32px 40px;
+    gap: var(--space-10);
+  }
+
+  .savedScroll {
+    flex-wrap: wrap;
+    overflow-x: visible;
+    gap: var(--space-4);
+  }
+
+  .savedCard {
+    min-width: 180px;
+    flex: 1 1 calc(33.333% - var(--space-4));
+  }
+
+  .chipsGrid {
+    gap: var(--space-3);
+  }
+
+  .heroCard {
+    padding: var(--space-8);
+  }
+
+  .capsuleForm {
+    padding: var(--space-6);
+  }
+}
