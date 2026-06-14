@@ -97,7 +97,7 @@ export default function SavedLooks() {
 
   const handleDelete = async (outfitId: string) => {
     const supabase = createClient()
-    await supabase.from('outfits').update({ is_saved: false }).eq('id', outfitId)
+    await supabase.from('outfits').delete().eq('id', outfitId)
     setSavedOutfits((prev) => prev.filter((o) => o.id !== outfitId))
   }
 
