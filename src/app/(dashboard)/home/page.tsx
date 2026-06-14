@@ -57,7 +57,7 @@ export default function DashboardHome() {
     if (!prompt.trim()) return
     
     // Push to style page which handles the generation
-    router.push(`/style?prompt=${encodeURIComponent(prompt)}`)
+    router.push(`/style?prompt=${encodeURIComponent(prompt)}&auto=true`)
   }
 
   const handleOccasionClick = (occasionLabel: string) => {

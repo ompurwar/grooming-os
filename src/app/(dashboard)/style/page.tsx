@@ -260,10 +260,17 @@ function StyleContent() {
 
   useEffect(() => {
     const queryPrompt = searchParams.get('prompt')
-    if (queryPrompt && !hasAutoRun.current) {
+    const autoRun = searchParams.get('auto') === 'true'
+    
+    if (queryPrompt && autoRun && !hasAutoRun.current) {
       hasAutoRun.current = true
       setPrompt(queryPrompt)
+      // Remove query params from URL so back-navigation doesn't re-trigger it
+      window.history.replaceState(null, '', '/style')
       handleInitialStyleClick(undefined, queryPrompt)
+    } else if (queryPrompt && !hasAutoRun.current) {
+      setPrompt(queryPrompt)
+      window.history.replaceState(null, '', '/style')
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams])

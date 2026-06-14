@@ -183,9 +183,9 @@ function GetReadyContent() {
   const handleTryAlternatives = () => {
     triggerHaptic(hapticPatterns.light)
     if (outfitData) {
-      router.push(`/style?prompt=${encodeURIComponent(outfitData.occasion)}`)
+      router.push('/style')
     } else {
-      router.back()
+      router.push('/style')
     }
   }
 
@@ -199,7 +199,7 @@ function GetReadyContent() {
     const supabase = createClient()
     const { error } = await supabase
       .from('outfits')
-      .update({ is_saved: false, is_active: false })
+      .delete()
       .eq('id', outfitData.id)
 
     if (!error) {
