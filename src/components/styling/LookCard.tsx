@@ -182,60 +182,66 @@ export default function LookCard({
         </div>
       )}
 
-      <div className={styles.actions}>
-        {/* Try On Outfit CTA — prominent styled button */}
-        {!isHeroMode && onGenerateTryOn && (
-          <button 
-            className={styles.btnTryOn}
-            onClick={onGenerateTryOn}
-            disabled={isGeneratingTryOn}
-          >
-            <Sparkles size={18} />
-            {isGeneratingTryOn ? 'Generating...' : 'Try On Outfit'}
-          </button>
-        )}
-        
-        <div className={styles.actionRow}>
-          {/* Delete — small, de-emphasized */}
-          {onDelete && (
+      {(onGenerateTryOn || onDelete || onTryAlternatives || onSave) && (
+        <div className={styles.actions}>
+          {/* Try On Outfit CTA — prominent styled button */}
+          {!isHeroMode && onGenerateTryOn && (
             <button 
-              className={styles.btnDelete}
-              onClick={onDelete}
-              title="Delete Look"
+              className={styles.btnTryOn}
+              onClick={onGenerateTryOn}
+              disabled={isGeneratingTryOn}
             >
-              <Trash2 size={18} />
+              <Sparkles size={18} />
+              {isGeneratingTryOn ? 'Generating...' : 'Try On Outfit'}
             </button>
           )}
-          {/* Alternatives */}
-          <button className={styles.btnSecondary} onClick={onTryAlternatives}>
-            <RefreshCw size={15} />
-            Alternatives
-          </button>
-          {/* Save — most prominent */}
-          <button 
-            className={`${styles.btnSave} ${isSaved || justSaved ? styles.btnSaved : ''}`}
-            onClick={handleSave}
-            disabled={isSaved}
-          >
-            {isSaved ? (
-              <>
-                <Check size={16} />
-                {savedAsLabel ? `Saved` : 'Saved'}
-              </>
-            ) : justSaved ? (
-              <>
-                <Check size={16} className={styles.checkAnim} />
-                Saved!
-              </>
-            ) : (
-              <>
-                <Bookmark size={16} />
-                Save
-              </>
+          
+          <div className={styles.actionRow}>
+            {/* Delete — small, de-emphasized */}
+            {onDelete && (
+              <button 
+                className={styles.btnDelete}
+                onClick={onDelete}
+                title="Delete Look"
+              >
+                <Trash2 size={18} />
+              </button>
             )}
-          </button>
+            {/* Alternatives — only when handler provided */}
+            {onTryAlternatives && (
+              <button className={styles.btnSecondary} onClick={onTryAlternatives}>
+                <RefreshCw size={15} />
+                Alternatives
+              </button>
+            )}
+            {/* Save — only when handler provided */}
+            {onSave && (
+              <button 
+                className={`${styles.btnSave} ${isSaved || justSaved ? styles.btnSaved : ''}`}
+                onClick={handleSave}
+                disabled={isSaved}
+              >
+                {isSaved ? (
+                  <>
+                    <Check size={16} />
+                    Saved
+                  </>
+                ) : justSaved ? (
+                  <>
+                    <Check size={16} className={styles.checkAnim} />
+                    Saved!
+                  </>
+                ) : (
+                  <>
+                    <Bookmark size={16} />
+                    Save
+                  </>
+                )}
+              </button>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {fullscreenImage && (
         <div className={styles.fullscreenOverlay} onClick={() => setFullscreenImage(null)}>

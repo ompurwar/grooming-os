@@ -136,8 +136,6 @@ export default function SavedLooks() {
               confidence={outfit.confidence}
               items={outfit.items}
               reasoning={outfit.reasoning}
-              isSaved={true}
-              onTryAlternatives={() => router.push('/style')}
               onDelete={() => handleDelete(outfit.id)}
             />
           ))}
