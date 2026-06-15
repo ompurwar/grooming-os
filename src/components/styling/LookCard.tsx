@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import Image from 'next/image'
-import { Shirt, Camera, ShoppingCart, Trash2, X } from 'lucide-react'
+import { Shirt, Camera, ShoppingCart, Trash2, X, Sparkles, Check, RefreshCw, Bookmark } from 'lucide-react'
 import styles from './LookCard.module.css'
 
 export interface LookCardProps {
@@ -45,8 +45,17 @@ export default function LookCard({
   const [showImages, setShowImages] = useState(false)
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null)
   const [showItemsAccordion, setShowItemsAccordion] = useState(false)
+  const [justSaved, setJustSaved] = useState(false)
 
   const isHeroMode = !!tryOnImageUrl
+
+  const handleSave = () => {
+    if (onSave) {
+      onSave()
+      setJustSaved(true)
+      setTimeout(() => setJustSaved(false), 1500)
+    }
+  }
 
   return (
     <div className={styles.lookCard}>
@@ -73,19 +82,19 @@ export default function LookCard({
       <div className={styles.header} style={isHeroMode ? { paddingTop: '24px' } : undefined}>
         <div className={styles.headerTitleArea}>
           <h2 className={styles.occasion}>{occasion}</h2>
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <div className={styles.subtitleRow}>
             <span className={styles.subtitle}>AI Curated Look</span>
             {capsuleInfo && (
-              <span style={{ fontSize: '12px', padding: '2px 8px', background: 'rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff', border: '1px solid rgba(255,255,255,0.2)' }}>
-                🌍 From Capsule: {capsuleInfo.title}
+              <span className={styles.capsuleBadge}>
+                🌍 {capsuleInfo.title}
               </span>
             )}
           </div>
         </div>
         {!isHeroMode && (
           <div className={styles.headerBadges}>
-            <div className={styles.toggleContainer}>
-              <span className={styles.toggleIcon}><Shirt size={16} /></span>
+            <div className={styles.toggleContainer} title="Switch between icons and photos">
+              <span className={styles.toggleIcon}><Shirt size={14} /></span>
               <label className={styles.switch}>
                 <input 
                   type="checkbox" 
@@ -94,7 +103,8 @@ export default function LookCard({
                 />
                 <span className={styles.slider}></span>
               </label>
-              <span className={styles.toggleIcon}><Camera size={16} /></span>
+              <span className={styles.toggleIcon}><Camera size={14} /></span>
+              <span className={styles.toggleLabel}>{showImages ? 'Photos' : 'Icons'}</span>
             </div>
             <div className={styles.confidenceBadge}>
               {confidence}% Match ✨
@@ -121,7 +131,7 @@ export default function LookCard({
         <div className={styles.itemsList}>
           {isHeroMode && (
             <div className={styles.toggleContainer} style={{ alignSelf: 'flex-end', marginBottom: '16px' }}>
-              <span className={styles.toggleIcon}><Shirt size={16} /></span>
+              <span className={styles.toggleIcon}><Shirt size={14} /></span>
               <label className={styles.switch}>
                 <input 
                   type="checkbox" 
@@ -130,7 +140,7 @@ export default function LookCard({
                 />
                 <span className={styles.slider}></span>
               </label>
-              <span className={styles.toggleIcon}><Camera size={16} /></span>
+              <span className={styles.toggleIcon}><Camera size={14} /></span>
             </div>
           )}
           {items.map((item, index) => (
@@ -151,17 +161,20 @@ export default function LookCard({
                 ) : (
                   (() => {
                     const Icon = item.icon
-                    return typeof Icon === 'string' ? Icon : <Icon size={24} />
+                    return typeof Icon === 'string' ? Icon : <Icon size={26} />
                   })()
                 )}
               </div>
               <div className={styles.itemDetails}>
                 <div className={styles.itemType}>{item.type}</div>
                 <div className={styles.itemName}>{item.name}</div>
-                <div className={styles.itemSource}>
-                  {item.source}
-                  {item.price && <span className={styles.price}> — {item.price}</span>}
-                </div>
+                {/* Only show source if it's meaningful (not just "From Wardrobe") */}
+                {(item.price || item.source !== 'From Wardrobe') && (
+                  <div className={styles.itemSource}>
+                    {item.source !== 'From Wardrobe' && item.source}
+                    {item.price && <span className={styles.price}>{item.source !== 'From Wardrobe' ? ' — ' : ''}{item.price}</span>}
+                  </div>
+                )}
               </div>
               {item.isUpgrade && <div className={styles.cartIcon}><ShoppingCart size={16} /></div>}
             </div>
@@ -170,36 +183,56 @@ export default function LookCard({
       )}
 
       <div className={styles.actions}>
+        {/* Try On Outfit CTA — prominent styled button */}
         {!isHeroMode && onGenerateTryOn && (
           <button 
-            className={styles.btnSecondary} 
-            style={{ width: '100%', marginBottom: '12px', background: 'var(--color-accent)', color: 'var(--color-text-inverse)', border: 'none' }}
+            className={styles.btnTryOn}
             onClick={onGenerateTryOn}
             disabled={isGeneratingTryOn}
           >
-            {isGeneratingTryOn ? 'Generating...' : 'Try On Outfit ✨'}
+            <Sparkles size={18} />
+            {isGeneratingTryOn ? 'Generating...' : 'Try On Outfit'}
           </button>
         )}
         
-        <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
+        <div className={styles.actionRow}>
+          {/* Delete — small, de-emphasized */}
           {onDelete && (
             <button 
-              className={styles.btnSecondary} 
-              style={{ padding: '0 16px', background: 'transparent', color: 'var(--color-error)', border: '1px solid var(--color-error)', flexShrink: 0 }}
+              className={styles.btnDelete}
               onClick={onDelete}
               title="Delete Look"
             >
-              <Trash2 size={20} />
+              <Trash2 size={18} />
             </button>
           )}
-          <button className={styles.btnSecondary} style={{ flex: 1 }} onClick={onTryAlternatives}>Alternatives</button>
+          {/* Alternatives */}
+          <button className={styles.btnSecondary} onClick={onTryAlternatives}>
+            <RefreshCw size={15} />
+            Alternatives
+          </button>
+          {/* Save — most prominent */}
           <button 
-            className={styles.btnPrimary} 
-            style={{ flex: 1 }}
-            onClick={onSave}
+            className={`${styles.btnSave} ${isSaved || justSaved ? styles.btnSaved : ''}`}
+            onClick={handleSave}
             disabled={isSaved}
           >
-            {isSaved ? (savedAsLabel ? `Saved as '${savedAsLabel}' ✓` : 'Saved ✓') : 'Save'}
+            {isSaved ? (
+              <>
+                <Check size={16} />
+                {savedAsLabel ? `Saved` : 'Saved'}
+              </>
+            ) : justSaved ? (
+              <>
+                <Check size={16} className={styles.checkAnim} />
+                Saved!
+              </>
+            ) : (
+              <>
+                <Bookmark size={16} />
+                Save
+              </>
+            )}
           </button>
         </div>
       </div>
