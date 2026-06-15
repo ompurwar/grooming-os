@@ -331,7 +331,7 @@ export default function AddWardrobeItemPage() {
                   onChange={(e) => setTags({...tags, formality: parseInt(e.target.value)})}
                   disabled={isAnalyzing}
                 />
-                <div style={{display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: 'var(--color-gray-400)'}}>
+                <div style={{display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: 'var(--color-text-tertiary)'}}>
                   <span>Casual</span>
                   <span>Formal</span>
                 </div>

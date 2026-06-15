@@ -104,20 +104,20 @@
   .brand {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 28px 24px 24px;
+    gap: var(--space-3);
+    padding: 28px var(--space-6) var(--space-6);
     border-bottom: 1px solid var(--color-border);
-    margin-bottom: 8px;
+    margin-bottom: var(--space-2);
   }
 
   .brandIcon {
-    font-size: 24px;
+    font-size: var(--text-2xl);
     color: var(--color-accent);
     filter: drop-shadow(0 0 8px var(--color-accent));
   }
 
   .brandText {
-    font-size: 18px;
+    font-size: var(--text-lg);
     font-weight: 700;
     color: var(--color-text-primary);
     letter-spacing: -0.02em;
@@ -127,8 +127,8 @@
     flex-direction: column;
     justify-content: flex-start;
     align-items: stretch;
-    gap: 4px;
-    padding: 8px 12px;
+    gap: var(--space-1);
+    padding: var(--space-2) var(--space-3);
     height: auto;
     flex: 1;
   }
@@ -140,8 +140,8 @@
   .navLink {
     flex-direction: row;
     justify-content: flex-start;
-    gap: 14px;
-    padding: 12px 16px;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
     border-radius: var(--radius-lg);
     height: auto;
     position: relative;
@@ -183,7 +183,7 @@
   }
 
   .label {
-    font-size: 15px;
+    font-size: var(--text-base);
     font-weight: var(--font-medium);
     letter-spacing: -0.01em;
   }

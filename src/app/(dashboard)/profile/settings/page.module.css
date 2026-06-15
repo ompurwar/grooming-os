@@ -11,7 +11,7 @@
 }
 
 .backBtn {
-  color: var(--color-gray-400);
+  color: var(--color-text-tertiary);
   text-decoration: none;
   font-size: var(--text-lg);
 }
@@ -28,7 +28,7 @@
 
 .sectionTitle {
   font-size: var(--text-sm);
-  color: var(--color-gray-400);
+  color: var(--color-text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: var(--space-4);
@@ -68,11 +68,11 @@
 
 .rowValue {
   font-size: var(--text-sm);
-  color: var(--color-gray-400);
+  color: var(--color-text-tertiary);
 }
 
 .rowArrow {
-  color: var(--color-gray-500);
+  color: var(--color-text-secondary);
 }
 
 .danger {

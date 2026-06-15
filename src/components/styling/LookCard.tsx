@@ -173,7 +173,7 @@ export default function LookCard({
         {!isHeroMode && onGenerateTryOn && (
           <button 
             className={styles.btnSecondary} 
-            style={{ width: '100%', marginBottom: '12px', background: 'var(--color-primary)', color: '#fff', border: 'none' }}
+            style={{ width: '100%', marginBottom: '12px', background: 'var(--color-accent)', color: 'var(--color-text-inverse)', border: 'none' }}
             onClick={onGenerateTryOn}
             disabled={isGeneratingTryOn}
           >
@@ -185,7 +185,7 @@ export default function LookCard({
           {onDelete && (
             <button 
               className={styles.btnSecondary} 
-              style={{ padding: '0 16px', background: 'transparent', color: '#ff4d4d', border: '1px solid #ff4d4d', flexShrink: 0 }}
+              style={{ padding: '0 16px', background: 'transparent', color: 'var(--color-error)', border: '1px solid var(--color-error)', flexShrink: 0 }}
               onClick={onDelete}
               title="Delete Look"
             >

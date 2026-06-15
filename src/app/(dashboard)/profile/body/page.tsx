@@ -27,9 +27,9 @@ export default async function BodyAnalysisPage() {
       </header>
 
       {!profile ? (
-        <div style={{ padding: '24px', textAlign: 'center', color: 'var(--color-gray-400)' }}>
+        <div style={{ padding: '24px', textAlign: 'center', color: 'var(--color-text-tertiary)' }}>
           <p style={{ marginBottom: '16px' }}>No body scan profile found.</p>
-          <Link href="/onboarding/body-scan" style={{ color: 'var(--color-primary)', textDecoration: 'none', fontWeight: '500' }}>
+          <Link href="/onboarding/body-scan" style={{ color: 'var(--color-accent)', textDecoration: 'none', fontWeight: '500' }}>
             Take Body Scan →
           </Link>
         </div>
@@ -45,7 +45,7 @@ export default async function BodyAnalysisPage() {
               <div className={styles.bodyIcon}>🧍</div>
             )}
             <div className={styles.bodyType}>{profile.body_type}</div>
-            <p style={{ color: 'var(--color-gray-400)', marginTop: '8px', fontSize: '14px', textTransform: 'capitalize' }}>
+            <p style={{ color: 'var(--color-text-tertiary)', marginTop: '8px', fontSize: '14px', textTransform: 'capitalize' }}>
               {profile.height_estimate} | {profile.build} Build
             </p>
           </div>
@@ -114,7 +114,7 @@ export default async function BodyAnalysisPage() {
                 width: '100%', 
                 padding: '16px', 
                 background: 'var(--color-bg-hover)', 
-                color: 'var(--color-text)', 
+                color: 'var(--color-text-primary)', 
                 textAlign: 'center', 
                 borderRadius: '12px', 
                 textDecoration: 'none',

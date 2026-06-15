@@ -47,7 +47,7 @@ export default function ItemDetailPage({ params }: { params: { id: string } }) {
             <span className={styles.statLabel}>Formality</span>
             <span className={styles.statValue}>
               {Array(5).fill(0).map((_, i) => (
-                <span key={i} style={{ color: i < item.formality ? 'var(--color-gold)' : 'rgba(255,255,255,0.2)' }}>★</span>
+                <span key={i} style={{ color: i < item.formality ? 'var(--color-accent)' : 'rgba(255,255,255,0.2)' }}>★</span>
               ))}
             </span>
           </div>

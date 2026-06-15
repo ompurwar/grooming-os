@@ -570,7 +570,7 @@ function StyleContent() {
                 </button>
                 <button 
                   className={styles.cancelBtn} 
-                  style={{ width: '100%', padding: '14px', background: 'transparent', color: 'var(--color-primary)', border: '1px solid var(--color-primary)' }}
+                  style={{ width: '100%', padding: '14px', background: 'transparent', color: 'var(--color-accent)', border: '1px solid var(--color-accent)' }}
                   onClick={() => handleDuplicateAction('new')}
                 >
                   Generate Something Else

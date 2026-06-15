@@ -122,7 +122,9 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  min-height: 40px;
+  align-items: center;
   background: var(--color-bg-tertiary);
   border: 1px solid var(--color-glass-border);
   border-radius: var(--radius-full);
@@ -138,6 +140,11 @@
   color: var(--color-accent-light);
 }
 
+.occasionPill:active {
+  transform: scale(0.95);
+  background: var(--color-accent-bg);
+}
+
 /* Stats */
 .statsScroll {
   display: flex;
@@ -146,6 +153,7 @@
   padding-bottom: var(--space-2);
   scrollbar-width: none;
   -ms-overflow-style: none;
+  scroll-snap-type: x mandatory;
 }
 
 .statsScroll::-webkit-scrollbar {
@@ -162,6 +170,7 @@
   background: var(--color-glass-bg);
   border: 1px solid var(--color-glass-border);
   border-radius: var(--radius-xl);
+  scroll-snap-align: start;
 }
 
 .statIcon {
@@ -183,6 +192,14 @@
   color: var(--color-text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+.skeleton {
+  display: inline-block;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(90deg, var(--color-bg-tertiary) 25%, var(--color-bg-hover) 50%, var(--color-bg-tertiary) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
 }
 
 /* Quick Actions */
@@ -216,6 +233,11 @@
   background: var(--color-glass-bg-hover);
   border-color: var(--color-glass-border-hover);
   transform: translateY(-2px);
+}
+
+.actionCard:active {
+  transform: scale(0.97);
+  background: var(--color-glass-bg-hover);
 }
 
 .actionIconWrapper {

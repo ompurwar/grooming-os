@@ -115,7 +115,7 @@ input:checked + .slider {
 
 input:checked + .slider:before {
   transform: translateX(14px);
-  background-color: #000;
+  background-color: var(--color-text-inverse);
 }
 
 .confidenceBadge {
@@ -227,10 +227,6 @@ input:checked + .slider:before {
   line-height: 1.5;
 }
 
-.actions {
-  display: flex;
-  gap: var(--space-3);
-}
 
 .btnPrimary, .btnSecondary {
   flex: 1;
@@ -337,7 +333,7 @@ input:checked + .slider:before {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
-  color: #fff;
+  color: var(--color-text-primary);
   font-family: inherit;
   font-size: 14px;
   font-weight: 500;

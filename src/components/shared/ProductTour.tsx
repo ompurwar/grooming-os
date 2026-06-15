@@ -61,7 +61,7 @@ export default function ProductTour() {
       scrollToFirstStep
       steps={TOUR_STEPS}
       options={{
-        primaryColor: '#8a2be2',
+        primaryColor: '#c8a55a',
         textColor: '#e1e1e1',
         backgroundColor: '#1a1a1a',
         arrowColor: '#1a1a1a',
@@ -75,7 +75,7 @@ export default function ProductTour() {
           textAlign: 'left'
         },
         buttonPrimary: {
-          backgroundColor: '#8a2be2',
+          backgroundColor: '#c8a55a',
           borderRadius: '8px',
           fontWeight: 600,
         },

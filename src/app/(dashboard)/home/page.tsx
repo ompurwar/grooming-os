@@ -17,10 +17,19 @@ const POPULAR_OCCASIONS = [
   { id: 'weekend', label: 'Weekend Errands', icon: ShoppingCart },
 ]
 
+function getGreeting(): string {
+  const hour = new Date().getHours()
+  if (hour < 12) return 'Good morning'
+  if (hour < 17) return 'Good afternoon'
+  return 'Good evening'
+}
+
 export default function DashboardHome() {
   const router = useRouter()
   const [prompt, setPrompt] = useState('')
+  const [isLoading, setIsLoading] = useState(true)
   const [stats, setStats] = useState({ wardrobeCount: 0, outfitCount: 0, name: 'Explorer' })
+  const [greeting] = useState(getGreeting)
 
   useEffect(() => {
     async function fetchStats() {
@@ -47,6 +56,8 @@ export default function DashboardHome() {
         })
       } catch (err) {
         console.error('Error fetching dashboard stats', err)
+      } finally {
+        setIsLoading(false)
       }
     }
     fetchStats()
@@ -69,7 +80,7 @@ export default function DashboardHome() {
       {/* Header */}
       <header id="tour-home-overview" className={styles.header}>
         <div className={styles.greeting}>
-          <h1 className={styles.title}>Good evening, {stats.name}</h1>
+          <h1 className={styles.title}>{greeting}, {stats.name}</h1>
           <p className={styles.subtitle}>What would you like to wear today?</p>
         </div>
         <div className={styles.avatar}><User size={24} /></div>
@@ -119,21 +130,33 @@ export default function DashboardHome() {
           <div className={styles.statCard}>
             <span className={styles.statIcon}><Shirt size={24} /></span>
             <div className={styles.statInfo}>
-              <span className={styles.statValue}>{stats.wardrobeCount}</span>
+              {isLoading ? (
+                <span className={styles.skeleton} style={{ width: '40px', height: '22px' }} />
+              ) : (
+                <span className={styles.statValue}>{stats.wardrobeCount}</span>
+              )}
               <span className={styles.statLabel}>Wardrobe Items</span>
             </div>
           </div>
           <div className={styles.statCard}>
             <span className={styles.statIcon}><Sparkles size={24} /></span>
             <div className={styles.statInfo}>
-              <span className={styles.statValue}>{stats.outfitCount}</span>
+              {isLoading ? (
+                <span className={styles.skeleton} style={{ width: '40px', height: '22px' }} />
+              ) : (
+                <span className={styles.statValue}>{stats.outfitCount}</span>
+              )}
               <span className={styles.statLabel}>Outfits Styled</span>
             </div>
           </div>
           <div className={styles.statCard}>
             <span className={styles.statIcon}><BarChart3 size={24} /></span>
             <div className={styles.statInfo}>
-              <span className={styles.statValue}>8.5</span>
+              {isLoading ? (
+                <span className={styles.skeleton} style={{ width: '40px', height: '22px' }} />
+              ) : (
+                <span className={styles.statValue}>8.5</span>
+              )}
               <span className={styles.statLabel}>Style Score</span>
             </div>
           </div>

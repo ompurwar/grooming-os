@@ -108,7 +108,7 @@
 }
 
 .countBadge {
-  background: var(--color-primary);
+  background: var(--color-accent);
   color: white;
   font-size: 0.75rem;
   padding: 2px 8px;
@@ -133,7 +133,7 @@
 }
 
 .itemCard:hover {
-  border-color: var(--color-primary);
+  border-color: var(--color-accent);
   transform: translateY(-2px);
 }
 

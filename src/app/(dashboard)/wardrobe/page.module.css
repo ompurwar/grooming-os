@@ -178,7 +178,7 @@
 }
 
 .starEmpty {
-  color: var(--color-gray-600);
+  color: var(--color-text-secondary);
   font-size: 10px;
 }
 

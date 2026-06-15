@@ -148,6 +148,11 @@
   --header-height: 64px;
   --bottom-nav-height: 72px;
   --sidebar-width: 280px;
+  
+  /* ---- Aliases (backward compat) ---- */
+  --color-primary: var(--color-accent);
+  --color-danger: var(--color-error);
+  --color-gold: var(--color-accent);
 }
 
 /* ---- Breakpoints (for reference — use in media queries) ----
