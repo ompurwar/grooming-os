@@ -67,7 +67,8 @@ export async function updateSession(request: NextRequest) {
                            request.nextUrl.pathname.startsWith('/style') ||
                            request.nextUrl.pathname.startsWith('/groom') ||
                            request.nextUrl.pathname.startsWith('/profile') ||
-                           request.nextUrl.pathname.startsWith('/onboarding')
+                           request.nextUrl.pathname.startsWith('/onboarding') ||
+                           request.nextUrl.pathname.startsWith('/admin')
 
   // Redirect to login if unauthenticated user tries to access protected route
   if (!user && isDashboardRoute) {
