@@ -272,7 +272,11 @@ export default function AdminPage() {
             </thead>
             <tbody>
               {filteredUsers.map(user => (
-                <tr key={user.id}>
+                <tr 
+                  key={user.id} 
+                  className={styles.clickableRow}
+                  onClick={() => router.push(`/admin/users/${user.id}`)}
+                >
                   <td>
                     <div className={styles.userCell}>
                       <div className={styles.userAvatar}>
@@ -373,6 +377,15 @@ export default function AdminPage() {
                     <span className={styles.mobileMetricLabel}>Face Scan</span>
                     {user.hasFaceScan ? <CheckCircle2 size={16} className={styles.checkIcon} /> : <XCircle size={16} className={styles.crossIcon} />}
                   </div>
+                  <button 
+                    className={styles.viewDetailsBtn}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      router.push(`/admin/users/${user.id}`)
+                    }}
+                  >
+                    View Full Profile
+                  </button>
                 </div>
               )}
             </div>

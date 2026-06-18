@@ -334,8 +334,12 @@
   transition: background var(--transition-fast);
 }
 
-.table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.02);
+.clickableRow {
+  cursor: pointer;
+}
+
+.clickableRow:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
 }
 
 .table tbody tr:last-child td {
@@ -475,6 +479,26 @@
 .mobileMetricLabel {
   font-size: var(--text-sm);
   color: var(--color-text-secondary);
+}
+
+.viewDetailsBtn {
+  margin-top: var(--space-3);
+  width: 100%;
+  padding: var(--space-3);
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius-lg);
+  color: var(--color-text-primary);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.viewDetailsBtn:hover {
+  background: var(--color-accent);
+  color: var(--color-bg-primary);
+  border-color: var(--color-accent);
 }
 
 /* ─── Responsive ─── */
