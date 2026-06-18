@@ -97,6 +97,7 @@ export default function AdminUserDetail({ params }: { params: Promise<{ id: stri
         name: `${w?.primary_color || ''} ${w?.sub_category || w?.category || 'Item'}`.trim(),
         source: 'Your Wardrobe',
         imageUrl: w?.image_url || undefined,
+        icon: Shirt,
       }
     })
     return {
