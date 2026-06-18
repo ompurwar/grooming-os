@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
+import { createAdminClient } from '@/utils/supabase/admin'
 import { generateObject } from 'ai'
 import { openai } from '@ai-sdk/openai'
 import { z } from 'zod'
@@ -74,14 +75,16 @@ You MUST respond with a JSON object matching the required schema.`,
       schema: bodyAnalysisSchema,
     })
 
+    const supabaseAdmin = createAdminClient()
+
     // Delete any existing body profile for this user before inserting
-    await supabase
+    await supabaseAdmin
       .from('body_profiles')
       .delete()
       .eq('user_id', user.id)
 
     // Insert the new body profile
-    const { data: profile, error: insertError } = await supabase
+    const { data: profile, error: insertError } = await supabaseAdmin
       .from('body_profiles')
       .insert({
         user_id: user.id,
