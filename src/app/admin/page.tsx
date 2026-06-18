@@ -255,16 +255,24 @@ export default function AdminPage() {
               <tr>
                 <th>User</th>
                 <th className={styles.sortable} onClick={() => handleSort('joinedAt')}>
-                  Joined {sortKey === 'joinedAt' && (sortAsc ? <ChevronUp size={14} /> : <ChevronDown size={14} />)}
+                  <div className={styles.sortableInner}>
+                    Joined {sortKey === 'joinedAt' && (sortAsc ? <ChevronUp size={14} /> : <ChevronDown size={14} />)}
+                  </div>
                 </th>
                 <th className={styles.sortable} onClick={() => handleSort('wardrobeCount')}>
-                  Wardrobe {sortKey === 'wardrobeCount' && (sortAsc ? <ChevronUp size={14} /> : <ChevronDown size={14} />)}
+                  <div className={styles.sortableInner}>
+                    Wardrobe {sortKey === 'wardrobeCount' && (sortAsc ? <ChevronUp size={14} /> : <ChevronDown size={14} />)}
+                  </div>
                 </th>
                 <th className={styles.sortable} onClick={() => handleSort('outfitCount')}>
-                  Looks {sortKey === 'outfitCount' && (sortAsc ? <ChevronUp size={14} /> : <ChevronDown size={14} />)}
+                  <div className={styles.sortableInner}>
+                    Looks {sortKey === 'outfitCount' && (sortAsc ? <ChevronUp size={14} /> : <ChevronDown size={14} />)}
+                  </div>
                 </th>
                 <th className={styles.sortable} onClick={() => handleSort('savedCount')}>
-                  Saved {sortKey === 'savedCount' && (sortAsc ? <ChevronUp size={14} /> : <ChevronDown size={14} />)}
+                  <div className={styles.sortableInner}>
+                    Saved {sortKey === 'savedCount' && (sortAsc ? <ChevronUp size={14} /> : <ChevronDown size={14} />)}
+                  </div>
                 </th>
                 <th>Body Scan</th>
                 <th>Face Scan</th>

@@ -349,7 +349,10 @@
 .sortable {
   cursor: pointer;
   user-select: none;
-  display: flex;
+}
+
+.sortableInner {
+  display: inline-flex;
   align-items: center;
   gap: 4px;
 }
