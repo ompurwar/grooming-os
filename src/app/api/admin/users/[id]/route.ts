@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
+import { createAdminClient } from '@/utils/supabase/admin'
 import { isAdminEmail } from '@/utils/admin'
 
 export async function GET(
@@ -7,16 +8,18 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id: userId } = await params
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const supabaseAuth = await createClient()
+  const { data: { user } } = await supabaseAuth.auth.getUser()
 
   if (!user || !isAdminEmail(user.email)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
   }
 
+  const supabaseAdmin = createAdminClient()
+
   try {
     // 1. Fetch User Profile
-    const { data: profile } = await supabase
+    const { data: profile } = await supabaseAdmin
       .from('users')
       .select('*')
       .eq('id', userId)
@@ -27,7 +30,7 @@ export async function GET(
     }
 
     // 2. Fetch Wardrobe Items
-    const { data: wardrobeItems } = await supabase
+    const { data: wardrobeItems } = await supabaseAdmin
       .from('wardrobe_items')
       .select('*')
       .eq('user_id', userId)
@@ -35,7 +38,7 @@ export async function GET(
       .order('added_at', { ascending: false })
 
     // 3. Fetch Outfits (with outfit_items and joined wardrobe_items)
-    const { data: outfits } = await supabase
+    const { data: outfits } = await supabaseAdmin
       .from('outfits')
       .select(`
         *,
@@ -50,14 +53,14 @@ export async function GET(
       .order('created_at', { ascending: false })
 
     // 4. Fetch Body Profile
-    const { data: bodyProfile } = await supabase
+    const { data: bodyProfile } = await supabaseAdmin
       .from('body_profiles')
       .select('*')
       .eq('user_id', userId)
       .maybeSingle()
 
     // 5. Fetch Face Profile
-    const { data: faceProfile } = await supabase
+    const { data: faceProfile } = await supabaseAdmin
       .from('face_profiles')
       .select('*')
       .eq('user_id', userId)
