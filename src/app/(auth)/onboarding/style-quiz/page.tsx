@@ -100,7 +100,9 @@ export default function StyleQuizPage() {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session?.user) throw new Error('Not authenticated')
 
-      const dominantStyleVal = liked.length > 0 ? liked[0] : 'Minimalist'
+      const dominantStyleVal = liked.length > 0 ? liked[0] : 'minimalist'
+      const lookDef = STYLE_LOOKS.find(l => l.archetype === dominantStyleVal) || STYLE_LOOKS[0]
+      const preferredColors = lookDef.colors
 
       // Check if preferences already exist
       const { data: existing } = await supabase
@@ -116,6 +118,7 @@ export default function StyleQuizPage() {
           liked_looks: liked,
           disliked_looks: disliked,
           style_archetype: dominantStyleVal,
+          preferred_colors: preferredColors,
         }).eq('id', existing.id)
       } else {
         await supabase.from('style_preferences').insert({
@@ -123,6 +126,7 @@ export default function StyleQuizPage() {
           liked_looks: liked,
           disliked_looks: disliked,
           style_archetype: dominantStyleVal,
+          preferred_colors: preferredColors,
         })
       }
       const isRetake = typeof window !== 'undefined' && window.location.search.includes('retake=true')

@@ -25,6 +25,7 @@ export default function ProfilePage() {
         name: userRow?.full_name || 'Style Explorer',
         memberSince: userRow?.created_at ? new Date(userRow.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'Recently',
         archetype: stylePrefs?.style_archetype || 'Not completed yet',
+        preferredColors: stylePrefs?.preferred_colors || [],
         bodyType: 'Not completed yet',
         stats: {
           wardrobe: 0,
@@ -98,10 +99,13 @@ export default function ProfilePage() {
           <div>
             <div className={styles.cardLabel}>Color Palette</div>
             <div className={styles.colorSwatches}>
-              <div className={styles.swatch} style={{ background: '#1B3A4B' }} />
-              <div className={styles.swatch} style={{ background: '#F5E6C8' }} />
-              <div className={styles.swatch} style={{ background: '#8B7355' }} />
-              <div className={styles.swatch} style={{ background: '#2C4A3E' }} />
+              {profile?.preferredColors?.length > 0 ? (
+                profile.preferredColors.map((color: string, i: number) => (
+                  <div key={i} className={styles.swatch} style={{ background: color }} />
+                ))
+              ) : (
+                <span style={{ fontSize: '14px', color: '#888' }}>No colors selected</span>
+              )}
             </div>
           </div>
         </div>
