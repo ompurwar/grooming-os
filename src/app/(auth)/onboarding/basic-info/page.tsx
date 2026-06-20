@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import styles from './page.module.css'
@@ -20,6 +20,26 @@ export default function BasicInfoPage() {
   const [city, setCity] = useState('')
   const [occupation, setOccupation] = useState('')
   const [budget, setBudget] = useState('')
+  const [isFetching, setIsFetching] = useState(true)
+
+  useEffect(() => {
+    async function loadData() {
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session?.user) {
+        const { data } = await supabase.from('users').select('*').eq('id', session.user.id).maybeSingle()
+        if (data) {
+          if (data.full_name) setFullName(data.full_name)
+          if (data.age_range) setAgeRange(data.age_range)
+          if (data.city) setCity(data.city)
+          if (data.occupation) setOccupation(data.occupation)
+          if (data.budget_range) setBudget(data.budget_range)
+        }
+      }
+      setIsFetching(false)
+    }
+    loadData()
+  }, [])
 
   const isValid = fullName.trim() && ageRange && city.trim()
 
@@ -66,8 +86,13 @@ export default function BasicInfoPage() {
           This helps your AI stylist understand your lifestyle.
         </p>
 
-        {/* Form */}
-        <div className={styles.form}>
+        {isFetching ? (
+          <div style={{ textAlign: 'center', padding: '40px' }}>
+            <p style={{ color: 'var(--color-text-secondary)' }}>Loading your profile...</p>
+          </div>
+        ) : (
+          <>
+            <div className={styles.form}>
           {/* Name */}
           <div className={styles.fieldGroup}>
             <label className={styles.label} htmlFor="basic-info-name">Full Name</label>
@@ -157,6 +182,8 @@ export default function BasicInfoPage() {
           Continue
           <span className={styles.ctaArrow}>→</span>
         </button>
+          </>
+        )}
       </div>
     </div>
   )
