@@ -97,7 +97,12 @@ function StyleContent() {
       const [looksRes, capsulesResponse, wardrobeCountRes] = await Promise.all([
         supabase
           .from('outfits')
-          .select('id, occasion, created_at')
+          .select(`
+            id, 
+            occasion, 
+            created_at,
+            outfit_items ( wardrobe_items ( image_url ) )
+          `)
           .eq('user_id', session.user.id)
           .eq('is_saved', true)
           .order('created_at', { ascending: false })
@@ -515,10 +520,24 @@ function StyleContent() {
           <div className={styles.savedScroll}>
             {savedLooks.map((look: any) => {
               const ago = getTimeAgo(look.created_at)
+              const images = look.outfit_items
+                ?.map((oi: any) => oi.wardrobe_items?.image_url)
+                .filter(Boolean)
+                .slice(0, 4) || []
+
               return (
                 <Link key={look.id} href={`/style/get-ready?id=${look.id}`} className={styles.savedCard} style={{ textDecoration: 'none' }}>
-                  <div className={styles.savedVisual}>
-                    <div className={styles.miniItem}><Sparkles size={16} /></div>
+                  <div className={styles.savedVisual} style={{ padding: images.length > 0 ? 0 : undefined, background: images.length > 0 ? 'transparent' : undefined, overflow: 'hidden' }}>
+                    {images.length > 0 ? (
+                      <div style={{ display: 'grid', gridTemplateColumns: images.length > 1 ? '1fr 1fr' : '1fr', gridTemplateRows: images.length > 2 ? '1fr 1fr' : '1fr', width: '100%', height: '100%', gap: '2px', borderRadius: 'inherit' }}>
+                        {images.map((img: string, i: number) => (
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img key={i} src={img} alt="Look item" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className={styles.miniItem}><Sparkles size={16} /></div>
+                    )}
                   </div>
                   <div className={styles.savedInfo}>
                     <h4>{look.occasion || 'Untitled'}</h4>
