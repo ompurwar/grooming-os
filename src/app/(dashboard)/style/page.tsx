@@ -7,6 +7,7 @@ import { createClient } from '@/utils/supabase/client'
 import { fetchWeatherContext, WeatherContext } from '@/utils/weather'
 import { toast } from 'sonner'
 import { triggerHaptic, hapticPatterns } from '@/utils/haptics'
+import { analytics } from '@/utils/analytics'
 import { Check, Sparkles, AlertCircle, Bookmark, ShoppingCart, Shirt, Briefcase, Globe } from 'lucide-react'
 import styles from './page.module.css'
 
@@ -77,6 +78,11 @@ function StyleContent() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Failed to generate capsule')
       
+      analytics.track('CAPSULE_GENERATED', { 
+        days: days,
+        destinations: destinations
+      })
+      
       router.push(`/style/capsule/${data.capsuleId}`)
     } catch (err: any) {
       console.error(err)
@@ -122,6 +128,13 @@ function StyleContent() {
     setIsGenerating(true)
     triggerHaptic(hapticPatterns.medium)
 
+    analytics.track('STYLE_SESSION_STARTED', {
+      source: 'style_hub',
+      has_prompt: textToSubmit ? 'true' : 'false',
+      has_capsule: capsuleId ? 'true' : 'false',
+      base_items_count: baseItems.length.toString()
+    })
+
     try {
       const res = await fetch('/api/style/generate', {
         method: 'POST',
@@ -138,6 +151,10 @@ function StyleContent() {
       
       if (!res.ok) throw new Error(data.error || 'Failed to generate style')
       
+      analytics.track('LOOK_GENERATED', {
+        outfit_id: data.outfitId
+      })
+
       router.push(`/style/get-ready?id=${data.outfitId}`)
     } catch (err: any) {
       console.error(err)

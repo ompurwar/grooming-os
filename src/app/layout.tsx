@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Toaster } from 'sonner'
+import { AnalyticsProvider } from '@/components/analytics/AnalyticsProvider'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -52,8 +53,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Toaster position="top-center" theme="dark" closeButton toastOptions={{ style: { background: 'var(--color-bg-elevated)', border: '1px solid var(--color-glass-border)', color: 'var(--color-text-primary)' } }} />
-        {children}
+        <AnalyticsProvider>
+          <Toaster position="top-center" theme="dark" closeButton toastOptions={{ style: { background: 'var(--color-bg-elevated)', border: '1px solid var(--color-glass-border)', color: 'var(--color-text-primary)' } }} />
+          {children}
+        </AnalyticsProvider>
       </body>
     </html>
   )

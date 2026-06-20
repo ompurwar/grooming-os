@@ -4,9 +4,11 @@ import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
+import { UploadCloud, Check, Camera, Wand2, ArrowLeft } from 'lucide-react'
 import ImageCropper from '@/components/shared/ImageCropper'
 import { toast } from 'sonner'
 import { triggerHaptic, hapticPatterns } from '@/utils/haptics'
+import { analytics } from '@/utils/analytics'
 import styles from './page.module.css'
 
 export default function AddWardrobeItemPage() {
@@ -168,6 +170,12 @@ export default function AddWardrobeItemPage() {
         })
 
       if (error) throw new Error(error.message)
+
+      analytics.track('WARDROBE_ITEM_ADDED', {
+        category: tags.category,
+        sub_category: tags.subCategory,
+        color: tags.color
+      })
 
       toast.success('Added to Wardrobe!')
       triggerHaptic(hapticPatterns.success)

@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
+import { analytics } from '@/utils/analytics'
 import styles from './page.module.css'
 
 import { Wine, Briefcase, Coffee, PartyPopper, Dumbbell, ShoppingCart, User, Shirt, Sparkles, BarChart3, Camera, Scissors, ClipboardList } from 'lucide-react'
@@ -117,6 +118,13 @@ function HomeContent() {
     if (!finalPrompt.trim()) return
 
     const itemsQuery = baseItems.length > 0 ? `&items=${baseItems.map(i => i.id).join(',')}` : ''
+    
+    analytics.track('STYLE_SESSION_STARTED', { 
+      source: 'home', 
+      has_prompt: finalPrompt ? 'true' : 'false',
+      base_items_count: baseItems.length.toString()
+    })
+
     router.push(`/style?prompt=${encodeURIComponent(finalPrompt)}&auto=true${itemsQuery}`)
   }
 

@@ -75,6 +75,12 @@ export default function LookCard({
       onSave()
       setJustSaved(true)
       setTimeout(() => setJustSaved(false), 1500)
+      
+      const { analytics } = require('@/utils/analytics')
+      analytics.track('LOOK_SAVED', {
+        occasion: occasion,
+        confidence: confidence.toString()
+      })
     }
   }
 

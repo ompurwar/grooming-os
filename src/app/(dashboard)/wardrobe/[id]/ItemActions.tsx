@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import { toast } from 'sonner'
 import { Trash2, Edit2 } from 'lucide-react'
+import { analytics } from '@/utils/analytics'
 import styles from './page.module.css'
 
 export default function ItemActions({ itemData }: { itemData: any }) {
@@ -28,6 +29,7 @@ export default function ItemActions({ itemData }: { itemData: any }) {
       toast.error('Failed to delete item')
       setIsDeleting(false)
     } else {
+      analytics.track('WARDROBE_ITEM_DELETED', { item_id: itemData.id })
       toast.success('Item deleted')
       router.push('/wardrobe')
     }
@@ -46,6 +48,7 @@ export default function ItemActions({ itemData }: { itemData: any }) {
       toast.error('Failed to update item')
       setIsSaving(false)
     } else {
+      analytics.track('WARDROBE_ITEM_EDITED', { item_id: itemData.id })
       toast.success('Item updated successfully')
       setIsEditing(false)
       setIsSaving(false)
