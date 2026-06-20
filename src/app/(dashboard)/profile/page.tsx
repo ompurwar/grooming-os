@@ -18,8 +18,8 @@ export default function ProfilePage() {
       
       const userId = session.user.id
       
-      const { data: userRow } = await supabase.from('users').select('*').eq('id', userId).maybeSingle()
-      const { data: stylePrefs } = await supabase.from('style_preferences').select('*').eq('user_id', userId).maybeSingle()
+      const { data: userRow } = await supabase.from('users').select('*').eq('id', userId).limit(1).maybeSingle()
+      const { data: stylePrefs } = await supabase.from('style_preferences').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(1).maybeSingle()
       
       setProfile({
         name: userRow?.full_name || 'Style Explorer',

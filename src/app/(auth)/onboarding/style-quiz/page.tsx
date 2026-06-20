@@ -107,6 +107,8 @@ export default function StyleQuizPage() {
         .from('style_preferences')
         .select('id')
         .eq('user_id', session.user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
         .maybeSingle()
 
       if (existing) {
