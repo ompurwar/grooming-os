@@ -483,25 +483,25 @@ function StyleContent() {
 
           {/* Saved Capsules Preview */}
           <section className={styles.savedSection}>
-            <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>Saved Capsules</h2>
+            <div className={styles.savedHeader}>
+              <h3 className={styles.sectionTitle}>Saved Capsules</h3>
               {savedCapsules.length > 0 && (
-                <Link href="/style/saved?tab=capsules" className={styles.viewAll}>
+                <Link href="/style/saved?tab=capsules" className={styles.seeAll}>
                   View All
                 </Link>
               )}
             </div>
             
             {savedCapsules.length > 0 ? (
-              <div className={styles.looksGrid}>
+              <div className={styles.savedScroll}>
                 {savedCapsules.map(capsule => (
-                  <Link href={`/style/capsule/${capsule.id}`} key={capsule.id} className={styles.lookCard}>
-                    <div className={styles.lookPlaceholder}>
-                      <Briefcase size={24} color="#666" />
+                  <Link href={`/style/capsule/${capsule.id}`} key={capsule.id} className={styles.savedCard} style={{ textDecoration: 'none' }}>
+                    <div className={styles.savedVisual}>
+                      <div className={styles.miniItem}><Briefcase size={16} /></div>
                     </div>
-                    <div className={styles.lookInfo}>
-                      <div className={styles.lookOccasion}>{capsule.destinations[0]} ({capsule.days} days)</div>
-                      <div className={styles.lookTime}>{getTimeAgo(capsule.created_at)}</div>
+                    <div className={styles.savedInfo}>
+                      <h4>{capsule.destinations[0]} ({capsule.days}d)</h4>
+                      <span>{getTimeAgo(capsule.created_at)}</span>
                     </div>
                   </Link>
                 ))}
