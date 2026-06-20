@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import styles from './page.module.css'
 import Link from 'next/link'
 import { Timer } from 'lucide-react'
+import StartButton from './StartButton'
 
 export const metadata: Metadata = {
   title: 'Welcome — Begin Your Style Journey',
@@ -87,10 +88,7 @@ export default function OnboardingPage() {
         </div>
 
         {/* CTA */}
-        <Link href="/onboarding/basic-info" className={styles.ctaButton} id="onboarding-start-btn">
-          Let&apos;s Begin
-          <span className={styles.ctaArrow}>→</span>
-        </Link>
+        <StartButton />
 
         <Link href="/home" className={styles.skipLink} id="onboarding-skip-btn">
           Skip for now
