@@ -40,11 +40,35 @@ export default function DashboardHome() {
       const userId = session.user.id
 
       try {
-        // Fetch user profile for name and onboarding status
-        const { data: profile } = await supabase.from('users').select('full_name, onboarding_completed').eq('id', userId).maybeSingle()
+        // Fetch user profile for name, onboarding status, and basic info progress
+        const { data: profile } = await supabase.from('users').select('full_name, onboarding_completed, age_range').eq('id', userId).maybeSingle()
 
         if (profile && profile.onboarding_completed === false) {
-          router.push('/onboarding')
+          // Determine where they left off
+          if (!profile.age_range) {
+            router.push('/onboarding/basic-info')
+            return
+          }
+          
+          const { data: stylePrefs } = await supabase.from('style_preferences').select('id').eq('user_id', userId).maybeSingle()
+          if (!stylePrefs) {
+            router.push('/onboarding/style-quiz')
+            return
+          }
+          
+          const { data: bodyProfile } = await supabase.from('body_profiles').select('id').eq('user_id', userId).maybeSingle()
+          if (!bodyProfile) {
+            router.push('/onboarding/body-scan')
+            return
+          }
+          
+          const { data: faceProfile } = await supabase.from('face_profiles').select('id').eq('user_id', userId).maybeSingle()
+          if (!faceProfile) {
+            router.push('/onboarding/face-scan')
+            return
+          }
+          
+          router.push('/onboarding/wardrobe-seed')
           return
         }
 
