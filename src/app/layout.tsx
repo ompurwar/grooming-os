@@ -26,6 +26,9 @@ export const metadata: Metadata = {
     locale: 'en_IN',
     siteName: 'Grooming OS',
   },
+  verification: {
+    google: '93uBLr0K8FffttqLHCnOo1vSotg_jGjGZYf9UvdJM2M',
+  },
   twitter: {
     card: 'summary_large_image',
     title: 'Grooming OS — Your AI Personal Stylist',
