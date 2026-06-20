@@ -4,7 +4,8 @@ import styles from './page.module.css'
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 
-export default async function ItemDetailPage({ params }: { params: { id: string } }) {
+export default async function ItemDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params
   const supabase = await createClient()
   const { data: { session } } = await supabase.auth.getSession()
   
@@ -15,7 +16,7 @@ export default async function ItemDetailPage({ params }: { params: { id: string 
   const { data: itemData, error } = await supabase
     .from('wardrobe_items')
     .select('*')
-    .eq('id', params.id)
+    .eq('id', resolvedParams.id)
     .eq('user_id', session.user.id)
     .single()
 
