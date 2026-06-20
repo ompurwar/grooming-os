@@ -1,11 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import LookCard from '@/components/styling/LookCard'
-import { Shirt, Footprints, Watch, Scissors, ShoppingCart, ClipboardList, Sparkles } from 'lucide-react'
+import { Shirt, Footprints, Watch, Scissors, ShoppingCart, ClipboardList, Sparkles, Briefcase } from 'lucide-react'
 import styles from './page.module.css'
 
 const SLOT_ICONS: Record<string, any> = {
@@ -17,9 +17,14 @@ const SLOT_ICONS: Record<string, any> = {
   Upgrade: ShoppingCart,
 }
 
-export default function SavedLooks() {
+function SavedStylesContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const initialTab = searchParams.get('tab') === 'capsules' ? 'capsules' : 'looks'
+  
+  const [activeTab, setActiveTab] = useState<'looks' | 'capsules'>(initialTab)
   const [savedOutfits, setSavedOutfits] = useState<any[]>([])
+  const [savedCapsules, setSavedCapsules] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -32,68 +37,60 @@ export default function SavedLooks() {
       }
       const userId = session.user.id
 
-      // Step 1: Fetch saved outfits
-      const { data: outfits, error: outfitErr } = await supabase
-        .from('outfits')
-        .select('*')
-        .eq('user_id', userId)
-        .eq('is_saved', true)
-        .order('created_at', { ascending: false })
+      if (activeTab === 'looks') {
+        const { data: outfits, error: outfitErr } = await supabase
+          .from('outfits')
+          .select('*')
+          .eq('user_id', userId)
+          .eq('is_saved', true)
+          .order('created_at', { ascending: false })
 
-      if (outfitErr) {
-        console.error('Error fetching saved outfits:', JSON.stringify(outfitErr))
-        setLoading(false)
-        return
-      }
+        if (outfitErr || !outfits || outfits.length === 0) {
+          setSavedOutfits([])
+          setLoading(false)
+          return
+        }
 
-      if (!outfits || outfits.length === 0) {
-        setSavedOutfits([])
-        setLoading(false)
-        return
-      }
+        const mapped = await Promise.all(
+          outfits.map(async (outfit: any) => {
+            const { data: outfitItems } = await supabase
+              .from('outfit_items')
+              .select(`
+                slot,
+                wardrobe_items ( id, category, primary_color, image_url )
+              `)
+              .eq('outfit_id', outfit.id)
 
-      // Step 2: For each outfit, fetch its items joined with wardrobe_items
-      const mapped = await Promise.all(
-        outfits.map(async (outfit: any) => {
-          const { data: outfitItems } = await supabase
-            .from('outfit_items')
-            .select(`
-              id, slot,
-              wardrobe_items (
-                id, category, sub_category, primary_color, image_url
-              )
-            `)
-            .eq('outfit_id', outfit.id)
+            const formattedItems = (outfitItems || []).map((oi: any) => ({
+              slot: oi.slot,
+              category: oi.wardrobe_items.category,
+              color: oi.wardrobe_items.primary_color,
+              image: oi.wardrobe_items.image_url,
+              icon: SLOT_ICONS[oi.slot] || Shirt
+            }))
 
-          const items = (outfitItems || []).map((oi: any) => {
-            const w = oi.wardrobe_items as any
-            const cat = w?.category || oi.slot || 'Item'
             return {
-              type: cat,
-              slot: oi.slot || cat,
-              name: `${w?.primary_color || ''} ${w?.sub_category || w?.category || 'Item'}`.trim(),
-              source: 'Your Wardrobe',
-              imageUrl: w?.image_url || undefined,
-              icon: SLOT_ICONS[cat] || Shirt,
+              id: outfit.id,
+              occasion: outfit.occasion,
+              confidence: outfit.confidence_score,
+              reasoning: outfit.reasoning,
+              items: formattedItems
             }
           })
+        )
 
-          return {
-            id: outfit.id,
-            occasion: outfit.occasion || 'Untitled Look',
-            confidence: outfit.confidence_score ?? 85,
-            reasoning: outfit.reasoning || '',
-            createdAt: outfit.created_at,
-            items,
-          }
-        })
-      )
+        setSavedOutfits(mapped)
+      } else {
+        const res = await fetch('/api/style/capsules')
+        const data = await res.json()
+        setSavedCapsules(data.capsules || [])
+      }
 
-      setSavedOutfits(mapped)
       setLoading(false)
     }
+
     fetchSaved()
-  }, [])
+  }, [activeTab])
 
   const handleDelete = async (outfitId: string) => {
     const supabase = createClient()
@@ -115,32 +112,89 @@ export default function SavedLooks() {
       <button className={styles.backBtn} onClick={() => router.back()}>
         ← Back
       </button>
-      <h1 className={styles.title}>My Saved Looks</h1>
-      <p className={styles.subtitle}>{savedOutfits.length} look{savedOutfits.length !== 1 ? 's' : ''} saved</p>
+      <h1 className={styles.title}>My Saved Styles</h1>
+      <p className={styles.subtitle}>
+        {activeTab === 'looks' 
+          ? `${savedOutfits.length} look${savedOutfits.length !== 1 ? 's' : ''} saved`
+          : `${savedCapsules.length} capsule${savedCapsules.length !== 1 ? 's' : ''} saved`
+        }
+      </p>
 
-      {savedOutfits.length === 0 ? (
-        <div className={styles.empty}>
-          <span className={styles.emptyIcon}><ClipboardList size={32} /></span>
-          You haven't saved any looks yet.
-          <br />
-          <Link href="/style" className={styles.emptyAction}>
-            Style Me <Sparkles size={16} style={{display: 'inline', verticalAlign: 'text-bottom', marginLeft: 4}}/>
-          </Link>
-        </div>
+      <div className={styles.tabs}>
+        <button 
+          className={`${styles.tabBtn} ${activeTab === 'looks' ? styles.tabBtnActive : ''}`}
+          onClick={() => setActiveTab('looks')}
+        >
+          Looks
+        </button>
+        <button 
+          className={`${styles.tabBtn} ${activeTab === 'capsules' ? styles.tabBtnActive : ''}`}
+          onClick={() => setActiveTab('capsules')}
+        >
+          Capsules
+        </button>
+      </div>
+
+      {activeTab === 'looks' ? (
+        savedOutfits.length === 0 ? (
+          <div className={styles.empty}>
+            <span className={styles.emptyIcon}><ClipboardList size={32} /></span>
+            You haven't saved any looks yet.
+            <br />
+            <Link href="/style" className={styles.emptyAction}>
+              Style Me <Sparkles size={16} style={{display: 'inline', verticalAlign: 'text-bottom', marginLeft: 4}}/>
+            </Link>
+          </div>
+        ) : (
+          <div className={styles.grid}>
+            {savedOutfits.map((outfit) => (
+              <LookCard
+                key={outfit.id}
+                occasion={outfit.occasion}
+                confidence={outfit.confidence}
+                items={outfit.items}
+                reasoning={outfit.reasoning}
+                onDelete={() => handleDelete(outfit.id)}
+              />
+            ))}
+          </div>
+        )
       ) : (
-        <div className={styles.grid}>
-          {savedOutfits.map((outfit) => (
-            <LookCard
-              key={outfit.id}
-              occasion={outfit.occasion}
-              confidence={outfit.confidence}
-              items={outfit.items}
-              reasoning={outfit.reasoning}
-              onDelete={() => handleDelete(outfit.id)}
-            />
-          ))}
-        </div>
+        savedCapsules.length === 0 ? (
+          <div className={styles.empty}>
+            <span className={styles.emptyIcon}><Briefcase size={32} /></span>
+            You haven't saved any capsules yet.
+            <br />
+            <Link href="/style" className={styles.emptyAction}>
+              Plan a Trip <Sparkles size={16} style={{display: 'inline', verticalAlign: 'text-bottom', marginLeft: 4}}/>
+            </Link>
+          </div>
+        ) : (
+          <div className={styles.grid}>
+            {savedCapsules.map((capsule) => (
+              <Link href={`/style/capsule/${capsule.id}`} key={capsule.id} className={styles.savedCapsuleCard}>
+                <div className={styles.capsuleIcon}>
+                  <Briefcase size={24} />
+                </div>
+                <div className={styles.capsuleInfo}>
+                  <h4>{capsule.destinations[0]} ({capsule.days} Days)</h4>
+                  <p>{new Date(capsule.created_at).toLocaleDateString()}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )
       )}
     </div>
   )
 }
+
+export default function SavedLooks() {
+  return (
+    <Suspense fallback={<div className={styles.container}><div className={styles.loading}><div className={styles.spinner} /></div></div>}>
+      <SavedStylesContent />
+    </Suspense>
+  )
+}
+
+export const dynamic = 'force-dynamic'

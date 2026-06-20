@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
@@ -19,7 +19,7 @@ interface WardrobeItem {
   image_url: string
 }
 
-export default function WardrobePage() {
+function WardrobeContent() {
   const router = useRouter()
   const [activeFilter, setActiveFilter] = useState('All')
   const [items, setItems] = useState<WardrobeItem[]>([])
@@ -242,5 +242,13 @@ function WardrobeItemCard({ item, isSelectionMode, isSelected, onToggleSelect, o
         </div>
       </div>
     </div>
+  )
+}
+
+export default function WardrobePage() {
+  return (
+    <Suspense fallback={<div className={styles.container}><div className={styles.loadingState}><div className={styles.spinner} /></div></div>}>
+      <WardrobeContent />
+    </Suspense>
   )
 }
