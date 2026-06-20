@@ -92,7 +92,8 @@ function WardrobeContent() {
 
   const handleCreateLook = () => {
     if (selectedItemIds.length > 0) {
-      router.push(`/style?items=${selectedItemIds.join(',')}`)
+      const returnTo = searchParams.get('returnTo') || 'style'
+      router.push(`/${returnTo}?items=${selectedItemIds.join(',')}`)
     }
   }
 

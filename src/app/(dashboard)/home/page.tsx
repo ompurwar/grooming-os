@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import styles from './page.module.css'
 
@@ -24,10 +24,12 @@ function getGreeting(): string {
   return 'Good evening'
 }
 
-export default function DashboardHome() {
+function HomeContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [prompt, setPrompt] = useState('')
   const [isLoading, setIsLoading] = useState(true)
+  const [baseItems, setBaseItems] = useState<any[]>([])
   const [stats, setStats] = useState({ wardrobeCount: 0, outfitCount: 0, name: 'Explorer' })
   const [greeting] = useState(getGreeting)
 
@@ -40,11 +42,9 @@ export default function DashboardHome() {
       const userId = session.user.id
 
       try {
-        // Fetch user profile for name, onboarding status, and basic info progress
         const { data: profile } = await supabase.from('users').select('full_name, onboarding_completed, age_range').eq('id', userId).maybeSingle()
 
         if (profile && profile.onboarding_completed === false) {
-          // Determine where they left off
           if (!profile.age_range) {
             router.push('/onboarding/basic-info')
             return
@@ -72,10 +72,7 @@ export default function DashboardHome() {
           return
         }
 
-        // Fetch wardrobe count
         const { count: wCount } = await supabase.from('wardrobe_items').select('*', { count: 'exact', head: true }).eq('user_id', userId).eq('is_active', true)
-        
-        // Fetch outfit count
         const { count: oCount } = await supabase.from('outfits').select('*', { count: 'exact', head: true }).eq('user_id', userId)
 
         setStats({
@@ -92,12 +89,35 @@ export default function DashboardHome() {
     fetchStats()
   }, [])
 
+  useEffect(() => {
+    async function fetchBaseItems() {
+      const itemsParam = searchParams.get('items')
+      if (itemsParam) {
+        const itemIds = itemsParam.split(',')
+        const supabase = createClient()
+        const { data: bItems } = await supabase
+          .from('wardrobe_items')
+          .select('*')
+          .in('id', itemIds)
+        if (bItems) {
+          setBaseItems(bItems)
+        }
+      }
+    }
+    fetchBaseItems()
+  }, [searchParams])
+
   const handleStyleMe = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!prompt.trim()) return
     
-    // Push to style page which handles the generation
-    router.push(`/style?prompt=${encodeURIComponent(prompt)}&auto=true`)
+    let finalPrompt = prompt
+    if (!finalPrompt.trim() && baseItems.length > 0) {
+      finalPrompt = 'Style a great outfit using my selected items.'
+    }
+    if (!finalPrompt.trim()) return
+
+    const itemsQuery = baseItems.length > 0 ? `&items=${baseItems.map(i => i.id).join(',')}` : ''
+    router.push(`/style?prompt=${encodeURIComponent(finalPrompt)}&auto=true${itemsQuery}`)
   }
 
   const handleOccasionClick = (occasionLabel: string) => {
@@ -106,7 +126,6 @@ export default function DashboardHome() {
 
   return (
     <div className={styles.container}>
-      {/* Header */}
       <header id="tour-home-overview" className={styles.header}>
         <div className={styles.greeting}>
           <h1 className={styles.title}>{greeting}, {stats.name}</h1>
@@ -124,6 +143,17 @@ export default function DashboardHome() {
           <h2 className={styles.heroTitle}><Sparkles size={24} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '8px' }} /> Get Me Ready</h2>
           
           <form onSubmit={handleStyleMe} className={styles.promptForm}>
+            {baseItems.length > 0 && (
+              <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px' }}>
+                <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)', alignSelf: 'center', marginRight: '4px' }}>Including:</span>
+                {baseItems.map(item => (
+                  <div key={item.id} style={{ width: '40px', height: '40px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0, border: '1px solid var(--color-glass-border)' }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={item.image_url} alt={item.category} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  </div>
+                ))}
+              </div>
+            )}
             <input
               type="text"
               className={styles.promptInput}
@@ -134,14 +164,14 @@ export default function DashboardHome() {
             <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
               <button
                 type="submit"
-                className={`${styles.styleButton} ${!prompt.trim() ? styles.styleButtonDisabled : ''}`}
-                disabled={!prompt.trim()}
+                className={`${styles.styleButton} ${(!prompt.trim() && baseItems.length === 0) ? styles.styleButtonDisabled : ''}`}
+                disabled={!prompt.trim() && baseItems.length === 0}
                 style={{ flex: 1, width: 'auto' }}
               >
                 Style Me
               </button>
               <Link
-                href="/wardrobe?select=true"
+                href="/wardrobe?select=true&returnTo=home"
                 className={styles.styleButton}
                 style={{ 
                   background: 'var(--color-bg-tertiary)', 

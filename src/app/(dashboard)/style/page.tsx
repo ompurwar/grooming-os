@@ -7,7 +7,7 @@ import { createClient } from '@/utils/supabase/client'
 import { fetchWeatherContext, WeatherContext } from '@/utils/weather'
 import { toast } from 'sonner'
 import { triggerHaptic, hapticPatterns } from '@/utils/haptics'
-import { Sparkles, Briefcase, Globe, Shirt } from 'lucide-react'
+import { Check, Sparkles, AlertCircle, Bookmark, ShoppingCart, Shirt } from 'lucide-react'
 import styles from './page.module.css'
 
 const OCCASION_CHIPS = [
@@ -361,6 +361,17 @@ function StyleContent() {
               rows={3}
             />
             
+            {baseItems.length > 0 && (
+              <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px', marginTop: '-8px', marginBottom: '8px' }}>
+                <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)', alignSelf: 'center', marginRight: '4px' }}>Including:</span>
+                {baseItems.map(item => (
+                  <div key={item.id} style={{ width: '40px', height: '40px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0, border: '1px solid var(--color-glass-border)' }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={item.image_url} alt={item.category} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  </div>
+                ))}
+              </div>
+            )}
             {savedCapsules.length > 0 && (
               <div className={styles.inputGroup} style={{ marginTop: '-8px', marginBottom: '8px' }}>
                 <label>Styling Source</label>
@@ -377,13 +388,35 @@ function StyleContent() {
               </div>
             )}
             
-            <button 
-              type="submit"
-              className={`${styles.styleBtn} ${(!prompt.trim() && baseItems.length === 0) || isGenerating ? styles.styleBtnDisabled : ''}`}
-              disabled={(!prompt.trim() && baseItems.length === 0) || isGenerating}
-            >
-              {isGenerating ? 'Curating Look...' : <>Style Me <Sparkles size={16} style={{display: 'inline', verticalAlign: 'text-bottom', marginLeft: 4}} /></>}
-            </button>
+            <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+              <button 
+                type="submit"
+                className={`${styles.styleBtn} ${(!prompt.trim() && baseItems.length === 0) || isGenerating ? styles.styleBtnDisabled : ''}`}
+                disabled={(!prompt.trim() && baseItems.length === 0) || isGenerating}
+                style={{ flex: 1, width: 'auto' }}
+              >
+                {isGenerating ? 'Curating Look...' : <>Style Me <Sparkles size={16} style={{display: 'inline', verticalAlign: 'text-bottom', marginLeft: 4}} /></>}
+              </button>
+              
+              <Link
+                href="/wardrobe?select=true&returnTo=style"
+                className={styles.styleBtn}
+                style={{ 
+                  background: 'var(--color-bg-tertiary)', 
+                  color: 'var(--color-text-primary)', 
+                  border: '1px solid var(--color-border)', 
+                  flex: '0 0 auto', 
+                  width: 'auto',
+                  padding: '0 16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+                title="Start with a specific item from your wardrobe"
+              >
+                <Shirt size={20} />
+              </Link>
+            </div>
           </form>
         ) : (
           <form onSubmit={handleCapsuleGenerate} className={styles.capsuleForm}>
