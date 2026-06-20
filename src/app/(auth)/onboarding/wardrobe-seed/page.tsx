@@ -72,11 +72,27 @@ export default function WardrobeSeedPage() {
         {/* Capture Area */}
         <div className={styles.captureArea}>
           {state === 'idle' ? (
-            <button className={styles.captureButton} onClick={handleCapture}>
-              <div className={styles.cameraIcon}><Camera size={32} /></div>
-              <span>Tap to photograph an item</span>
-              <p className={styles.captureHelp}>Lay flat or hang against a plain background</p>
-            </button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
+              <button className={styles.captureButton} onClick={handleCapture}>
+                <div className={styles.cameraIcon}><Camera size={32} /></div>
+                <span>Tap to photograph an item</span>
+                <p className={styles.captureHelp}>Lay flat or hang against a plain background</p>
+              </button>
+              
+              <label className={styles.captureButton} style={{ cursor: 'pointer', padding: '12px', minHeight: 'auto' }}>
+                <span style={{ fontSize: '14px' }}>Or upload from gallery</span>
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  style={{ display: 'none' }}
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files.length > 0) {
+                      handleCapture() // Simulate upload handling identically to capture
+                    }
+                  }}
+                />
+              </label>
+            </div>
           ) : (
             <div className={styles.processingArea}>
               <div className={styles.spinner} />

@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState, useEffect, useCallback } from 'react'
-import { Camera, X, RefreshCw } from 'lucide-react'
+import { Camera, X, RefreshCw, Image as ImageIcon } from 'lucide-react'
 import styles from './CameraCapture.module.css'
 
 interface CameraCaptureProps {
@@ -223,6 +223,17 @@ export default function CameraCapture({ mode, onCapture, onCancel }: CameraCaptu
             <X size={24} />
           </button>
         )}
+        
+        <label className={styles.controlBtn} style={{ cursor: 'pointer', margin: onCancel ? '0' : '0 auto 0 0' }}>
+          <ImageIcon size={24} />
+          <input 
+            type="file" 
+            accept="image/*" 
+            style={{ display: 'none' }}
+            onChange={handleFileUpload}
+          />
+        </label>
+
         <button
           className={styles.captureBtn}
           onClick={handleCapture}
@@ -232,7 +243,8 @@ export default function CameraCapture({ mode, onCapture, onCancel }: CameraCaptu
             <div className={styles.captureCenter} />
           </div>
         </button>
-        <button className={styles.controlBtn} onClick={handleFlipCamera}>
+
+        <button className={styles.controlBtn} onClick={handleFlipCamera} style={{ margin: onCancel ? '0' : '0 0 0 auto' }}>
           <RefreshCw size={24} />
         </button>
       </div>
