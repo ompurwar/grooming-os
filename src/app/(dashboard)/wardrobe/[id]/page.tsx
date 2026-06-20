@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import styles from './page.module.css'
+import ItemActions from './ItemActions'
 
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
@@ -41,10 +42,7 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ id:
     <div className={styles.page}>
       <header className={styles.header}>
         <Link href="/wardrobe" className={styles.backBtn}>← Back</Link>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button className={styles.editBtn}>Edit</button>
-          <button className={styles.deleteBtn}>Delete</button>
-        </div>
+        <ItemActions itemData={itemData} />
       </header>
 
       <div className={styles.imageContainer}>
