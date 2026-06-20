@@ -7,7 +7,7 @@ import { createClient } from '@/utils/supabase/client'
 import { fetchWeatherContext, WeatherContext } from '@/utils/weather'
 import { toast } from 'sonner'
 import { triggerHaptic, hapticPatterns } from '@/utils/haptics'
-import { Check, Sparkles, AlertCircle, Bookmark, ShoppingCart, Shirt } from 'lucide-react'
+import { Check, Sparkles, AlertCircle, Bookmark, ShoppingCart, Shirt, Briefcase, Globe } from 'lucide-react'
 import styles from './page.module.css'
 
 const OCCASION_CHIPS = [
