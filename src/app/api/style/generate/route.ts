@@ -68,6 +68,14 @@ export async function POST(request: Request) {
       .limit(1)
       .maybeSingle()
 
+    const { data: stylePrefs } = await supabase
+      .from('style_preferences')
+      .select('style_archetype, preferred_colors, avoid_colors, formality_preference')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
     if (!wardrobeItems || wardrobeItems.length === 0) {
       return NextResponse.json({ error: `No wardrobe items found to style. Debug: capsuleId=${capsuleId || 'none'}, userId=${userId}, length=${wardrobeItems?.length || 0}` }, { status: 400 })
     }
@@ -92,6 +100,10 @@ export async function POST(request: Request) {
       ? `User Face/Color Profile:\n- Skin Tone: ${faceProfile.skin_tone} (${faceProfile.undertone} undertone)\n- Color Season: ${faceProfile.color_palette?.season}\n- Best Colors: ${faceProfile.color_palette?.best_colors?.join(', ')}\n- Avoid Colors: ${faceProfile.color_palette?.avoid_colors?.join(', ')}\n- Best Metals: ${faceProfile.metal_preference}.`
       : ''
 
+    const styleContext = stylePrefs
+      ? `User Style Preferences:\n- Aesthetic/Archetype: ${stylePrefs.style_archetype}\n- Preferred Colors: ${stylePrefs.preferred_colors?.join(', ')}\n- General Formality: ${stylePrefs.formality_preference || 'Balanced'}.`
+      : ''
+
     const weatherString = weatherContext 
       ? `Weather: ${weatherContext.temperature}°C, ${weatherContext.condition} in ${weatherContext.city}.`
       : ''
@@ -102,17 +114,18 @@ export async function POST(request: Request) {
 
     const { object } = await generateObject({
       model: openai('gpt-4o'),
-      system: `You are an elite fashion stylist. You are given a user's prompt, weather conditions, body profile, face/color profile, and a list of their wardrobe items.
+      system: `You are an elite fashion stylist. You are given a user's prompt, weather conditions, body profile, face/color profile, personal style aesthetic preferences, and a list of their wardrobe items.
       Your task is to select a cohesive outfit (Top, Bottom, Footwear, optional Outerwear/Accessories).
       Rules:
       - Choose items that flatter the user's specific body type, height, skin tone, and color season.
+      - Ensure the outfit aligns with the user's personal Style Aesthetic/Archetype (e.g. Minimalist, Streetwear, etc).
       - Return the precise database IDs of the items you selected.
       - Write a short, engaging explanation (2-3 sentences) of why this outfit works and why it flatters their specific body and color profile.
       - Give the outfit a catchy name.${requiredItemsContext}`,
       messages: [
         {
           role: 'user',
-          content: `Prompt: ${prompt}\n\n${weatherString}\n\n${bodyContext}\n\n${faceContext}\n\nInventory:\n${JSON.stringify(inventory, null, 2)}`
+          content: `Prompt: ${prompt}\n\n${weatherString}\n\n${bodyContext}\n\n${faceContext}\n\n${styleContext}\n\nInventory:\n${JSON.stringify(inventory, null, 2)}`
         }
       ],
       schema: z.object({
