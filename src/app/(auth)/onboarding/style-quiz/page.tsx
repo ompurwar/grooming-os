@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { createClient } from '@/utils/supabase/client'
 import { STYLE_ARCHETYPES } from '@/lib/constants/body-types'
 import { X, Heart, Sparkles } from 'lucide-react'
 import styles from './page.module.css'
@@ -93,9 +94,36 @@ export default function StyleQuizPage() {
     }, 300)
   }
 
-  const handleContinue = () => {
-    // TODO: Save preferences to Supabase
-    router.push('/onboarding/body-scan')
+  const handleContinue = async () => {
+    try {
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.user) throw new Error('Not authenticated')
+
+      // Insert or update style preferences
+      const { error } = await supabase
+        .from('style_preferences')
+        .upsert({
+          user_id: session.user.id,
+          liked_looks: liked,
+          disliked_looks: disliked,
+        }, { onConflict: 'user_id' })
+
+      if (error) {
+        // Fallback for tables without unique constraint on user_id yet
+        await supabase.from('style_preferences').insert({
+          user_id: session.user.id,
+          liked_looks: liked,
+          disliked_looks: disliked,
+        })
+      }
+      
+      router.push('/onboarding/body-scan')
+    } catch (err) {
+      console.error('Failed to save style preferences:', err)
+      // Ideally show toast here
+      router.push('/onboarding/body-scan')
+    }
   }
 
   // Determine dominant style from likes

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { createClient } from '@/utils/supabase/client'
 import { Camera } from 'lucide-react'
 import styles from './page.module.css'
 
@@ -34,7 +35,21 @@ export default function WardrobeSeedPage() {
     }, 1000)
   }
 
-  const handleFinish = () => {
+  const handleFinish = async () => {
+    try {
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      if (session?.user) {
+        await supabase
+          .from('users')
+          .update({ onboarding_completed: true })
+          .eq('id', session.user.id)
+      }
+    } catch (err) {
+      console.error('Failed to update onboarding status', err)
+    }
+    
     router.push('/home')
   }
 
