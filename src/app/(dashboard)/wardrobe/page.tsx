@@ -61,9 +61,15 @@ function WardrobeContent() {
     fetchItems()
   }, [])
 
-  const filteredItems = items.filter(item => 
-    activeFilter === 'All' ? true : item.category === activeFilter
-  )
+  const filteredItems = items.filter(item => {
+    if (activeFilter === 'All') return true
+    
+    // Normalize string to handle 'Top' vs 'Tops', 'Bottom' vs 'Bottoms'
+    const itemCat = item.category.toLowerCase()
+    const filterCat = activeFilter.toLowerCase()
+    
+    return itemCat === filterCat || `${itemCat}s` === filterCat || itemCat === `${filterCat}s`
+  })
 
   const handleToggleSelect = (id: string) => {
     setIsSelectionMode(true)
@@ -111,9 +117,50 @@ function WardrobeContent() {
           <h1 className={styles.title}>My Wardrobe</h1>
           <span className={styles.itemCount}>{items.length} items</span>
         </div>
-        <Link href="/wardrobe/add" className={styles.addButton}>
-          +
-        </Link>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          {!isSelectionMode && (
+            <button 
+              onClick={() => setIsSelectionMode(true)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '8px 12px',
+                background: 'var(--color-bg-secondary)',
+                border: '1px solid var(--color-glass-border)',
+                borderRadius: 'var(--radius-full)',
+                color: 'var(--color-text-primary)',
+                fontSize: 'var(--text-sm)',
+                cursor: 'pointer'
+              }}
+            >
+              <Sparkles size={14} /> Create Look
+            </button>
+          )}
+          {isSelectionMode && (
+            <button 
+              onClick={() => {
+                setIsSelectionMode(false)
+                setSelectedItemIds([])
+              }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                padding: '8px 12px',
+                background: 'transparent',
+                border: '1px solid transparent',
+                color: 'var(--color-text-secondary)',
+                fontSize: 'var(--text-sm)',
+                cursor: 'pointer'
+              }}
+            >
+              Cancel
+            </button>
+          )}
+          <Link href="/wardrobe/add" className={styles.addButton}>
+            +
+          </Link>
+        </div>
       </header>
 
       {/* Filters */}
