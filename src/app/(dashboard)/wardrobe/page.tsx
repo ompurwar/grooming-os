@@ -8,7 +8,7 @@ import { Check, Sparkles, Info } from 'lucide-react'
 import { useLongPress } from '@/hooks/useLongPress'
 import styles from './page.module.css'
 
-const FILTERS = ['All', 'Tops', 'Bottoms', 'Outerwear', 'Footwear', 'Accessories', 'Ethnic']
+const FILTERS = ['All', 'Tops', 'Bottoms', 'Dresses', 'Outerwear', 'Footwear', 'Accessories', 'Jewelry', 'Ethnic']
 
 interface WardrobeItem {
   id: string
@@ -64,11 +64,22 @@ function WardrobeContent() {
   const filteredItems = items.filter(item => {
     if (activeFilter === 'All') return true
     
-    // Normalize string to handle 'Top' vs 'Tops', 'Bottom' vs 'Bottoms'
     const itemCat = item.category.toLowerCase()
     const filterCat = activeFilter.toLowerCase()
     
-    return itemCat === filterCat || `${itemCat}s` === filterCat || itemCat === `${filterCat}s`
+    // Explicit mapping for pluralization edge cases
+    const pluralMap: Record<string, string> = {
+      'accessory': 'accessories',
+      'dress': 'dresses',
+      'jewelry': 'jewelry',
+      'footwear': 'footwear',
+      'ethnic': 'ethnic',
+      'outerwear': 'outerwear'
+    }
+    
+    const itemPlural = pluralMap[itemCat] || `${itemCat}s`
+    
+    return itemCat === filterCat || itemPlural === filterCat || itemCat === pluralMap[filterCat]
   })
 
   const handleToggleSelect = (id: string) => {

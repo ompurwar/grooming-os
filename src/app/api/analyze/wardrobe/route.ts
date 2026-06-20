@@ -36,7 +36,7 @@ export async function POST(request: Request) {
         }
       ],
       schema: z.object({
-        category: z.enum(['Top', 'Bottom', 'Outerwear', 'Footwear', 'Accessory', 'Ethnic']),
+        category: z.enum(['Top', 'Bottom', 'Outerwear', 'Footwear', 'Accessory', 'Dress', 'Jewelry', 'Ethnic']),
         sub_category: z.string(),
         primary_color: z.string(),
         pattern: z.string(),
