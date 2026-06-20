@@ -110,7 +110,7 @@ export default function WardrobePage() {
       ) : filteredItems.length > 0 ? (
         <div className={styles.grid}>
           {filteredItems.map(item => (
-            <div key={item.id} className={styles.itemCard}>
+            <Link href={`/wardrobe/${item.id}`} key={item.id} className={styles.itemCard} style={{ textDecoration: 'none', color: 'inherit' }}>
               <div className={styles.itemImage}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={item.image_url} alt="Wardrobe Item" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -120,7 +120,11 @@ export default function WardrobePage() {
                   <h3 className={styles.itemName}>{item.primary_color} {item.sub_category || item.category}</h3>
                   <button 
                     className={styles.deleteBtn} 
-                    onClick={() => handleDelete(item.id)}
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      handleDelete(item.id)
+                    }}
                     title="Remove item"
                   >
                     🗑️
@@ -133,7 +137,7 @@ export default function WardrobePage() {
                   ))}
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       ) : (

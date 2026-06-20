@@ -1,18 +1,39 @@
 import Link from 'next/link'
 import styles from './page.module.css'
 
-export default function ItemDetailPage({ params }: { params: { id: string } }) {
-  // Mock data for MVP
+import { createClient } from '@/utils/supabase/server'
+import { redirect } from 'next/navigation'
+
+export default async function ItemDetailPage({ params }: { params: { id: string } }) {
+  const supabase = createClient()
+  const { data: { session } } = await supabase.auth.getSession()
+  
+  if (!session?.user) {
+    redirect('/login')
+  }
+
+  const { data: itemData, error } = await supabase
+    .from('wardrobe_items')
+    .select('*')
+    .eq('id', params.id)
+    .eq('user_id', session.user.id)
+    .single()
+
+  if (error || !itemData) {
+    redirect('/wardrobe')
+  }
+
   const item = {
-    id: params.id,
-    name: 'Navy Linen Shirt',
-    category: 'Top',
-    color: 'Navy',
-    material: 'Linen',
-    pattern: 'Solid',
-    formality: 3,
-    timesWorn: 12,
-    addedAt: '2023-10-15',
+    id: itemData.id,
+    name: `${itemData.primary_color} ${itemData.sub_category || itemData.category}`,
+    category: itemData.category,
+    color: itemData.primary_color,
+    material: 'Unknown', // Future feature
+    pattern: 'Unknown', // Future feature
+    formality: itemData.formality_score || 3,
+    timesWorn: 0, // Future feature
+    addedAt: new Date(itemData.created_at).toLocaleDateString(),
+    imageUrl: itemData.image_url
   }
 
   return (
@@ -26,7 +47,14 @@ export default function ItemDetailPage({ params }: { params: { id: string } }) {
       </header>
 
       <div className={styles.imageContainer}>
-        {/* Placeholder for item image */}
+        {item.imageUrl ? (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        ) : (
+          <div style={{ width: '100%', height: '100%', background: 'var(--color-bg-tertiary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            No Image
+          </div>
+        )}
       </div>
 
       <div className={styles.infoCard}>
