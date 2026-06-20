@@ -100,21 +100,27 @@ export default function StyleQuizPage() {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session?.user) throw new Error('Not authenticated')
 
-      // Insert or update style preferences
-      const { error } = await supabase
+      const dominantStyleVal = liked.length > 0 ? liked[0] : 'Minimalist'
+
+      // Check if preferences already exist
+      const { data: existing } = await supabase
         .from('style_preferences')
-        .upsert({
-          user_id: session.user.id,
+        .select('id')
+        .eq('user_id', session.user.id)
+        .maybeSingle()
+
+      if (existing) {
+        await supabase.from('style_preferences').update({
           liked_looks: liked,
           disliked_looks: disliked,
-        }, { onConflict: 'user_id' })
-
-      if (error) {
-        // Fallback for tables without unique constraint on user_id yet
+          style_archetype: dominantStyleVal,
+        }).eq('id', existing.id)
+      } else {
         await supabase.from('style_preferences').insert({
           user_id: session.user.id,
           liked_looks: liked,
           disliked_looks: disliked,
+          style_archetype: dominantStyleVal,
         })
       }
       
