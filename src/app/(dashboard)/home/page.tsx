@@ -40,8 +40,13 @@ export default function DashboardHome() {
       const userId = session.user.id
 
       try {
-        // Fetch user profile for name (optional)
-        const { data: profile } = await supabase.from('users').select('full_name').eq('id', userId).maybeSingle()
+        // Fetch user profile for name and onboarding status
+        const { data: profile } = await supabase.from('users').select('full_name, onboarding_completed').eq('id', userId).maybeSingle()
+
+        if (profile && profile.onboarding_completed === false) {
+          router.push('/onboarding')
+          return
+        }
 
         // Fetch wardrobe count
         const { count: wCount } = await supabase.from('wardrobe_items').select('*', { count: 'exact', head: true }).eq('user_id', userId).eq('is_active', true)
