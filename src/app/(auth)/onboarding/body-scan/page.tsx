@@ -21,6 +21,7 @@ export default function BodyScanPage() {
   const [results, setResults] = useState<any>(null)
   
   const cameraInputRef = useRef<HTMLInputElement>(null)
+  const galleryInputRef = useRef<HTMLInputElement>(null)
 
   const handleStartScan = () => {
     setState('front')
@@ -170,7 +171,7 @@ export default function BodyScanPage() {
                 : 'Turn 90° to your left or right'}
             </p>
 
-            {/* Hidden file input */}
+            {/* Hidden file input for camera */}
             <input 
               type="file" 
               accept="image/*"
@@ -178,6 +179,16 @@ export default function BodyScanPage() {
               className={styles.hiddenInput}
               style={{ display: 'none' }}
               ref={cameraInputRef}
+              onChange={handleImageUpload}
+            />
+
+            {/* Hidden file input for gallery */}
+            <input 
+              type="file" 
+              accept="image/*"
+              className={styles.hiddenInput}
+              style={{ display: 'none' }}
+              ref={galleryInputRef}
               onChange={handleImageUpload}
             />
 
@@ -233,6 +244,14 @@ export default function BodyScanPage() {
             <p className={styles.captureHint}>
               Tap to capture {state === 'front' ? 'front' : 'side'} photo
             </p>
+
+            <button 
+              className={styles.skipLink} 
+              onClick={() => galleryInputRef.current?.click()}
+              style={{ marginTop: '16px' }}
+            >
+              Or upload from gallery
+            </button>
           </div>
         )}
 
