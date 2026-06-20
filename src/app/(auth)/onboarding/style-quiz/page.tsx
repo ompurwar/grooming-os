@@ -123,12 +123,22 @@ export default function StyleQuizPage() {
           style_archetype: dominantStyleVal,
         })
       }
+      const isRetake = typeof window !== 'undefined' && window.location.search.includes('retake=true')
       
-      router.push('/onboarding/body-scan')
+      if (isRetake) {
+        router.push('/profile')
+      } else {
+        router.push('/onboarding/body-scan')
+      }
     } catch (err) {
       console.error('Failed to save style preferences:', err)
-      // Ideally show toast here
-      router.push('/onboarding/body-scan')
+      
+      const isRetake = typeof window !== 'undefined' && window.location.search.includes('retake=true')
+      if (isRetake) {
+        router.push('/profile')
+      } else {
+        router.push('/onboarding/body-scan')
+      }
     }
   }
 
