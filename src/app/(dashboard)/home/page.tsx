@@ -136,14 +136,24 @@ export default function DashboardHome() {
                 type="submit"
                 className={`${styles.styleButton} ${!prompt.trim() ? styles.styleButtonDisabled : ''}`}
                 disabled={!prompt.trim()}
-                style={{ flex: 1 }}
+                style={{ flex: 1, width: 'auto' }}
               >
                 Style Me
               </button>
               <Link
                 href="/wardrobe?select=true"
                 className={styles.styleButton}
-                style={{ background: 'var(--color-bg-tertiary)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)', flex: '0 0 auto', padding: '0 16px' }}
+                style={{ 
+                  background: 'var(--color-bg-tertiary)', 
+                  color: 'var(--color-text-primary)', 
+                  border: '1px solid var(--color-border)', 
+                  flex: '0 0 auto', 
+                  width: 'auto',
+                  padding: '0 16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
                 title="Start with a specific item from your wardrobe"
               >
                 <Shirt size={20} />
