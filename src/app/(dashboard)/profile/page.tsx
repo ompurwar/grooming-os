@@ -57,7 +57,9 @@ export default function ProfilePage() {
             <span className={styles.memberSince}>Member since {profile?.memberSince || '...'}</span>
           </div>
         </div>
-        <button className={styles.editBtn}>Edit</button>
+        <Link href="/onboarding/basic-info?retake=true" className={styles.editBtn} style={{ textDecoration: 'none' }}>
+          Edit
+        </Link>
       </header>
 
       {/* Quick Stats */}

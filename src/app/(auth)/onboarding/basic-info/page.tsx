@@ -21,6 +21,7 @@ export default function BasicInfoPage() {
   const [occupation, setOccupation] = useState('')
   const [budget, setBudget] = useState('')
   const [isFetching, setIsFetching] = useState(true)
+  const [isRetake, setIsRetake] = useState(false)
 
   useEffect(() => {
     async function loadData() {
@@ -37,6 +38,9 @@ export default function BasicInfoPage() {
         }
       }
       setIsFetching(false)
+      if (typeof window !== 'undefined' && window.location.search.includes('retake=true')) {
+        setIsRetake(true)
+      }
     }
     loadData()
   }, [])
@@ -62,7 +66,12 @@ export default function BasicInfoPage() {
 
       if (error) throw error
       
-      router.push('/onboarding/style-quiz')
+      const isRetake = typeof window !== 'undefined' && window.location.search.includes('retake=true')
+      if (isRetake) {
+        router.push('/profile')
+      } else {
+        router.push('/onboarding/style-quiz')
+      }
     } catch (err) {
       console.error('Failed to save basic info:', err)
       // Ideally show a toast error here
@@ -179,10 +188,10 @@ export default function BasicInfoPage() {
           onClick={handleContinue}
           disabled={!isValid}
         >
-          Continue
-          <span className={styles.ctaArrow}>→</span>
+          {isRetake ? 'Save Details' : 'Continue'}
+          {!isRetake && <span className={styles.ctaArrow}>→</span>}
         </button>
-          </>
+        </>
         )}
       </div>
     </div>
