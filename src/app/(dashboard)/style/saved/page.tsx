@@ -62,10 +62,10 @@ function SavedStylesContent() {
               .eq('outfit_id', outfit.id)
 
             const formattedItems = (outfitItems || []).map((oi: any) => ({
-              slot: oi.slot,
-              category: oi.wardrobe_items.category,
-              color: oi.wardrobe_items.primary_color,
-              image: oi.wardrobe_items.image_url,
+              type: oi.wardrobe_items.category || 'Top',
+              name: `${oi.wardrobe_items.primary_color || ''} ${oi.wardrobe_items.category || ''}`.trim(),
+              source: 'From Wardrobe',
+              imageUrl: oi.wardrobe_items.image_url,
               icon: SLOT_ICONS[oi.slot] || Shirt
             }))
 

@@ -114,13 +114,18 @@ export default function LookCard({
         </div>
         {!isHeroMode && (
           <div className={styles.headerBadges}>
-            <div className={styles.toggleContainer} title="Switch between icons and photos">
+            <div 
+              className={styles.toggleContainer} 
+              title="Switch between icons and photos"
+              onClick={() => setShowImages(!showImages)}
+              style={{ cursor: 'pointer' }}
+            >
               <span className={styles.toggleIcon}><Shirt size={14} /></span>
-              <label className={styles.switch}>
+              <label className={styles.switch} onClick={(e) => e.stopPropagation()}>
                 <input 
                   type="checkbox" 
                   checked={showImages} 
-                  onChange={() => setShowImages(!showImages)} 
+                  onChange={(e) => setShowImages(e.target.checked)} 
                 />
                 <span className={styles.slider}></span>
               </label>
@@ -151,13 +156,17 @@ export default function LookCard({
       {(!isHeroMode || showItemsAccordion) && (
         <div className={styles.itemsList}>
           {isHeroMode && (
-            <div className={styles.toggleContainer} style={{ alignSelf: 'flex-end', marginBottom: '16px' }}>
+            <div 
+              className={styles.toggleContainer} 
+              style={{ alignSelf: 'flex-end', marginBottom: '16px', cursor: 'pointer' }}
+              onClick={() => setShowImages(!showImages)}
+            >
               <span className={styles.toggleIcon}><Shirt size={14} /></span>
-              <label className={styles.switch}>
+              <label className={styles.switch} onClick={(e) => e.stopPropagation()}>
                 <input 
                   type="checkbox" 
                   checked={showImages} 
-                  onChange={() => setShowImages(!showImages)} 
+                  onChange={(e) => setShowImages(e.target.checked)} 
                 />
                 <span className={styles.slider}></span>
               </label>
