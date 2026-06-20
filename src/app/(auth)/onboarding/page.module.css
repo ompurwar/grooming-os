@@ -83,8 +83,7 @@
   border: 1px solid var(--color-glass-border);
   border-radius: var(--radius-lg);
   transition: all var(--transition-base);
-  animation: fadeInUp 0.5s ease-out forwards;
-  opacity: 0;
+  animation: fadeInUp 0.5s ease-out both;
 }
 
 .stepItem:nth-child(1) { animation-delay: 100ms; }
@@ -147,8 +146,7 @@
   border: 1px solid var(--color-accent-border);
   border-radius: var(--radius-lg);
   margin-bottom: var(--space-8);
-  animation: fadeInUp 0.6s ease-out 0.6s forwards;
-  opacity: 0;
+  animation: fadeInUp 0.6s ease-out 0.6s both;
 }
 
 .infoIcon {
@@ -184,8 +182,7 @@
   text-decoration: none;
   transition: all var(--transition-base);
   box-shadow: var(--shadow-glow-accent);
-  animation: fadeInUp 0.6s ease-out 0.7s forwards;
-  opacity: 0;
+  animation: fadeInUp 0.6s ease-out 0.7s both;
 }
 
 .ctaButton:hover {

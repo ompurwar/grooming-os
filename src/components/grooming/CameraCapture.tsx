@@ -46,8 +46,17 @@ export default function CameraCapture({ mode, onCapture, onCancel }: CameraCaptu
       if (videoRef.current) {
         videoRef.current.srcObject = stream
         videoRef.current.onloadedmetadata = () => {
-          videoRef.current?.play()
-          setIsReady(true)
+          const playPromise = videoRef.current?.play()
+          if (playPromise !== undefined) {
+            playPromise.then(() => {
+              setIsReady(true)
+            }).catch(e => {
+              console.error('Camera play error:', e)
+              setError('Could not start the camera feed. You can upload a photo instead.')
+            })
+          } else {
+            setIsReady(true)
+          }
         }
       }
     } catch (err: any) {
