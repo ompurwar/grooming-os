@@ -7,7 +7,7 @@ import { createClient } from '@/utils/supabase/client'
 import { fetchWeatherContext, WeatherContext } from '@/utils/weather'
 import { toast } from 'sonner'
 import { triggerHaptic, hapticPatterns } from '@/utils/haptics'
-import { Sparkles, Briefcase, Globe } from 'lucide-react'
+import { Sparkles, Briefcase, Globe, Shirt } from 'lucide-react'
 import styles from './page.module.css'
 
 const OCCASION_CHIPS = [
@@ -60,6 +60,7 @@ function StyleContent() {
   const [savedLooks, setSavedLooks] = useState<any[]>([])
   const [savedCapsules, setSavedCapsules] = useState<any[]>([])
   const [selectedCapsuleId, setSelectedCapsuleId] = useState<string>('')
+  const [wardrobeCount, setWardrobeCount] = useState<number | null>(null)
 
   const handleCapsuleGenerate = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -92,7 +93,7 @@ function StyleContent() {
         return
       }
 
-      const [looksRes, capsulesResponse] = await Promise.all([
+      const [looksRes, capsulesResponse, wardrobeCountRes] = await Promise.all([
         supabase
           .from('outfits')
           .select('id, occasion, created_at')
@@ -100,11 +101,13 @@ function StyleContent() {
           .eq('is_saved', true)
           .order('created_at', { ascending: false })
           .limit(4),
-        fetch('/api/style/capsules').then(res => res.json())
+        fetch('/api/style/capsules').then(res => res.json()),
+        supabase.from('wardrobe_items').select('id', { count: 'exact', head: true }).eq('user_id', session.user.id)
       ])
 
       setSavedLooks(looksRes.data ?? [])
       setSavedCapsules(capsulesResponse.capsules ?? [])
+      setWardrobeCount(wardrobeCountRes.count ?? 0)
     }
     initStyle()
   }, [])
@@ -282,14 +285,28 @@ function StyleContent() {
     handleInitialStyleClick(undefined, text)
   }
 
+  if (wardrobeCount === null) return null;
+
   return (
     <div className={styles.container}>
       <header className={styles.header}>
         <h1 className={styles.title}>Styling Hub</h1>
       </header>
 
-      {/* Hero Action */}
-      <section className={styles.heroCard}>
+      {wardrobeCount === 0 ? (
+        <section className={styles.heroCard} style={{ textAlign: 'center', padding: '40px 20px' }}>
+          <div className={styles.glow} />
+          <div style={{ marginBottom: '16px', color: '#c8a55a' }}><Shirt size={48} /></div>
+          <h2>Your Wardrobe is Empty</h2>
+          <p style={{ marginBottom: '24px', opacity: 0.8 }}>Add some clothes to your digital wardrobe before our AI can style you.</p>
+          <Link href="/wardrobe/add" className={styles.primaryButton} style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 24px', background: '#c8a55a', color: '#1E1E24', borderRadius: '8px', fontWeight: 600 }}>
+            Add Your First Item
+          </Link>
+        </section>
+      ) : (
+        <>
+          {/* Hero Action */}
+          <section className={styles.heroCard}>
         <div className={styles.glow} />
         <h2>What's the occasion?</h2>
         <p>Describe your event or mood, and AI will craft the perfect look.</p>
@@ -464,36 +481,40 @@ function StyleContent() {
         )}
       </section>
 
-      {/* Saved Capsules */}
-      <section className={styles.savedSection}>
-        <div className={styles.savedHeader}>
-          <h3 className={styles.sectionTitle}>Saved Capsules</h3>
-          {/* We don't have a /style/capsules/saved page yet, but could add one */}
-        </div>
-        
-        {savedCapsules.length === 0 ? (
-          <p style={{ color: 'var(--color-text-tertiary)', fontSize: 'var(--text-sm)' }}>
-            No travel capsules yet. Switch to Travel Capsule mode to build one!
-          </p>
-        ) : (
-          <div className={styles.savedScroll}>
-            {savedCapsules.map((capsule: any) => {
-              const ago = getTimeAgo(capsule.created_at)
-              return (
-                <Link key={capsule.id} href={`/style/capsule/${capsule.id}`} className={styles.savedCard} style={{ textDecoration: 'none' }}>
-                  <div className={styles.savedVisual}>
-                    <div className={styles.miniItem}><Globe size={16} /></div>
-                  </div>
-                  <div className={styles.savedInfo}>
-                    <h4>{capsule.title || 'Untitled'}</h4>
-                    <span>{capsule.destinations} • {ago}</span>
-                  </div>
+          {/* Saved Capsules Preview */}
+          <section className={styles.savedSection}>
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.sectionTitle}>Saved Capsules</h2>
+              {savedCapsules.length > 0 && (
+                <Link href="/style/saved?tab=capsules" className={styles.viewAll}>
+                  View All
                 </Link>
-              )
-            })}
-          </div>
-        )}
-      </section>
+              )}
+            </div>
+            
+            {savedCapsules.length > 0 ? (
+              <div className={styles.looksGrid}>
+                {savedCapsules.map(capsule => (
+                  <Link href={`/style/capsule/${capsule.id}`} key={capsule.id} className={styles.lookCard}>
+                    <div className={styles.lookPlaceholder}>
+                      <Briefcase size={24} color="#666" />
+                    </div>
+                    <div className={styles.lookInfo}>
+                      <div className={styles.lookOccasion}>{capsule.destinations[0]} ({capsule.days} days)</div>
+                      <div className={styles.lookTime}>{getTimeAgo(capsule.created_at)}</div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className={styles.emptyState}>
+                <Globe size={32} opacity={0.5} />
+                <p>No saved capsules yet</p>
+              </div>
+            )}
+          </section>
+        </>
+      )}
 
       {/* Context Modal */}
       {showContextModal && (
