@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { Shirt, Camera, ShoppingCart, Trash2, X, Sparkles, Check, RefreshCw, Bookmark } from 'lucide-react'
 import styles from './LookCard.module.css'
@@ -46,6 +46,27 @@ export default function LookCard({
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null)
   const [showItemsAccordion, setShowItemsAccordion] = useState(false)
   const [justSaved, setJustSaved] = useState(false)
+  const cardRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          // If at least 30% of the card is visible, switch to image mode automatically
+          if (entry.isIntersecting) {
+            setShowImages(true)
+          }
+        })
+      },
+      { threshold: 0.3 }
+    )
+
+    if (cardRef.current) {
+      observer.observe(cardRef.current)
+    }
+
+    return () => observer.disconnect()
+  }, [])
 
   const isHeroMode = !!tryOnImageUrl
 
@@ -58,7 +79,7 @@ export default function LookCard({
   }
 
   return (
-    <div className={styles.lookCard}>
+    <div className={styles.lookCard} ref={cardRef}>
       <div className={styles.glow} />
       
       {/* Hero Try-On Image */}
