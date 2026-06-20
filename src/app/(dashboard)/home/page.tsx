@@ -112,7 +112,9 @@ export default function DashboardHome() {
           <h1 className={styles.title}>{greeting}, {stats.name}</h1>
           <p className={styles.subtitle}>What would you like to wear today?</p>
         </div>
-        <div className={styles.avatar}><User size={24} /></div>
+        <Link href="/profile" className={styles.avatar} style={{ color: 'inherit' }}>
+          <User size={24} />
+        </Link>
       </header>
 
       {/* Main Action - Get Me Ready */}
