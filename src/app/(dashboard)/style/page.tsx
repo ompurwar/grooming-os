@@ -150,8 +150,11 @@ function StyleContent() {
   const handleInitialStyleClick = async (e?: React.FormEvent, directPrompt?: string, capsuleId?: string) => {
     if (e) e.preventDefault()
     
-    const textToSubmit = directPrompt || prompt
-    if (!textToSubmit.trim()) return
+    let textToSubmit = directPrompt || prompt
+    if (!textToSubmit.trim() && baseItems.length === 0) return
+    if (!textToSubmit.trim()) {
+      textToSubmit = 'Style a great outfit using my selected items.'
+    }
 
     triggerHaptic(hapticPatterns.light)
 
@@ -376,8 +379,8 @@ function StyleContent() {
             
             <button 
               type="submit"
-              className={`${styles.styleBtn} ${!prompt.trim() || isGenerating ? styles.styleBtnDisabled : ''}`}
-              disabled={!prompt.trim() || isGenerating}
+              className={`${styles.styleBtn} ${(!prompt.trim() && baseItems.length === 0) || isGenerating ? styles.styleBtnDisabled : ''}`}
+              disabled={(!prompt.trim() && baseItems.length === 0) || isGenerating}
             >
               {isGenerating ? 'Curating Look...' : <>Style Me <Sparkles size={16} style={{display: 'inline', verticalAlign: 'text-bottom', marginLeft: 4}} /></>}
             </button>
