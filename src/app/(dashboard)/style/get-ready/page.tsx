@@ -126,8 +126,10 @@ function GetReadyContent() {
       triggerHaptic(hapticPatterns.success)
 
       // Supabase Realtime Subscription for Webhook VTO updates
+      // Using a random string in the channel name prevents the "cannot add callbacks after subscribe()" error
+      // which happens in React StrictMode when the channel is reused before it's fully cleaned up.
       const channel = supabase
-        .channel(`outfits_vto_updates_${outfit.id}`)
+        .channel(`outfits_vto_updates_${outfit.id}_${Math.random().toString(36).substring(7)}`)
         .on('postgres_changes', { 
           event: 'UPDATE', 
           schema: 'public', 
