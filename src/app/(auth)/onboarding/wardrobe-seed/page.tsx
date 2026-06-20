@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
@@ -15,24 +15,59 @@ export default function WardrobeSeedPage() {
   const [state, setState] = useState<CapturingState>('idle')
   const [mockId, setMockId] = useState(1)
 
-  const handleCapture = () => {
+  const cameraInputRef = useRef<HTMLInputElement>(null)
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    e.target.value = ''
+    
     setState('capturing')
-    // Simulate AI capturing and tagging an item
-    setTimeout(() => {
+    
+    try {
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.user) throw new Error('Not authenticated')
+
       setState('tagging')
-      setTimeout(() => {
-        const categories = ['Top', 'Bottom', 'Outerwear', 'Footwear']
-        const randomCategory = categories[Math.floor(Math.random() * categories.length)]
-        
-        setItems(prev => [...prev, {
-          id: mockId,
-          url: `https://via.placeholder.com/150/1e1e24/a1a1aa?text=${randomCategory}`,
-          category: randomCategory,
-        }])
-        setMockId(prev => prev + 1)
-        setState('idle')
-      }, 1500)
-    }, 1000)
+      
+      const fileExt = 'jpg'
+      const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`
+      const filePath = `uploads/${fileName}`
+
+      const { error: uploadError } = await supabase.storage
+        .from('wardrobe-images')
+        .upload(filePath, file)
+
+      if (uploadError) throw new Error(uploadError.message)
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('wardrobe-images')
+        .getPublicUrl(filePath)
+
+      const res = await fetch('/api/analyze/wardrobe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageUrl: publicUrl, userId: session.user.id })
+      })
+
+      const result = await res.json()
+      if (!result.success) throw new Error(result.error)
+
+      setItems(prev => [...prev, {
+        id: result.data.id || mockId,
+        url: publicUrl,
+        category: result.data.category,
+      }])
+      setMockId(prev => prev + 1)
+
+    } catch (err: any) {
+      console.error(err)
+      alert(err.message || 'Failed to analyze image')
+    } finally {
+      setState('idle')
+    }
   }
 
   const handleFinish = async () => {
@@ -73,7 +108,8 @@ export default function WardrobeSeedPage() {
         <div className={styles.captureArea}>
           {state === 'idle' ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
-              <button className={styles.captureButton} onClick={handleCapture}>
+              <input type="file" accept="image/*" capture="environment" ref={cameraInputRef} style={{ display: 'none' }} onChange={handleImageUpload} />
+              <button className={styles.captureButton} onClick={() => cameraInputRef.current?.click()}>
                 <div className={styles.cameraIcon}><Camera size={32} /></div>
                 <span>Tap to photograph an item</span>
                 <p className={styles.captureHelp}>Lay flat or hang against a plain background</p>
@@ -85,11 +121,7 @@ export default function WardrobeSeedPage() {
                   type="file" 
                   accept="image/*" 
                   style={{ display: 'none' }}
-                  onChange={(e) => {
-                    if (e.target.files && e.target.files.length > 0) {
-                      handleCapture() // Simulate upload handling identically to capture
-                    }
-                  }}
+                  onChange={handleImageUpload}
                 />
               </label>
             </div>
