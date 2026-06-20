@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
-import { Check, Sparkles } from 'lucide-react'
+import { Check, Sparkles, Info } from 'lucide-react'
 import { useLongPress } from '@/hooks/useLongPress'
 import styles from './page.module.css'
 
@@ -66,6 +66,7 @@ function WardrobeContent() {
   )
 
   const handleToggleSelect = (id: string) => {
+    setIsSelectionMode(true)
     setSelectedItemIds(prev => {
       if (prev.includes(id)) {
         const next = prev.filter(i => i !== id)
@@ -190,12 +191,8 @@ function WardrobeItemCard({ item, isSelectionMode, isSelected, onToggleSelect, o
     },
     (e) => {
       // Regular click
-      if (isSelectionMode) {
-        e.preventDefault()
-        onToggleSelect(item.id)
-      } else {
-        router.push(`/wardrobe/${item.id}`)
-      }
+      e.preventDefault()
+      onToggleSelect(item.id)
     },
     { delay: 500 }
   )
@@ -214,6 +211,19 @@ function WardrobeItemCard({ item, isSelectionMode, isSelected, onToggleSelect, o
       )}
 
       <div className={styles.itemImage}>
+        {!isSelectionMode && (
+          <button
+            className={styles.infoBtn}
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              router.push(`/wardrobe/${item.id}`)
+            }}
+            title="View Details"
+          >
+            <Info size={16} />
+          </button>
+        )}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={item.image_url} alt="Wardrobe Item" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
       </div>
