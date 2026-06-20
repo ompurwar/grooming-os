@@ -278,3 +278,11 @@ function HomeContent() {
     </div>
   )
 }
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div className={styles.container}><div className={styles.heroCard}><div style={{textAlign: 'center', opacity: 0.5}}>Loading...</div></div></div>}>
+      <HomeContent />
+    </Suspense>
+  )
+}

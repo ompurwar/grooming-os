@@ -72,7 +72,6 @@ function WardrobeContent() {
   })
 
   const handleToggleSelect = (id: string) => {
-    setIsSelectionMode(true)
     setSelectedItemIds(prev => {
       if (prev.includes(id)) {
         const next = prev.filter(i => i !== id)
@@ -84,9 +83,10 @@ function WardrobeContent() {
   }
 
   const handleLongPress = (id: string) => {
-    if (!isSelectionMode) {
-      setIsSelectionMode(true)
-      setSelectedItemIds([id])
+    // Selection mode now ONLY activates via the Create Look button.
+    // Long press does nothing if not in selection mode.
+    if (isSelectionMode) {
+      handleToggleSelect(id)
     }
   }
 
@@ -240,7 +240,11 @@ function WardrobeItemCard({ item, isSelectionMode, isSelected, onToggleSelect, o
     (e) => {
       // Regular click
       e.preventDefault()
-      onToggleSelect(item.id)
+      if (isSelectionMode) {
+        onToggleSelect(item.id)
+      } else {
+        router.push(`/wardrobe/${item.id}`)
+      }
     },
     { delay: 500 }
   )
@@ -249,7 +253,7 @@ function WardrobeItemCard({ item, isSelectionMode, isSelected, onToggleSelect, o
     <div 
       {...longPress}
       className={`${styles.itemCard} ${isSelected ? styles.selectedCard : ''}`} 
-      style={{ cursor: isSelectionMode ? 'pointer' : 'default', position: 'relative', userSelect: 'none', WebkitUserSelect: 'none' }}
+      style={{ cursor: 'pointer', position: 'relative', userSelect: 'none', WebkitUserSelect: 'none' }}
     >
       {/* Selection Indicator */}
       {isSelectionMode && (
