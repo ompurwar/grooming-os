@@ -172,9 +172,9 @@ export default function WardrobeSeedPage() {
           </button>
 
           {items.length === 0 && (
-            <Link href="/home" className={styles.skipLink}>
+            <button onClick={handleFinish} className={styles.skipLink} style={{ border: 'none', background: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
               I&apos;ll do this later
-            </Link>
+            </button>
           )}
         </div>
       </div>
