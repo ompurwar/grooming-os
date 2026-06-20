@@ -131,13 +131,24 @@ export default function DashboardHome() {
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
             />
-            <button
-              type="submit"
-              className={`${styles.styleButton} ${!prompt.trim() ? styles.styleButtonDisabled : ''}`}
-              disabled={!prompt.trim()}
-            >
-              Style Me
-            </button>
+            <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+              <button
+                type="submit"
+                className={`${styles.styleButton} ${!prompt.trim() ? styles.styleButtonDisabled : ''}`}
+                disabled={!prompt.trim()}
+                style={{ flex: 1 }}
+              >
+                Style Me
+              </button>
+              <Link
+                href="/wardrobe?select=true"
+                className={styles.styleButton}
+                style={{ background: 'var(--color-bg-tertiary)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)', flex: '0 0 auto', padding: '0 16px' }}
+                title="Start with a specific item from your wardrobe"
+              >
+                <Shirt size={20} />
+              </Link>
+            </div>
           </form>
 
           <div className={styles.occasionsGrid}>

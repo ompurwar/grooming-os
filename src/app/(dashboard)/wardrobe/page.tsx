@@ -2,7 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
+import { Check, Sparkles } from 'lucide-react'
+import { useLongPress } from '@/hooks/useLongPress'
 import styles from './page.module.css'
 
 const FILTERS = ['All', 'Tops', 'Bottoms', 'Outerwear', 'Footwear', 'Accessories', 'Ethnic']
@@ -17,9 +20,21 @@ interface WardrobeItem {
 }
 
 export default function WardrobePage() {
+  const router = useRouter()
   const [activeFilter, setActiveFilter] = useState('All')
   const [items, setItems] = useState<WardrobeItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
+
+  // Selection state
+  const searchParams = useSearchParams()
+  const [isSelectionMode, setIsSelectionMode] = useState(false)
+  const [selectedItemIds, setSelectedItemIds] = useState<string[]>([])
+
+  useEffect(() => {
+    if (searchParams.get('select') === 'true') {
+      setIsSelectionMode(true)
+    }
+  }, [searchParams])
 
   useEffect(() => {
     async function fetchItems() {
@@ -46,13 +61,33 @@ export default function WardrobePage() {
     fetchItems()
   }, [])
 
-  const filteredItems = activeFilter === 'All' 
-    ? items 
-    : items.filter(item => 
-        item.category === activeFilter || 
-        item.category === activeFilter.slice(0, -1) || 
-        (activeFilter === 'Accessories' && item.category === 'Accessory')
-      )
+  const filteredItems = items.filter(item => 
+    activeFilter === 'All' ? true : item.category === activeFilter
+  )
+
+  const handleToggleSelect = (id: string) => {
+    setSelectedItemIds(prev => {
+      if (prev.includes(id)) {
+        const next = prev.filter(i => i !== id)
+        if (next.length === 0) setIsSelectionMode(false)
+        return next
+      }
+      return [...prev, id]
+    })
+  }
+
+  const handleLongPress = (id: string) => {
+    if (!isSelectionMode) {
+      setIsSelectionMode(true)
+      setSelectedItemIds([id])
+    }
+  }
+
+  const handleCreateLook = () => {
+    if (selectedItemIds.length > 0) {
+      router.push(`/style?items=${selectedItemIds.join(',')}`)
+    }
+  }
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to remove this item? Past looks using it will be preserved.')) return;
@@ -110,34 +145,15 @@ export default function WardrobePage() {
       ) : filteredItems.length > 0 ? (
         <div className={styles.grid}>
           {filteredItems.map(item => (
-            <Link href={`/wardrobe/${item.id}`} key={item.id} className={styles.itemCard} style={{ textDecoration: 'none', color: 'inherit' }}>
-              <div className={styles.itemImage}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={item.image_url} alt="Wardrobe Item" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              </div>
-              <div className={styles.itemInfo}>
-                <div className={styles.itemHeader}>
-                  <h3 className={styles.itemName}>{item.primary_color} {item.sub_category || item.category}</h3>
-                  <button 
-                    className={styles.deleteBtn} 
-                    onClick={(e) => {
-                      e.preventDefault()
-                      e.stopPropagation()
-                      handleDelete(item.id)
-                    }}
-                    title="Remove item"
-                  >
-                    🗑️
-                  </button>
-                </div>
-                <span className={styles.itemType}>{item.category}</span>
-                <div className={styles.formalityStars}>
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <span key={i} className={i < (item.formality_score || 3) ? styles.starFilled : styles.starEmpty}>★</span>
-                  ))}
-                </div>
-              </div>
-            </Link>
+            <WardrobeItemCard 
+              key={item.id}
+              item={item}
+              isSelectionMode={isSelectionMode}
+              isSelected={selectedItemIds.includes(item.id)}
+              onToggleSelect={handleToggleSelect}
+              onLongPressItem={handleLongPress}
+              onDelete={handleDelete}
+            />
           ))}
         </div>
       ) : (
@@ -151,6 +167,80 @@ export default function WardrobePage() {
           <Link href="/wardrobe/add" className={styles.emptyButton}>Add Your First Item</Link>
         </div>
       )}
+
+      {/* Floating Action Button for Create Look */}
+      {isSelectionMode && selectedItemIds.length > 0 && (
+        <button className={styles.fab} onClick={handleCreateLook}>
+          <Sparkles size={20} />
+          Create Look with {selectedItemIds.length} {selectedItemIds.length === 1 ? 'Item' : 'Items'}
+        </button>
+      )}
+    </div>
+  )
+}
+
+function WardrobeItemCard({ item, isSelectionMode, isSelected, onToggleSelect, onLongPressItem, onDelete }: any) {
+  const router = useRouter()
+  
+  const longPress = useLongPress(
+    (e) => {
+      // Long press
+      e.preventDefault()
+      onLongPressItem(item.id)
+    },
+    (e) => {
+      // Regular click
+      if (isSelectionMode) {
+        e.preventDefault()
+        onToggleSelect(item.id)
+      } else {
+        router.push(`/wardrobe/${item.id}`)
+      }
+    },
+    { delay: 500 }
+  )
+
+  return (
+    <div 
+      {...longPress}
+      className={`${styles.itemCard} ${isSelected ? styles.selectedCard : ''}`} 
+      style={{ cursor: isSelectionMode ? 'pointer' : 'default', position: 'relative', userSelect: 'none', WebkitUserSelect: 'none' }}
+    >
+      {/* Selection Indicator */}
+      {isSelectionMode && (
+        <div className={`${styles.selectionIndicator} ${isSelected ? styles.checked : ''}`}>
+          {isSelected && <Check strokeWidth={3} />}
+        </div>
+      )}
+
+      <div className={styles.itemImage}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={item.image_url} alt="Wardrobe Item" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+      </div>
+      <div className={styles.itemInfo}>
+        <div className={styles.itemHeader}>
+          <h3 className={styles.itemName}>{item.primary_color} {item.sub_category || item.category}</h3>
+          {!isSelectionMode && (
+            <button 
+              className={styles.deleteBtn} 
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                onDelete(item.id)
+              }}
+              title="Remove item"
+            >
+              🗑️
+            </button>
+          )}
+        </div>
+        <span className={styles.itemType}>{item.category}</span>
+        <div className={styles.formalityStars}>
+          {Array.from({ length: 5 }).map((_, i) => (
+            <span key={i} className={i < (item.formality_score || 3) ? styles.starFilled : styles.starEmpty}>★</span>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }

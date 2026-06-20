@@ -61,6 +61,7 @@ function StyleContent() {
   const [savedCapsules, setSavedCapsules] = useState<any[]>([])
   const [selectedCapsuleId, setSelectedCapsuleId] = useState<string>('')
   const [wardrobeCount, setWardrobeCount] = useState<number | null>(null)
+  const [baseItems, setBaseItems] = useState<any[]>([])
 
   const handleCapsuleGenerate = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -123,7 +124,8 @@ function StyleContent() {
         body: JSON.stringify({ 
           prompt: textToSubmit, 
           weatherContext: finalContext,
-          capsuleId: capsuleId || undefined
+          capsuleId: capsuleId || undefined,
+          requiredItemIds: baseItems.length > 0 ? baseItems.map(i => i.id) : undefined
         })
       })
       
@@ -264,7 +266,19 @@ function StyleContent() {
   useEffect(() => {
     const queryPrompt = searchParams.get('prompt')
     const autoRun = searchParams.get('auto') === 'true'
+    const itemsParam = searchParams.get('items')
     
+    // Fetch base items if they exist
+    if (itemsParam) {
+      const ids = itemsParam.split(',')
+      const fetchBaseItems = async () => {
+        const supabase = createClient()
+        const { data } = await supabase.from('wardrobe_items').select('*').in('id', ids)
+        if (data) setBaseItems(data)
+      }
+      fetchBaseItems()
+    }
+
     if (queryPrompt && autoRun && !hasAutoRun.current) {
       hasAutoRun.current = true
       setPrompt(queryPrompt)
@@ -549,6 +563,7 @@ function StyleContent() {
                       onChange={(e) => setManualTemp(e.target.value)}
                     />
                   </div>
+
                   <div className={styles.field}>
                     <label>Condition</label>
                     <input 

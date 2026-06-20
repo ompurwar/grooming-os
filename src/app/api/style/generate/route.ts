@@ -7,7 +7,7 @@ import crypto from 'crypto'
 
 export async function POST(request: Request) {
   try {
-    const { prompt, weatherContext, capsuleId } = await request.json()
+    const { prompt, weatherContext, capsuleId, requiredItemIds } = await request.json()
 
     if (!prompt) {
       return NextResponse.json({ error: 'Prompt is required' }, { status: 400 })
@@ -84,6 +84,10 @@ export async function POST(request: Request) {
       ? `Weather: ${weatherContext.temperature}°C, ${weatherContext.condition} in ${weatherContext.city}.`
       : ''
 
+    const requiredItemsContext = (requiredItemIds && requiredItemIds.length > 0)
+      ? `\n\nCRITICAL REQUIREMENT: The user has explicitly selected the following inventory item IDs to base the outfit around: [${requiredItemIds.join(', ')}]. Your final outfit MUST include ALL of these specific items. Build the rest of the outfit around them to complete the cohesive look.`
+      : ''
+
     const { object } = await generateObject({
       model: openai('gpt-4o'),
       system: `You are an elite fashion stylist. You are given a user's prompt, weather conditions, body profile, and a list of their wardrobe items.
@@ -91,7 +95,7 @@ export async function POST(request: Request) {
       Rules:
       - Return the precise database IDs of the items you selected.
       - Write a short, engaging explanation (2-3 sentences) of why this outfit works.
-      - Give the outfit a catchy name.`,
+      - Give the outfit a catchy name.${requiredItemsContext}`,
       messages: [
         {
           role: 'user',
