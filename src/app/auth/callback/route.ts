@@ -7,10 +7,20 @@ export async function GET(request: Request) {
   
   if (code) {
     const supabase = await createClient()
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
-    if (!error) {
-      // Successfully exchanged code for session
-      // For new users, we redirect to plans selection.
+    const { error, data: { session } } = await supabase.auth.exchangeCodeForSession(code)
+    if (!error && session?.user) {
+      // Check if user has already completed onboarding
+      const { data: profile } = await supabase
+        .from('users')
+        .select('onboarding_completed')
+        .eq('id', session.user.id)
+        .maybeSingle()
+
+      if (profile?.onboarding_completed) {
+        return NextResponse.redirect(`${origin}/home`)
+      }
+
+      // For new users or incomplete onboarding, redirect to plans selection.
       return NextResponse.redirect(`${origin}/plans`)
     }
   }

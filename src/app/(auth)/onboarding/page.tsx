@@ -11,6 +11,7 @@ export const metadata: Metadata = {
 
 import { createClient } from '@/utils/supabase/server'
 import { CheckCircle2 } from 'lucide-react'
+import { redirect } from 'next/navigation'
 
 export default async function OnboardingPage() {
   const supabase = await createClient()
@@ -25,7 +26,12 @@ export default async function OnboardingPage() {
 
   if (session?.user) {
     const userId = session.user.id
-    const { data: profile } = await supabase.from('users').select('age_range').eq('id', userId).maybeSingle()
+    const { data: profile } = await supabase.from('users').select('age_range, onboarding_completed').eq('id', userId).maybeSingle()
+    
+    if (profile?.onboarding_completed) {
+      redirect('/home')
+    }
+
     if (profile?.age_range) stepsCompleted.step1 = true
     
     const { data: stylePrefs } = await supabase.from('style_preferences').select('id').eq('user_id', userId).maybeSingle()
