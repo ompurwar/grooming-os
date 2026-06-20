@@ -13,7 +13,7 @@ import { createClient } from '@/utils/supabase/server'
 import { CheckCircle2 } from 'lucide-react'
 
 export default async function OnboardingPage() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { session } } = await supabase.auth.getSession()
   
   let stepsCompleted = {
