@@ -662,7 +662,18 @@
   background: var(--color-bg-secondary);
   border-radius: var(--radius-lg);
   padding: 8px 12px;
-  animation: fadeIn 0.3s ease-out;
+  animation: slotMachineDrop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes slotMachineDrop {
+  0% {
+    transform: translateY(-15px) scale(0.98);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
 }
 
 .stepThumb {
@@ -743,4 +754,27 @@
   opacity: 0.5;
   cursor: not-allowed;
   transform: none;
+}
+
+/* Shimmer Effect */
+@keyframes shimmerAnim {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, var(--color-bg-tertiary) 25%, var(--color-glass-border) 50%, var(--color-bg-tertiary) 75%);
+  background-size: 200% 100%;
+  animation: shimmerAnim 1.5s infinite linear;
+}
+
+.shimmerText {
+  background: linear-gradient(90deg, var(--color-bg-tertiary) 25%, var(--color-glass-border) 50%, var(--color-bg-tertiary) 75%);
+  background-size: 200% 100%;
+  animation: shimmerAnim 1.5s infinite linear;
+  border-radius: var(--radius-sm);
 }

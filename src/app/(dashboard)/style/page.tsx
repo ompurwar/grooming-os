@@ -9,6 +9,7 @@ import { toast } from 'sonner'
 import { triggerHaptic, hapticPatterns } from '@/utils/haptics'
 import { analytics } from '@/utils/analytics'
 import { Check, Sparkles, AlertCircle, Bookmark, ShoppingCart, Shirt, Briefcase, Globe, RefreshCw, Loader2, SkipForward, RotateCcw, Eye } from 'lucide-react'
+import TypewriterText from '@/components/shared/TypewriterText'
 import styles from './page.module.css'
 
 const OCCASION_CHIPS = [
@@ -792,7 +793,20 @@ function StyleContent() {
           </form>
         ) : mode === 'planner' ? (
           /* V2 Planner Mode */
-          <div className={styles.plannerForm}>
+          <div 
+            className={styles.plannerForm}
+            style={{
+              background: 
+                plannerIntent === 'harmonious' ? 'linear-gradient(135deg, rgba(200, 165, 90, 0.05), transparent)' :
+                plannerIntent === 'contrasting' ? 'linear-gradient(135deg, rgba(255, 100, 100, 0.03), rgba(100, 100, 255, 0.03))' :
+                plannerIntent === 'fun' ? 'linear-gradient(135deg, rgba(100, 200, 255, 0.06), rgba(255, 150, 200, 0.06))' :
+                plannerIntent === 'relaxed' ? 'linear-gradient(135deg, rgba(150, 200, 150, 0.05), transparent)' :
+                plannerIntent === 'sharp' ? 'linear-gradient(135deg, rgba(50, 50, 50, 0.1), transparent)' : 'none',
+              transition: 'background 0.5s ease',
+              borderRadius: 'var(--radius-xl)',
+              padding: '16px'
+            }}
+          >
             {!isPlannerRunning && !isPlannerDone && (
               <>
                 <textarea 
@@ -871,19 +885,26 @@ function StyleContent() {
                             {step.status === 'active' ? `Selecting best ${step.category}...` : step.category}
                           </div>
                           {step.status === 'active' && (
-                            <div className={styles.stepStatus}>
-                              <RefreshCw size={10} className="spin" /> Analyzing your wardrobe...
+                            <div className={styles.stepPreview}>
+                              <div className={`${styles.stepThumb} ${styles.shimmer}`}></div>
+                              <div style={{ flex: 1, width: '100%' }}>
+                                <div className={styles.shimmerText} style={{ width: '60%', height: '14px', marginBottom: '8px' }}></div>
+                                <div className={styles.shimmerText} style={{ width: '90%', height: '10px', marginBottom: '4px' }}></div>
+                                <div className={styles.shimmerText} style={{ width: '70%', height: '10px' }}></div>
+                              </div>
                             </div>
                           )}
                           {step.status === 'complete' && step.selectedItem && (
-                            <div className={styles.stepPreview}>
+                            <div key={step.selectedItem.id} className={styles.stepPreview}>
                               {step.selectedItem.imageUrl && (
                                 /* eslint-disable-next-line @next/next/no-img-element */
                                 <img src={step.selectedItem.imageUrl} alt={step.category} className={styles.stepThumb} />
                               )}
                               <div>
                                 <div className={styles.stepItemName}>{step.selectedItem.description}</div>
-                                <div className={styles.stepItemReason}>{step.selectedItem.reason}</div>
+                                <div className={styles.stepItemReason}>
+                                  <TypewriterText text={step.selectedItem.reason} speed={15} />
+                                </div>
                                 <div className={styles.stepActions}>
                                   <button
                                     type="button"
