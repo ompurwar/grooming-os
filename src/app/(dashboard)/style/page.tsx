@@ -360,7 +360,14 @@ function StyleContent() {
     })
   }
 
-  const startPlanner = async () => {
+  const startPlanner = async (directPrompt?: string) => {
+    const textToSubmit = directPrompt || plannerPrompt
+    if (!textToSubmit.trim()) return
+    
+    if (directPrompt) {
+      setPlannerPrompt(textToSubmit)
+    }
+
     setIsPlannerRunning(true)
     setIsPlannerDone(false)
     triggerHaptic(hapticPatterns.medium)
@@ -400,7 +407,7 @@ function StyleContent() {
       try {
         const result = await runPlannerStep(
           categories[i],
-          plannerPrompt,
+          textToSubmit,
           weather,
           plannerIntent,
           completedSelections
@@ -613,8 +620,13 @@ function StyleContent() {
   const handleChipClick = (chip: string) => {
     triggerHaptic(hapticPatterns.light)
     const text = `Get me ready for a ${chip.toLowerCase()}`
-    setPrompt(text)
-    handleInitialStyleClick(undefined, text)
+    
+    if (mode === 'planner') {
+      startPlanner(text)
+    } else {
+      setPrompt(text)
+      handleInitialStyleClick(undefined, text)
+    }
   }
 
   if (wardrobeCount === null) return null;
