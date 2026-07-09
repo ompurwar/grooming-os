@@ -388,16 +388,47 @@ function StyleContent() {
     })
 
     // Initialize steps
-    const initialSteps: PlannerStep[] = categories.map(cat => ({
-      category: cat,
-      status: 'pending' as PlannerStepStatus
-    }))
-    setPlannerSteps(initialSteps)
-
-    // Run through steps sequentially
     const completedSelections: Array<{ id: string; category: string; description: string; reason: string }> = []
 
+    const initialSteps: PlannerStep[] = categories.map(cat => {
+      const baseItem = baseItems.find(item => item.category === cat)
+      
+      if (baseItem) {
+        const description = `${baseItem.primary_color || ''} ${baseItem.pattern || 'solid'} ${baseItem.sub_category || baseItem.category}`
+        const reason = 'Pre-selected by you to anchor the outfit.'
+        
+        const selectedItem = {
+          id: baseItem.id,
+          category: baseItem.category,
+          description,
+          imageUrl: baseItem.image_url || undefined,
+          reason
+        }
+        
+        completedSelections.push(selectedItem)
+        
+        return {
+          category: cat,
+          status: 'complete',
+          selectedItem,
+          aestheticNotes: 'Anchoring outfit around pre-selected item.'
+        }
+      }
+
+      return {
+        category: cat,
+        status: 'pending' as PlannerStepStatus
+      }
+    })
+    setPlannerSteps(initialSteps)
+
     for (let i = 0; i < categories.length; i++) {
+      // Skip if this step was already pre-filled by a base item
+      if (initialSteps[i].status === 'complete') {
+        await new Promise(r => setTimeout(r, 600)) // Brief pause for visual effect
+        continue
+      }
+
       // Mark current step as active
       setPlannerSteps(prev => prev.map((s, idx) => ({
         ...s,
