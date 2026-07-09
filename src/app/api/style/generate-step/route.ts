@@ -99,15 +99,17 @@ export async function POST(request: Request) {
     }
 
     // 4. Build inventory list of items in this category
-    const inventory = wardrobeItems.map((item: any) => ({
-      id: item.id,
-      description: `${item.primary_color} ${item.pattern || 'solid'} ${item.sub_category || item.category}`,
-      category: item.category,
-      material: item.material || 'Unknown',
-      pattern: item.pattern || 'None',
-      formality: item.formality_score,
-      details: item.ai_tags?.join(', ') || ''
-    }))
+    const inventory = wardrobeItems.map((item: any) => {
+      const tags = item.ai_tags && item.ai_tags.length > 0 ? ` [Fit/Tags: ${item.ai_tags.join(', ')}]` : ''
+      return {
+        id: item.id,
+        description: `${item.primary_color} ${item.pattern || 'solid'} ${item.sub_category || item.category}${tags}`,
+        category: item.category,
+        material: item.material || 'Unknown',
+        pattern: item.pattern || 'None',
+        formality: item.formality_score
+      }
+    })
 
     // 5. Check if any requiredItemIds match items in this category — auto-select if so
     if (requiredItemIds && requiredItemIds.length > 0) {
@@ -170,6 +172,7 @@ ${previousSelectionsFormatted}
 Your task:
 - Pick exactly ONE item that best complements the previous selections
 - Consider silhouette balance, color harmony/contrast (per aesthetic intent), material weight, weather, and formality consistency
+- **CRITICAL SILHOUETTE BALANCE:** Pay strict attention to the [Fit/Tags] of previous items! Do NOT create disjointed silhouettes (e.g., do not pair oversized/boxy tops with skinny/tapered bottoms, or extremely slim tops with super baggy bottoms). Match proportions carefully (e.g., oversized with relaxed/wide, slim with slim/tailored).
 - Explain WHY this item works with the previous picks in 2-3 sentences
 - Provide a brief aesthetic note describing the evolving direction of the outfit`,
       messages: [
@@ -199,7 +202,7 @@ Your task:
       selectedItem: {
         id: selectedItem.id,
         category: selectedItem.category,
-        description: `${selectedItem.primary_color} ${selectedItem.pattern || 'solid'} ${selectedItem.sub_category || selectedItem.category}`,
+        description: `${selectedItem.primary_color} ${selectedItem.pattern || 'solid'} ${selectedItem.sub_category || selectedItem.category}${selectedItem.ai_tags && selectedItem.ai_tags.length > 0 ? ` [Fit/Tags: ${selectedItem.ai_tags.join(', ')}]` : ''}`,
         imageUrl: selectedItem.image_url || null,
         reason: object.reason
       },
