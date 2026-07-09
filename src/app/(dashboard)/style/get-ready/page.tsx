@@ -72,12 +72,22 @@ function GetReadyContent() {
         `)
         .eq('outfit_id', outfitId)
 
-      // Parse per-item reasoning if available (V2 Planner stores JSON array)
+      // Parse per-item reasoning if available (V2 Planner stores JSON)
       let perItemReasons: Record<string, string> = {}
+      let overarchingReason = outfit.reasoning || 'This combination was selected specifically for your occasion.'
+      
       try {
         const parsed = JSON.parse(outfit.reasoning || '')
         if (Array.isArray(parsed)) {
+          // Old V2 format before fix
           parsed.forEach((r: any) => { perItemReasons[r.id] = r.reason })
+          overarchingReason = 'This combination was selected specifically for your occasion.'
+        } else if (parsed && typeof parsed === 'object' && parsed.overall) {
+          // New V2 format
+          overarchingReason = parsed.overall
+          if (Array.isArray(parsed.items)) {
+            parsed.items.forEach((r: any) => { perItemReasons[r.id] = r.reason })
+          }
         }
       } catch {
         // V1 style — reasoning is plain text, not JSON
@@ -105,7 +115,7 @@ function GetReadyContent() {
         id: outfit.id,
         occasion: outfit.occasion || 'Your Custom Look',
         confidence: 95,
-        reasoning: outfit.reasoning || 'This combination was selected specifically for your occasion.',
+        reasoning: overarchingReason,
         items: mappedItems,
         capsuleInfo: outfit.capsules ? { id: outfit.capsules.id, title: outfit.capsules.title } : undefined
       })

@@ -61,9 +61,10 @@ export async function POST(request: Request) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
 
-    const reasoning = JSON.stringify(
-      selections.map((s: any) => ({ id: s.id, category: s.category, reason: s.reason }))
-    )
+    const reasoning = JSON.stringify({
+      overall: object.overall_explanation,
+      items: selections.map((s: any) => ({ id: s.id, category: s.category, reason: s.reason }))
+    })
 
     const { data: outfitData, error: outfitError } = await supabaseAdmin
       .from('outfits')
