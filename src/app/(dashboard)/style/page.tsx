@@ -8,13 +8,37 @@ import { fetchWeatherContext, WeatherContext } from '@/utils/weather'
 import { toast } from 'sonner'
 import { triggerHaptic, hapticPatterns } from '@/utils/haptics'
 import { analytics } from '@/utils/analytics'
-import { Check, Sparkles, AlertCircle, Bookmark, ShoppingCart, Shirt, Briefcase, Globe, RefreshCw, Loader2 } from 'lucide-react'
+import { Check, Sparkles, AlertCircle, Bookmark, ShoppingCart, Shirt, Briefcase, Globe, RefreshCw, Loader2, SkipForward, RotateCcw, Eye } from 'lucide-react'
 import styles from './page.module.css'
 
 const OCCASION_CHIPS = [
   'Office', 'Dinner Date', 'Casual Friday', 'Wedding',
   'Coffee', 'Gym', 'Interview', 'Club Night'
 ]
+
+const AESTHETIC_INTENTS = [
+  { id: 'harmonious', label: '🎨 Harmonious', desc: 'Tonal, analogous palette' },
+  { id: 'contrasting', label: '⚡ Contrasting', desc: 'Bold color/texture contrast' },
+  { id: 'fun', label: '🎉 Fun', desc: 'Playful patterns, unexpected combos' },
+  { id: 'relaxed', label: '☁️ Relaxed', desc: 'Soft textures, muted tones' },
+  { id: 'sharp', label: '🔥 Sharp', desc: 'Structured, tailored, high-formality' },
+]
+
+const PLANNER_CATEGORIES = ['Top', 'Bottom', 'Footwear', 'Outerwear', 'Accessory']
+
+type PlannerStepStatus = 'pending' | 'active' | 'complete' | 'skipped'
+
+interface PlannerStep {
+  category: string
+  status: PlannerStepStatus
+  selectedItem?: {
+    id: string
+    description: string
+    imageUrl?: string
+    reason: string
+  }
+  aestheticNotes?: string
+}
 
 function getTimeAgo(dateStr: string): string {
   const now = Date.now()
@@ -49,7 +73,15 @@ function StyleContent() {
   const [manualCond, setManualCond] = useState('')
 
   // Capsule Form States
-  const [mode, setMode] = useState<'daily' | 'capsule'>('daily')
+  const [mode, setMode] = useState<'daily' | 'planner' | 'capsule'>('daily')
+
+  // V2 Planner states
+  const [plannerIntent, setPlannerIntent] = useState('harmonious')
+  const [plannerSteps, setPlannerSteps] = useState<PlannerStep[]>([])
+  const [isPlannerRunning, setIsPlannerRunning] = useState(false)
+  const [isPlannerDone, setIsPlannerDone] = useState(false)
+  const [isFinalizing, setIsFinalizing] = useState(false)
+  const [plannerPrompt, setPlannerPrompt] = useState('')
   const [destinations, setDestinations] = useState('')
   const [days, setDays] = useState('')
   const [bagSize, setBagSize] = useState('40')
@@ -288,6 +320,267 @@ function StyleContent() {
     }
   }
 
+  // ── V2 Planner Orchestration ──
+
+  const getWeatherForPlanner = async (): Promise<{ city: string; temperature: number; condition: string }> => {
+    // Try cache first
+    try {
+      const cached = localStorage.getItem('weatherContextCache')
+      if (cached) {
+        const parsed = JSON.parse(cached)
+        if (Date.now() - parsed.timestamp < 2 * 60 * 60 * 1000) {
+          return parsed.context
+        }
+      }
+    } catch (e) {}
+
+    // Try geolocation
+    return new Promise((resolve) => {
+      const fallback = { city: 'New York', temperature: 22, condition: 'Clear' }
+      const timeout = setTimeout(() => resolve(fallback), 6000)
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            clearTimeout(timeout)
+            const context = await fetchWeatherContext(position.coords.latitude, position.coords.longitude)
+            localStorage.setItem('weatherContextCache', JSON.stringify({ timestamp: Date.now(), context }))
+            resolve(context)
+          },
+          () => {
+            clearTimeout(timeout)
+            resolve(fallback)
+          },
+          { timeout: 5000 }
+        )
+      } else {
+        clearTimeout(timeout)
+        resolve(fallback)
+      }
+    })
+  }
+
+  const startPlanner = async () => {
+    setIsPlannerRunning(true)
+    setIsPlannerDone(false)
+    triggerHaptic(hapticPatterns.medium)
+
+    analytics.track('STYLE_SESSION_STARTED', {
+      source: 'planner_v2',
+      aesthetic_intent: plannerIntent,
+      has_prompt: 'true'
+    })
+
+    // Detect weather context
+    const weather = await getWeatherForPlanner()
+
+    // Determine which categories to include
+    const categories = PLANNER_CATEGORIES.filter(cat => {
+      if (cat === 'Outerwear' && weather.temperature >= 18) return false
+      return true
+    })
+
+    // Initialize steps
+    const initialSteps: PlannerStep[] = categories.map(cat => ({
+      category: cat,
+      status: 'pending' as PlannerStepStatus
+    }))
+    setPlannerSteps(initialSteps)
+
+    // Run through steps sequentially
+    const completedSelections: Array<{ id: string; category: string; description: string; reason: string }> = []
+
+    for (let i = 0; i < categories.length; i++) {
+      // Mark current step as active
+      setPlannerSteps(prev => prev.map((s, idx) => ({
+        ...s,
+        status: idx === i ? 'active' : s.status
+      })))
+
+      try {
+        const result = await runPlannerStep(
+          categories[i],
+          plannerPrompt,
+          weather,
+          plannerIntent,
+          completedSelections
+        )
+
+        if (result) {
+          completedSelections.push({
+            id: result.id,
+            category: categories[i],
+            description: result.description,
+            reason: result.reason
+          })
+
+          setPlannerSteps(prev => prev.map((s, idx) => ({
+            ...s,
+            status: idx === i ? 'complete' : s.status,
+            selectedItem: idx === i ? result : s.selectedItem,
+            aestheticNotes: idx === i ? result.aestheticNotes : s.aestheticNotes
+          })))
+        } else {
+          // No items in this category — skip
+          setPlannerSteps(prev => prev.map((s, idx) => ({
+            ...s,
+            status: idx === i ? 'skipped' : s.status
+          })))
+        }
+
+        triggerHaptic(hapticPatterns.light)
+      } catch (err) {
+        console.error(`Planner step failed for ${categories[i]}:`, err)
+        setPlannerSteps(prev => prev.map((s, idx) => ({
+          ...s,
+          status: idx === i ? 'skipped' : s.status
+        })))
+      }
+    }
+
+    setIsPlannerRunning(false)
+    setIsPlannerDone(true)
+    triggerHaptic(hapticPatterns.success)
+  }
+
+  const runPlannerStep = async (
+    category: string,
+    promptText: string,
+    weather: { city: string; temperature: number; condition: string },
+    intent: string,
+    previousSelections: Array<{ id: string; category: string; description: string; reason: string }>
+  ): Promise<{ id: string; description: string; imageUrl?: string; reason: string; aestheticNotes?: string } | null> => {
+    const res = await fetch('/api/style/generate-step', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        prompt: promptText,
+        weatherContext: weather,
+        categoryToSelect: category,
+        aestheticIntent: intent,
+        previousSelections,
+        requiredItemIds: baseItems.filter(i => i.category === category).map(i => i.id)
+      })
+    })
+
+    if (!res.ok) {
+      const err = await res.json()
+      if (err.error?.includes('No items found')) return null
+      throw new Error(err.error || 'Step failed')
+    }
+
+    const data = await res.json()
+    return {
+      id: data.selectedItem.id,
+      description: data.selectedItem.description,
+      imageUrl: data.selectedItem.imageUrl,
+      reason: data.selectedItem.reason,
+      aestheticNotes: data.aestheticNotes
+    }
+  }
+
+  const retryStep = async (stepIndex: number) => {
+    const step = plannerSteps[stepIndex]
+    if (!step || isPlannerRunning) return
+
+    setIsPlannerRunning(true)
+
+    // Mark step as active
+    setPlannerSteps(prev => prev.map((s, idx) => ({
+      ...s,
+      status: idx === stepIndex ? 'active' : s.status
+    })))
+
+    const weather = await getWeatherForPlanner()
+
+    // Build previousSelections from all completed steps EXCEPT this one
+    const previousSelections = plannerSteps
+      .filter((s, idx) => idx !== stepIndex && s.status === 'complete' && s.selectedItem)
+      .map(s => ({
+        id: s.selectedItem!.id,
+        category: s.category,
+        description: s.selectedItem!.description,
+        reason: s.selectedItem!.reason
+      }))
+
+    try {
+      const result = await runPlannerStep(
+        step.category,
+        plannerPrompt,
+        weather,
+        plannerIntent,
+        previousSelections
+      )
+
+      setPlannerSteps(prev => prev.map((s, idx) => ({
+        ...s,
+        status: idx === stepIndex ? (result ? 'complete' : 'skipped') : s.status,
+        selectedItem: idx === stepIndex ? (result || undefined) : s.selectedItem,
+        aestheticNotes: idx === stepIndex ? result?.aestheticNotes : s.aestheticNotes
+      })))
+
+      triggerHaptic(hapticPatterns.light)
+    } catch (err) {
+      console.error('Retry step failed:', err)
+      toast.error('Failed to retry — please try again')
+      setPlannerSteps(prev => prev.map((s, idx) => ({
+        ...s,
+        status: idx === stepIndex ? 'complete' : s.status // revert to complete
+      })))
+    }
+
+    setIsPlannerRunning(false)
+  }
+
+  const finalizePlannerOutfit = async () => {
+    setIsFinalizing(true)
+    triggerHaptic(hapticPatterns.medium)
+
+    const selections = plannerSteps
+      .filter(s => s.status === 'complete' && s.selectedItem)
+      .map(s => ({
+        id: s.selectedItem!.id,
+        category: s.category,
+        reason: s.selectedItem!.reason
+      }))
+
+    if (selections.length === 0) {
+      toast.error('No items were selected')
+      setIsFinalizing(false)
+      return
+    }
+
+    const weather = await getWeatherForPlanner()
+
+    try {
+      const res = await fetch('/api/style/finalize-v2', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: plannerPrompt,
+          weatherContext: weather,
+          aestheticIntent: plannerIntent,
+          selections
+        })
+      })
+
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Failed to finalize outfit')
+
+      analytics.track('LOOK_GENERATED', {
+        outfit_id: data.outfitId,
+        source: 'planner_v2'
+      })
+
+      router.push(`/style/get-ready?id=${data.outfitId}`)
+    } catch (err: any) {
+      console.error('Finalize failed:', err)
+      toast.error(err.message)
+      triggerHaptic(hapticPatterns.error)
+      setIsFinalizing(false)
+    }
+  }
+
   useEffect(() => {
     const queryPrompt = searchParams.get('prompt')
     const autoRun = searchParams.get('auto') === 'true'
@@ -357,6 +650,13 @@ function StyleContent() {
             onClick={() => setMode('daily')}
           >
             Daily Look
+          </button>
+          <button 
+            type="button" 
+            className={`${styles.modeBtn} ${mode === 'planner' ? styles.modeBtnActive : ''}`}
+            onClick={() => setMode('planner')}
+          >
+            V2 Planner ✨
           </button>
           <button 
             type="button" 
@@ -447,6 +747,142 @@ function StyleContent() {
               </Link>
             </div>
           </form>
+        ) : mode === 'planner' ? (
+          /* V2 Planner Mode */
+          <div className={styles.plannerForm}>
+            {!isPlannerRunning && !isPlannerDone && (
+              <>
+                <textarea 
+                  className={styles.promptInput}
+                  placeholder="E.g., Rooftop dinner date in a slightly chilly city..."
+                  value={plannerPrompt}
+                  onChange={(e) => setPlannerPrompt(e.target.value)}
+                  rows={2}
+                />
+
+                <div className={styles.intentLabel}>Aesthetic Direction</div>
+                <div className={styles.intentChips}>
+                  {AESTHETIC_INTENTS.map(intent => (
+                    <button
+                      key={intent.id}
+                      type="button"
+                      className={`${styles.intentChip} ${plannerIntent === intent.id ? styles.intentChipActive : ''}`}
+                      onClick={() => setPlannerIntent(intent.id)}
+                      title={intent.desc}
+                    >
+                      {intent.label}
+                    </button>
+                  ))}
+                </div>
+
+                <button 
+                  type="button"
+                  className={`${styles.styleBtn} ${!plannerPrompt.trim() ? styles.styleBtnDisabled : ''}`}
+                  disabled={!plannerPrompt.trim()}
+                  onClick={() => startPlanner()}
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                >
+                  <Sparkles size={18} /> Start Planner
+                </button>
+              </>
+            )}
+
+            {/* Stepper UI */}
+            {(isPlannerRunning || isPlannerDone) && plannerSteps.length > 0 && (
+              <>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <div style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)' }}>
+                    <strong style={{ color: 'var(--color-accent)' }}>🧠 V2 Planner</strong> — {plannerPrompt}
+                  </div>
+                  {isPlannerDone && (
+                    <button
+                      type="button"
+                      className={styles.stepActionBtn}
+                      onClick={() => {
+                        setIsPlannerDone(false)
+                        setIsPlannerRunning(false)
+                        setPlannerSteps([])
+                      }}
+                    >
+                      Start Over
+                    </button>
+                  )}
+                </div>
+                <div className={styles.plannerStepper}>
+                  {plannerSteps.map((step, idx) => {
+                    const stateClass = step.status === 'active' ? styles.stepActive
+                      : step.status === 'complete' ? styles.stepComplete
+                      : step.status === 'skipped' ? styles.stepSkipped
+                      : styles.stepPending
+                    return (
+                      <div key={step.category} className={`${styles.stepItem} ${stateClass}`}>
+                        <div className={styles.stepConnector} />
+                        <div className={styles.stepIcon}>
+                          {step.status === 'complete' ? <Check size={16} /> 
+                            : step.status === 'active' ? <RefreshCw size={14} className="spin" />
+                            : step.status === 'skipped' ? <SkipForward size={14} />
+                            : <span>{idx + 1}</span>}
+                        </div>
+                        <div className={styles.stepBody}>
+                          <div className={styles.stepTitle}>
+                            {step.status === 'active' ? `Selecting best ${step.category}...` : step.category}
+                          </div>
+                          {step.status === 'active' && (
+                            <div className={styles.stepStatus}>
+                              <RefreshCw size={10} className="spin" /> Analyzing your wardrobe...
+                            </div>
+                          )}
+                          {step.status === 'complete' && step.selectedItem && (
+                            <div className={styles.stepPreview}>
+                              {step.selectedItem.imageUrl && (
+                                /* eslint-disable-next-line @next/next/no-img-element */
+                                <img src={step.selectedItem.imageUrl} alt={step.category} className={styles.stepThumb} />
+                              )}
+                              <div>
+                                <div className={styles.stepItemName}>{step.selectedItem.description}</div>
+                                <div className={styles.stepItemReason}>{step.selectedItem.reason}</div>
+                                <div className={styles.stepActions}>
+                                  <button
+                                    type="button"
+                                    className={styles.stepActionBtn}
+                                    onClick={() => retryStep(idx)}
+                                    disabled={isPlannerRunning}
+                                  >
+                                    <RotateCcw size={10} /> Retry
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                          {step.status === 'skipped' && (
+                            <div className={styles.stepStatus}>Skipped</div>
+                          )}
+                          {step.status === 'pending' && (
+                            <div className={styles.stepStatus}>Waiting...</div>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+
+                {isPlannerDone && (
+                  <button
+                    type="button"
+                    className={styles.finalizeBtn}
+                    disabled={isFinalizing}
+                    onClick={() => finalizePlannerOutfit()}
+                  >
+                    {isFinalizing ? (
+                      <><RefreshCw size={18} className="spin" /> Saving Your Look...</>
+                    ) : (
+                      <><Eye size={18} /> View Your Look</>
+                    )}
+                  </button>
+                )}
+              </>
+            )}
+          </div>
         ) : (
           <form onSubmit={handleCapsuleGenerate} className={styles.capsuleForm}>
             <div className={styles.inputGroup}>

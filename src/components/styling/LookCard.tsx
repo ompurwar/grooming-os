@@ -14,6 +14,7 @@ export interface LookCardProps {
     isUpgrade?: boolean;
     price?: string;
     imageUrl?: string;
+    itemReasoning?: string;
   }[];
   reasoning: string;
   onSave?: () => void;
@@ -204,6 +205,11 @@ export default function LookCard({
               <div className={styles.itemDetails}>
                 <div className={styles.itemType}>{item.type}</div>
                 <div className={styles.itemName}>{item.name}</div>
+                {item.itemReasoning && (
+                  <div className={styles.itemSource} style={{ fontStyle: 'italic', fontSize: '11px', lineHeight: '1.3', marginTop: '2px', opacity: 0.7 }}>
+                    {item.itemReasoning}
+                  </div>
+                )}
                 {/* Only show source if it's meaningful (not just "From Wardrobe") */}
                 {(item.price || item.source !== 'From Wardrobe') && (
                   <div className={styles.itemSource}>

@@ -72,6 +72,17 @@ function GetReadyContent() {
         `)
         .eq('outfit_id', outfitId)
 
+      // Parse per-item reasoning if available (V2 Planner stores JSON array)
+      let perItemReasons: Record<string, string> = {}
+      try {
+        const parsed = JSON.parse(outfit.reasoning || '')
+        if (Array.isArray(parsed)) {
+          parsed.forEach((r: any) => { perItemReasons[r.id] = r.reason })
+        }
+      } catch {
+        // V1 style — reasoning is plain text, not JSON
+      }
+
       const mappedItems = (outfitItems || []).map(item => {
         const wItem = item.wardrobe_items as any
         let icon: any = Shirt
@@ -85,7 +96,8 @@ function GetReadyContent() {
           icon,
           name: `${wItem?.primary_color || ''} ${wItem?.sub_category || wItem?.category || ''}`.trim(),
           source: 'From Wardrobe',
-          imageUrl: wItem?.image_url
+          imageUrl: wItem?.image_url,
+          itemReasoning: perItemReasons[wItem?.id] || undefined
         }
       })
 
