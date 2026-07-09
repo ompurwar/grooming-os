@@ -310,6 +310,12 @@ function WardrobeItemCard({ item, isSelectionMode, isSelected, onToggleSelect, o
                 e.stopPropagation()
                 onDelete(item.id)
               }}
+              onPointerDown={(e) => e.stopPropagation()}
+              onTouchEnd={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                onDelete(item.id)
+              }}
               title="Remove item"
             >
               🗑️
