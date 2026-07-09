@@ -25,7 +25,7 @@ const AESTHETIC_INTENTS = [
   { id: 'sharp', label: '🔥 Sharp', desc: 'Structured, tailored, high-formality' },
 ]
 
-const PLANNER_CATEGORIES = ['Top', 'Bottom', 'Footwear', 'Outerwear', 'Accessory']
+const PLANNER_CATEGORIES = ['Top', 'Bottom', 'Footwear', 'Outerwear', 'Accessory 1', 'Accessory 2']
 
 type PlannerStepStatus = 'pending' | 'active' | 'complete' | 'skipped'
 
@@ -392,7 +392,9 @@ function StyleContent() {
     const completedSelections: Array<{ id: string; category: string; description: string; reason: string }> = []
 
     const initialSteps: PlannerStep[] = categories.map(cat => {
-      const baseItem = baseItems.find(item => item.category === cat)
+      // Map UI category to DB category
+      const dbCategory = cat.startsWith('Accessory') ? 'Accessory' : cat
+      const baseItem = baseItems.find(item => item.category === dbCategory && !completedSelections.find(s => s.id === item.id))
       
       if (baseItem) {
         const description = `${baseItem.primary_color || ''} ${baseItem.pattern || 'solid'} ${baseItem.sub_category || baseItem.category}`
@@ -400,7 +402,7 @@ function StyleContent() {
         
         const selectedItem = {
           id: baseItem.id,
-          category: baseItem.category,
+          category: dbCategory,
           description,
           imageUrl: baseItem.image_url || undefined,
           reason
@@ -437,8 +439,10 @@ function StyleContent() {
       })))
 
       try {
+        const dbCategory = categories[i].startsWith('Accessory') ? 'Accessory' : categories[i]
+        
         const result = await runPlannerStep(
-          categories[i],
+          dbCategory,
           textToSubmit,
           weather,
           plannerIntent,
@@ -448,7 +452,7 @@ function StyleContent() {
         if (result) {
           completedSelections.push({
             id: result.id,
-            category: categories[i],
+            category: dbCategory,
             description: result.description,
             reason: result.reason
           })
@@ -543,8 +547,10 @@ function StyleContent() {
       }))
 
     try {
+      const dbCategory = step.category.startsWith('Accessory') ? 'Accessory' : step.category
+      
       const result = await runPlannerStep(
-        step.category,
+        dbCategory,
         plannerPrompt,
         weather,
         plannerIntent,

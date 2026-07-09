@@ -98,8 +98,19 @@ export async function POST(request: Request) {
       )
     }
 
-    // 4. Build inventory list of items in this category
-    const inventory = wardrobeItems.map((item: any) => {
+    // 4. Build inventory list of items in this category (excluding already selected items)
+    const previouslySelectedIds = previousSelections?.map((s: any) => s.id) || []
+    const availableItems = wardrobeItems.filter((item: any) => !previouslySelectedIds.includes(item.id))
+    
+    if (availableItems.length === 0) {
+      // If we've exhausted this category (e.g. they only have 1 accessory), return empty
+      return NextResponse.json({
+        selectedItem: null,
+        aestheticNotes: `No more ${categoryToSelect} items available to add.`
+      })
+    }
+
+    const inventory = availableItems.map((item: any) => {
       const tags = item.ai_tags && item.ai_tags.length > 0 ? ` [Fit/Tags: ${item.ai_tags.join(', ')}]` : ''
       return {
         id: item.id,
