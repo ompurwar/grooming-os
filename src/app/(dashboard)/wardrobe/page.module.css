@@ -296,10 +296,10 @@
 
 .selectionIndicator {
   position: absolute;
-  top: 8px;
-  left: 8px;
-  width: 24px;
-  height: 24px;
+  top: 4px;
+  left: 4px;
+  width: 40px;
+  height: 40px;
   border-radius: var(--radius-full);
   background: rgba(0,0,0,0.5);
   border: 2px solid rgba(255,255,255,0.8);
@@ -319,8 +319,8 @@
 }
 
 .selectionIndicator svg {
-  width: 14px;
-  height: 14px;
+  width: 20px;
+  height: 20px;
 }
 
 .fab {
