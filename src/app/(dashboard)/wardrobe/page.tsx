@@ -244,18 +244,13 @@ function WardrobeItemCard({ item, isSelectionMode, isSelected, onToggleSelect, o
   
   const longPress = useLongPress(
     (e) => {
-      // Long press
+      // Long press triggers selection mode
       e.preventDefault()
       onLongPressItem(item.id)
     },
     (e) => {
-      // Regular click
-      e.preventDefault()
-      if (isSelectionMode) {
-        onToggleSelect(item.id)
-      } else {
-        router.push(`/wardrobe/${item.id}`)
-      }
+      // Regular click on the card body does nothing now per user request.
+      // Interactions are restricted to the info button and checkbox.
     },
     { delay: 500 }
   )
@@ -268,7 +263,15 @@ function WardrobeItemCard({ item, isSelectionMode, isSelected, onToggleSelect, o
     >
       {/* Selection Indicator */}
       {isSelectionMode && (
-        <div className={`${styles.selectionIndicator} ${isSelected ? styles.checked : ''}`}>
+        <div 
+          className={`${styles.selectionIndicator} ${isSelected ? styles.checked : ''}`}
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            onToggleSelect(item.id)
+          }}
+          style={{ cursor: 'pointer', zIndex: 10 }}
+        >
           {isSelected && <Check strokeWidth={3} />}
         </div>
       )}
