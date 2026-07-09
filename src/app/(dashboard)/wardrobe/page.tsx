@@ -285,6 +285,12 @@ function WardrobeItemCard({ item, isSelectionMode, isSelected, onToggleSelect, o
               e.stopPropagation()
               router.push(`/wardrobe/${item.id}`)
             }}
+            onPointerDown={(e) => e.stopPropagation()}
+            onTouchEnd={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              router.push(`/wardrobe/${item.id}`)
+            }}
             title="View Details"
           >
             <Info size={16} />

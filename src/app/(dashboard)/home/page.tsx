@@ -7,7 +7,7 @@ import { createClient } from '@/utils/supabase/client'
 import { analytics } from '@/utils/analytics'
 import styles from './page.module.css'
 
-import { Wine, Briefcase, Coffee, PartyPopper, Dumbbell, ShoppingCart, User, Shirt, Sparkles, BarChart3, Camera, Scissors, ClipboardList } from 'lucide-react'
+import { Wine, Briefcase, Coffee, PartyPopper, Dumbbell, ShoppingCart, User, Shirt, Sparkles, BarChart3, Camera, Scissors, ClipboardList, RefreshCw } from 'lucide-react'
 
 const POPULAR_OCCASIONS = [
   { id: 'dinner_date', label: 'Dinner Date', icon: Wine },
@@ -108,14 +108,20 @@ function HomeContent() {
     fetchBaseItems()
   }, [searchParams])
 
+  const [isGenerating, setIsGenerating] = useState(false)
+
   const handleStyleMe = (e: React.FormEvent) => {
     e.preventDefault()
+    setIsGenerating(true)
     
     let finalPrompt = prompt
     if (!finalPrompt.trim() && baseItems.length > 0) {
       finalPrompt = 'Style a great outfit using my selected items.'
     }
-    if (!finalPrompt.trim()) return
+    if (!finalPrompt.trim()) {
+      setIsGenerating(false)
+      return
+    }
 
     const itemsQuery = baseItems.length > 0 ? `&items=${baseItems.map(i => i.id).join(',')}` : ''
     
@@ -173,10 +179,17 @@ function HomeContent() {
               <button
                 type="submit"
                 className={`${styles.styleButton} ${(!prompt.trim() && baseItems.length === 0) ? styles.styleButtonDisabled : ''}`}
-                disabled={!prompt.trim() && baseItems.length === 0}
-                style={{ flex: 1, width: 'auto' }}
+                disabled={(!prompt.trim() && baseItems.length === 0) || isGenerating}
+                style={{ flex: 1, width: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
               >
-                Style Me
+                {isGenerating ? (
+                  <>
+                    <RefreshCw size={18} className="spin" />
+                    Processing...
+                  </>
+                ) : (
+                  'Style Me'
+                )}
               </button>
               <Link
                 href="/wardrobe?select=true&returnTo=home"

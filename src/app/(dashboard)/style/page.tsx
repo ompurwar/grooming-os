@@ -8,7 +8,7 @@ import { fetchWeatherContext, WeatherContext } from '@/utils/weather'
 import { toast } from 'sonner'
 import { triggerHaptic, hapticPatterns } from '@/utils/haptics'
 import { analytics } from '@/utils/analytics'
-import { Check, Sparkles, AlertCircle, Bookmark, ShoppingCart, Shirt, Briefcase, Globe } from 'lucide-react'
+import { Check, Sparkles, AlertCircle, Bookmark, ShoppingCart, Shirt, Briefcase, Globe, RefreshCw, Loader2 } from 'lucide-react'
 import styles from './page.module.css'
 
 const OCCASION_CHIPS = [
@@ -415,9 +415,16 @@ function StyleContent() {
                 type="submit"
                 className={`${styles.styleBtn} ${(!prompt.trim() && baseItems.length === 0) || isGenerating ? styles.styleBtnDisabled : ''}`}
                 disabled={(!prompt.trim() && baseItems.length === 0) || isGenerating}
-                style={{ flex: 1, width: 'auto' }}
+                style={{ flex: 1, width: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
               >
-                {isGenerating ? 'Curating Look...' : <>Style Me <Sparkles size={16} style={{display: 'inline', verticalAlign: 'text-bottom', marginLeft: 4}} /></>}
+                {isGenerating ? (
+                  <>
+                    <RefreshCw size={18} className="spin" />
+                    Curating Look...
+                  </>
+                ) : (
+                  <>Style Me <Sparkles size={16} style={{display: 'inline', verticalAlign: 'text-bottom', marginLeft: 4}} /></>
+                )}
               </button>
               
               <Link
@@ -609,8 +616,8 @@ function StyleContent() {
             <h3 className={styles.modalTitle}>Confirm Context</h3>
             
             {isDetectingContext ? (
-              <div className={styles.loadingContext}>
-                <div className={styles.spinner} />
+              <div className={styles.loadingContext} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px 0' }}>
+                <RefreshCw size={32} className="spin" style={{ color: 'var(--color-accent)', marginBottom: '16px' }} />
                 <p>Detecting your location and weather...</p>
                 <p className={styles.subtext}>Please allow location access if prompted.</p>
               </div>
