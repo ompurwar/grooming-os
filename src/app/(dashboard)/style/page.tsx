@@ -39,6 +39,7 @@ interface PlannerStep {
     reason: string
   }
   aestheticNotes?: string
+  rejectedItemIds?: string[]
 }
 
 function getTimeAgo(dateStr: string): string {
@@ -421,7 +422,8 @@ function StyleContent() {
 
       return {
         category: cat,
-        status: 'pending' as PlannerStepStatus
+        status: 'pending' as PlannerStepStatus,
+        rejectedItemIds: []
       }
     })
     setPlannerSteps(initialSteps)
@@ -450,25 +452,26 @@ function StyleContent() {
           completedSelections
         )
 
-        if (result) {
+        if (result && result.id) {
           completedSelections.push({
             id: result.id,
             category: dbCategory,
-            description: result.description,
-            reason: result.reason
+            description: result.description!,
+            reason: result.reason!
           })
 
           setPlannerSteps(prev => prev.map((s, idx) => ({
             ...s,
             status: idx === i ? 'complete' : s.status,
-            selectedItem: idx === i ? result : s.selectedItem,
+            selectedItem: idx === i ? (result as any) : s.selectedItem,
             aestheticNotes: idx === i ? result.aestheticNotes : s.aestheticNotes
           })))
         } else {
           // No items in this category — skip
           setPlannerSteps(prev => prev.map((s, idx) => ({
             ...s,
-            status: idx === i ? 'skipped' : s.status
+            status: idx === i ? 'skipped' : s.status,
+            aestheticNotes: idx === i ? (result?.reason || 'Item unavailable') : s.aestheticNotes
           })))
         }
 
@@ -492,8 +495,9 @@ function StyleContent() {
     promptText: string,
     weather: { city: string; temperature: number; condition: string },
     intent: string,
-    previousSelections: Array<{ id: string; category: string; description: string; reason: string }>
-  ): Promise<{ id: string; description: string; imageUrl?: string; reason: string; aestheticNotes?: string } | null> => {
+    previousSelections: Array<{ id: string; category: string; description: string; reason: string }>,
+    rejectedItemIds?: string[]
+  ): Promise<{ id?: string; description?: string; imageUrl?: string; reason?: string; aestheticNotes?: string } | null> => {
     const res = await fetch('/api/style/generate-step', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -503,6 +507,7 @@ function StyleContent() {
         categoryToSelect: category,
         aestheticIntent: intent,
         previousSelections,
+        rejectedItemIds: rejectedItemIds || [],
         requiredItemIds: baseItems.filter(i => i.category === category).map(i => i.id)
       })
     })
@@ -514,6 +519,10 @@ function StyleContent() {
     }
 
     const data = await res.json()
+    if (!data.selectedItem) {
+      return { reason: data.aestheticNotes || 'Item unavailable' }
+    }
+    
     return {
       id: data.selectedItem.id,
       description: data.selectedItem.description,
@@ -529,10 +538,17 @@ function StyleContent() {
 
     setIsPlannerRunning(true)
 
-    // Mark step as active
+    // Add currently selected item to rejected list
+    const updatedRejectedIds = [...(step.rejectedItemIds || [])]
+    if (step.selectedItem?.id) {
+      updatedRejectedIds.push(step.selectedItem.id)
+    }
+
+    // Mark step as active and update rejected list
     setPlannerSteps(prev => prev.map((s, idx) => ({
       ...s,
-      status: idx === stepIndex ? 'active' : s.status
+      status: idx === stepIndex ? 'active' : s.status,
+      rejectedItemIds: idx === stepIndex ? updatedRejectedIds : s.rejectedItemIds
     })))
 
     const weather = await getWeatherForPlanner()
@@ -555,14 +571,15 @@ function StyleContent() {
         plannerPrompt,
         weather,
         plannerIntent,
-        previousSelections
+        previousSelections,
+        updatedRejectedIds
       )
 
       setPlannerSteps(prev => prev.map((s, idx) => ({
         ...s,
-        status: idx === stepIndex ? (result ? 'complete' : 'skipped') : s.status,
-        selectedItem: idx === stepIndex ? (result || undefined) : s.selectedItem,
-        aestheticNotes: idx === stepIndex ? result?.aestheticNotes : s.aestheticNotes
+        status: idx === stepIndex ? (result && result.id ? 'complete' : 'skipped') : s.status,
+        selectedItem: idx === stepIndex ? ((result && result.id) ? (result as any) : undefined) : s.selectedItem,
+        aestheticNotes: idx === stepIndex ? (result && !result.id ? result.reason : result?.aestheticNotes) : s.aestheticNotes
       })))
 
       triggerHaptic(hapticPatterns.light)
@@ -957,7 +974,7 @@ function StyleContent() {
                             </div>
                           )}
                           {step.status === 'skipped' && (
-                            <div className={styles.stepStatus}>Skipped</div>
+                            <div className={styles.stepStatus}>Skipped: {step.aestheticNotes || 'Item unavailable'}</div>
                           )}
                           {step.status === 'pending' && (
                             <div className={styles.stepStatus}>Waiting...</div>

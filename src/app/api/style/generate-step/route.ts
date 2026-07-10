@@ -13,7 +13,8 @@ export async function POST(request: Request) {
       aestheticIntent,
       previousSelections,
       capsuleId,
-      requiredItemIds
+      requiredItemIds,
+      rejectedItemIds
     } = await request.json()
 
     if (!prompt || !categoryToSelect || !aestheticIntent) {
@@ -100,13 +101,16 @@ export async function POST(request: Request) {
 
     // 4. Build inventory list of items in this category (excluding already selected items)
     const previouslySelectedIds = previousSelections?.map((s: any) => s.id) || []
-    const availableItems = wardrobeItems.filter((item: any) => !previouslySelectedIds.includes(item.id))
+    const rejectedIds = rejectedItemIds || []
+    const availableItems = wardrobeItems.filter((item: any) => 
+      !previouslySelectedIds.includes(item.id) && !rejectedIds.includes(item.id)
+    )
     
     if (availableItems.length === 0) {
       // If we've exhausted this category (e.g. they only have 1 accessory), return empty
       return NextResponse.json({
         selectedItem: null,
-        aestheticNotes: `No more ${categoryToSelect} items available to add.`
+        aestheticNotes: `No items available to add for ${categoryToSelect} (all options have been used or rejected).`
       })
     }
 
