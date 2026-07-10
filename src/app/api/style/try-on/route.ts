@@ -61,8 +61,8 @@ export async function POST(request: Request) {
 
     const passes = []
     
-    if (topItem?.wardrobe_items?.image_url) {
-      const wItem = topItem.wardrobe_items as any
+    if ((topItem?.wardrobe_items as any)?.image_url) {
+      const wItem = topItem?.wardrobe_items as any
       passes.push({
         id: wItem.id,
         category: wItem.category,
@@ -72,8 +72,8 @@ export async function POST(request: Request) {
       })
     }
 
-    if (bottomItem?.wardrobe_items?.image_url) {
-      const wItem = bottomItem.wardrobe_items as any
+    if ((bottomItem?.wardrobe_items as any)?.image_url) {
+      const wItem = bottomItem?.wardrobe_items as any
       passes.push({
         id: wItem.id,
         category: wItem.category,
