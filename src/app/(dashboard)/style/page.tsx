@@ -626,6 +626,36 @@ function StyleContent() {
     }
   }
 
+  // Auto-fill context for V2 Planner
+  useEffect(() => {
+    let mounted = true
+    const fillPrompt = async () => {
+      if (plannerPrompt.trim() !== '') return // already filled
+      try {
+        const weather = await getWeatherForPlanner()
+        if (!mounted) return
+
+        const hour = new Date().getHours()
+        let timeContext = 'today'
+        if (hour < 12) timeContext = 'for the morning'
+        else if (hour < 17) timeContext = 'this afternoon'
+        else timeContext = 'tonight'
+
+        const text = `I'm in ${weather.city}. It's ${weather.temperature}°C and ${weather.condition.toLowerCase()} ${timeContext}. Build me a look.`
+        setPlannerPrompt(text)
+      } catch (err) {
+        console.warn('Failed to auto-fill prompt context:', err)
+      }
+    }
+
+    if (mode === 'planner' && !plannerPrompt) {
+      fillPrompt()
+    }
+
+    return () => { mounted = false }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode])
+
   useEffect(() => {
     const queryPrompt = searchParams.get('prompt')
     const autoRun = searchParams.get('auto') === 'true'

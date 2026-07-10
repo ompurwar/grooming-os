@@ -31,6 +31,9 @@ function GetReadyContent() {
   const [savedAsLabel, setSavedAsLabel] = useState<string | undefined>(undefined)
   const [tryOnImageUrl, setTryOnImageUrl] = useState<string | null>(null)
   const [isGeneratingTryOn, setIsGeneratingTryOn] = useState(false)
+  
+  const [isLoggingWear, setIsLoggingWear] = useState(false)
+  const [hasLoggedWear, setHasLoggedWear] = useState(false)
 
   useEffect(() => {
     if (!outfitId) {
@@ -242,6 +245,28 @@ function GetReadyContent() {
     toast.success(`Feedback recorded: ${type}`)
   }
 
+  const handleLogWear = async () => {
+    if (!outfitData || hasLoggedWear) return
+    setIsLoggingWear(true)
+    triggerHaptic(hapticPatterns.light)
+    try {
+      const res = await fetch('/api/wardrobe/wear', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ outfitId: outfitData.id })
+      })
+      if (!res.ok) throw new Error('Failed to log wear')
+      setHasLoggedWear(true)
+      toast.success('Awesome! Look logged as worn today.')
+      triggerHaptic(hapticPatterns.success)
+    } catch (err) {
+      toast.error('Failed to log wear')
+      triggerHaptic(hapticPatterns.error)
+    } finally {
+      setIsLoggingWear(false)
+    }
+  }
+
   const handleGenerateTryOn = async () => {
     if (!outfitData) return
     setIsGeneratingTryOn(true)
@@ -316,6 +341,24 @@ function GetReadyContent() {
           />
           
           <div className={styles.feedbackSection}>
+            <button 
+              onClick={handleLogWear}
+              disabled={hasLoggedWear || isLoggingWear}
+              style={{ 
+                width: '100%', 
+                padding: '12px', 
+                background: hasLoggedWear ? 'var(--color-bg-tertiary)' : 'var(--color-accent)', 
+                color: hasLoggedWear ? 'var(--color-text-tertiary)' : '#1E1E24', 
+                borderRadius: '8px', 
+                border: 'none', 
+                fontWeight: 600, 
+                marginBottom: '24px',
+                cursor: hasLoggedWear ? 'default' : 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              {isLoggingWear ? 'Logging...' : hasLoggedWear ? 'Worn Today ✓' : 'I Wore This Today'}
+            </button>
             <p>How do you like this look?</p>
             <div className={styles.feedbackButtons}>
               <button className={styles.feedbackBtn} onClick={() => handleFeedback('Perfect')}><ThumbsUp size={16} style={{marginRight: 4, verticalAlign: 'text-bottom'}} /> Perfect</button>
