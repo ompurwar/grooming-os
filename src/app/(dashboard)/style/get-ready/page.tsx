@@ -23,6 +23,7 @@ function GetReadyContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const outfitId = searchParams.get('id')
+  const autoTryOn = searchParams.get('autoTryOn') === 'true'
   
   const [isGenerating, setIsGenerating] = useState(true)
   const [outfitData, setOutfitData] = useState<OutfitData | null>(null)
@@ -287,7 +288,20 @@ function GetReadyContent() {
         }
       } else {
         const data = await response.json()
-        toast.error(data.error || 'Failed to generate virtual try-on')
+        // If it's the specific missing photo error, show a more actionable toast
+        if (data.error && data.error.includes('Body Scan onboarding')) {
+          toast('Upload a body photo first', {
+            description: 'You need to upload a front-facing photo in your profile for virtual try-on.',
+            action: {
+              label: 'Go to Profile',
+              onClick: () => router.push('/profile/body')
+            },
+            duration: 8000
+          })
+          triggerHaptic(hapticPatterns.error)
+        } else {
+          toast.error(data.error || 'Failed to generate virtual try-on')
+        }
       }
     } catch (error) {
       console.error('Failed to generate try on', error)
@@ -296,6 +310,16 @@ function GetReadyContent() {
       setIsGeneratingTryOn(false)
     }
   }
+
+  // Trigger autoTryOn once outfit data is fully loaded
+  useEffect(() => {
+    if (autoTryOn && outfitData && !tryOnImageUrl && !isGeneratingTryOn) {
+      // Remove query param so it doesn't loop on refresh
+      window.history.replaceState(null, '', `/style/get-ready?id=${outfitData.id}`)
+      handleGenerateTryOn()
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [outfitData, autoTryOn])
 
   return (
     <div className={styles.container}>

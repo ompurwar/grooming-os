@@ -577,7 +577,8 @@ function StyleContent() {
     setIsPlannerRunning(false)
   }
 
-  const finalizePlannerOutfit = async () => {
+  const finalizePlannerOutfit = async (autoTryOn = false) => {
+    if (isFinalizing) return
     setIsFinalizing(true)
     triggerHaptic(hapticPatterns.medium)
 
@@ -617,7 +618,7 @@ function StyleContent() {
         source: 'planner_v2'
       })
 
-      router.push(`/style/get-ready?id=${data.outfitId}`)
+      router.push(`/style/get-ready?id=${data.outfitId}${autoTryOn ? '&autoTryOn=true' : ''}`)
     } catch (err: any) {
       console.error('Finalize failed:', err)
       toast.error(err.message)
@@ -967,18 +968,34 @@ function StyleContent() {
                 </div>
 
                 {isPlannerDone && (
-                  <button
-                    type="button"
-                    className={styles.finalizeBtn}
-                    disabled={isFinalizing}
-                    onClick={() => finalizePlannerOutfit()}
-                  >
-                    {isFinalizing ? (
-                      <><RefreshCw size={18} className="spin" /> Saving Your Look...</>
-                    ) : (
-                      <><Eye size={18} /> View Your Look</>
-                    )}
-                  </button>
+                  <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+                    <button
+                      type="button"
+                      className={styles.finalizeBtn}
+                      disabled={isFinalizing}
+                      onClick={() => finalizePlannerOutfit(false)}
+                      style={{ flex: 1, background: 'var(--color-bg-secondary)', color: 'var(--color-text-primary)' }}
+                    >
+                      {isFinalizing ? (
+                        <><RefreshCw size={18} className="spin" /> Saving...</>
+                      ) : (
+                        <><Eye size={18} /> View Look</>
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.finalizeBtn}
+                      disabled={isFinalizing}
+                      onClick={() => finalizePlannerOutfit(true)}
+                      style={{ flex: 2 }}
+                    >
+                      {isFinalizing ? (
+                        <><RefreshCw size={18} className="spin" /> Processing...</>
+                      ) : (
+                        <><Sparkles size={18} /> Try On Outfit</>
+                      )}
+                    </button>
+                  </div>
                 )}
               </>
             )}
