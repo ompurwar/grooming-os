@@ -74,7 +74,8 @@ function SavedStylesContent() {
               occasion: outfit.occasion,
               confidence: outfit.confidence_score,
               reasoning: outfit.reasoning,
-              items: formattedItems
+              items: formattedItems,
+              tryOnImageUrl: outfit.try_on_image_url
             }
           })
         )
@@ -154,6 +155,7 @@ function SavedStylesContent() {
                 confidence={outfit.confidence}
                 items={outfit.items}
                 reasoning={outfit.reasoning}
+                tryOnImageUrl={outfit.tryOnImageUrl}
                 onDelete={() => handleDelete(outfit.id)}
               />
             ))}

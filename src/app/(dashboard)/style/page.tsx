@@ -140,6 +140,7 @@ function StyleContent() {
             id, 
             occasion, 
             created_at,
+            try_on_image_url,
             outfit_items ( wardrobe_items ( image_url ) )
           `)
           .eq('user_id', session.user.id)
@@ -1104,8 +1105,11 @@ function StyleContent() {
 
               return (
                 <Link key={look.id} href={`/style/get-ready?id=${look.id}`} className={styles.savedCard} style={{ textDecoration: 'none' }}>
-                  <div className={styles.savedVisual} style={{ padding: images.length > 0 ? 0 : undefined, background: images.length > 0 ? 'transparent' : undefined, overflow: 'hidden' }}>
-                    {images.length > 0 ? (
+                  <div className={styles.savedVisual} style={{ padding: (images.length > 0 || look.try_on_image_url) ? 0 : undefined, background: (images.length > 0 || look.try_on_image_url) ? 'transparent' : undefined, overflow: 'hidden' }}>
+                    {look.try_on_image_url ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img src={look.try_on_image_url} alt="Virtual Try On" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : images.length > 0 ? (
                       <div style={{ display: 'grid', gridTemplateColumns: images.length > 1 ? '1fr 1fr' : '1fr', gridTemplateRows: images.length > 2 ? '1fr 1fr' : '1fr', width: '100%', height: '100%', gap: '2px', borderRadius: 'inherit' }}>
                         {images.map((img: string, i: number) => (
                           /* eslint-disable-next-line @next/next/no-img-element */
