@@ -13,11 +13,19 @@ export async function POST(request: Request) {
 
     const supabase = await createClient()
 
-    // 1. Verify User
+    // 1. Verify User and get preferences
     const { data: userData, error: authError } = await supabase.auth.getUser()
     if (authError || !userData?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    const { data: userPrefs } = await supabase
+      .from('users')
+      .select('vto_engine')
+      .eq('id', userData.user.id)
+      .single()
+      
+    const enginePref = userPrefs?.vto_engine || 'openai'
 
     // 2. Fetch Human Image
     const { data: profile, error: profileError } = await supabase
@@ -49,7 +57,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Could not fetch outfit items' }, { status: 400 })
     }
 
-    const provider = getVTOProvider()
+    const provider = getVTOProvider(enginePref)
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || (request.headers.get('origin') || 'http://localhost:3000')
     const webhookUrl = `${appUrl}/api/webhooks/vto`
     let jobId: string

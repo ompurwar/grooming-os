@@ -1,7 +1,7 @@
 import Replicate from 'replicate'
 
 import OpenAI from 'openai'
-
+import { GoogleGenAI } from '@google/genai'
 export interface VTOPass {
   image_url: string;
   description: string;
@@ -216,15 +216,137 @@ Do NOT describe the person wearing them. Output a single edit instruction starti
   }
 }
 
-export function getVTOProvider(): VTOProvider {
-  const providerType = process.env.VTO_PROVIDER || 'multimodal'
-  
-  switch (providerType) {
-    case 'replicate':
-      return new ReplicateVTOProvider()
-    case 'multimodal':
-      return new MultimodalVTOProvider()
-    default:
-      return new MultimodalVTOProvider()
+export class GeminiVTOProvider implements VTOProvider {
+  private ai: GoogleGenAI;
+
+  constructor() {
+    this.ai = new GoogleGenAI({
+      apiKey: process.env.GEMINI_API_KEY
+    })
   }
+
+  async generate(humanImgUrl: string, garmImgUrl: string, garmentDescription: string, webhookUrl: string, category: string = 'upper_body'): Promise<string> {
+    throw new Error('Use generateMultimodal for GeminiVTOProvider')
+  }
+
+  async generateMultimodal(humanImgUrl: string, passes: VTOPass[], webhookUrl: string): Promise<string> {
+    console.log('GeminiVTO: Analyzing and generating with gemini-3-pro-image...')
+    
+    // Use standard supabase client, no cookies needed for public buckets
+    const { createClient } = await import('@supabase/supabase-js')
+    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+
+    // Helper function to fetch and convert an image URL to a base64 data URI
+    const urlToBase64 = async (url: string) => {
+      try {
+        if (url.includes('/storage/v1/object/public/')) {
+          const parts = url.split('/storage/v1/object/public/')[1].split('/')
+          const bucket = parts[0]
+          const path = parts.slice(1).join('/')
+          
+          const { data, error } = await supabase.storage.from(bucket).download(path)
+          if (error || !data) throw new Error(`Supabase download failed: ${error?.message}`)
+          
+          const arrayBuffer = await data.arrayBuffer()
+          const buffer = Buffer.from(arrayBuffer)
+          return `data:${data.type || 'image/jpeg'};base64,${buffer.toString('base64')}`
+        }
+
+        const response = await fetch(url)
+        if (!response.ok) throw new Error(`Failed to fetch image: ${response.statusText}`)
+        const arrayBuffer = await response.arrayBuffer()
+        const buffer = Buffer.from(arrayBuffer)
+        const mimeType = response.headers.get('content-type') || 'image/jpeg'
+        return `data:${mimeType};base64,${buffer.toString('base64')}`
+      } catch (err) {
+        console.error('Error downloading image for Gemini:', url, err)
+        return url
+      }
+    }
+
+    const humanImgBase64 = await urlToBase64(humanImgUrl)
+    const passesBase64 = await Promise.all(passes.map(async (p) => ({
+      ...p,
+      base64: await urlToBase64(p.image_url)
+    })))
+
+    // Construct the parts array for Gemini
+    const contents: any[] = [
+      { text: `You are a virtual try-on assistant. Dress the person in the first image with the clothing items shown in the subsequent images (${passes.map(p => p.description).join(', ')}). Preserve the person's exact skin tone, body shape, posture, face, hands, and background. Match the lighting and shadows of the original photo.` },
+      { inlineData: { data: humanImgBase64.replace(/^data:image\/\w+;base64,/, ''), mimeType: humanImgBase64.match(/data:(.*?);/)?.[1] || 'image/jpeg' } },
+      ...passesBase64.map(p => ({
+        inlineData: { data: p.base64.replace(/^data:image\/\w+;base64,/, ''), mimeType: p.base64.match(/data:(.*?);/)?.[1] || 'image/jpeg' }
+      }))
+    ]
+
+    let tryOnUrl = ''
+    try {
+      // In the @google/genai SDK, generateContent takes a single string/array or an object for contents
+      const response = await this.ai.models.generateContent({
+        model: 'gemini-3-pro-image',
+        contents: contents,
+        config: {
+          responseModalities: ['image']
+        }
+      })
+      
+      const candidate = response.candidates?.[0]
+      if (!candidate || !candidate.content || !candidate.content.parts) {
+        throw new Error('Gemini returned no valid content')
+      }
+
+      // Look for an image part in the response
+      const imagePart = candidate.content.parts.find(p => p.inlineData)
+      
+      if (!imagePart || !imagePart.inlineData) {
+        throw new Error('Gemini returned no inline image data')
+      }
+      
+      const b64Data = imagePart.inlineData.data
+      
+      if (!b64Data) {
+        throw new Error('Gemini returned empty image data')
+      }
+
+      // Upload to Supabase
+      const adminSupabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
+      const fileName = `vto_gemini_${Date.now()}.png`
+      const buffer = Buffer.from(b64Data, 'base64')
+      
+      const { data, error } = await adminSupabase.storage
+        .from('wardrobe-images')
+        .upload(`uploads/${fileName}`, buffer, {
+          contentType: 'image/png'
+        })
+        
+      if (error) {
+        throw new Error(`Failed to upload Gemini result to Supabase: ${error.message}`)
+      }
+      
+      const { data: publicUrlData } = adminSupabase.storage
+        .from('wardrobe-images')
+        .getPublicUrl(`uploads/${fileName}`)
+        
+      tryOnUrl = publicUrlData.publicUrl
+      console.log('GeminiVTO: Generation complete!', tryOnUrl)
+      
+    } catch (err: any) {
+      console.error('GeminiVTO: Generation failed.', err.message)
+      throw err
+    }
+    
+    return `SYNC:${tryOnUrl}`
+  }
+}
+
+export function getVTOProvider(engine: string = 'openai'): VTOProvider {
+  if (engine === 'gemini') {
+    return new GeminiVTOProvider()
+  } else if (engine === 'openai') {
+    return new MultimodalVTOProvider()
+  } else if (engine === 'replicate') {
+    return new ReplicateVTOProvider()
+  }
+  
+  return new MultimodalVTOProvider() // Default
 }
