@@ -96,11 +96,14 @@ export async function POST(request: Request) {
     const webhookUrl = `${appUrl}/api/webhooks/vto`
     const firstPass = passes[0]
 
+    const idmCategory = firstPass.passType === 'Top' ? 'upper_body' : (firstPass.passType === 'Bottom' ? 'lower_body' : 'upper_body');
+
     const jobId = await provider.generate(
       profile.front_photo_url,
       firstPass.image_url,
       firstPass.description,
-      webhookUrl
+      webhookUrl,
+      idmCategory
     )
 
     console.log('VTO Job started with ID:', jobId)

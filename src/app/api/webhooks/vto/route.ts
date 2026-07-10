@@ -56,12 +56,15 @@ export async function POST(request: Request) {
         const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://grooming-os.com' // Fallback
         const webhookUrl = `${appUrl}/api/webhooks/vto`
         
+        const idmCategory = nextPass.passType === 'Top' ? 'upper_body' : (nextPass.passType === 'Bottom' ? 'lower_body' : 'upper_body');
+
         // IMPORTANT: The human_img for the next pass is the OUTPUT of the current pass!
         const newJobId = await provider.generate(
           tryOnUrl,
           nextPass.image_url,
           nextPass.description,
-          webhookUrl
+          webhookUrl,
+          idmCategory
         )
 
         await supabase
