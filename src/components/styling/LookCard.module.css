@@ -708,3 +708,23 @@ input:checked + .slider:before {
     opacity: 0.8;
   }
 }
+
+.btnReadMore {
+  background: none;
+  border: none;
+  color: var(--color-accent);
+  font-size: 11px;
+  font-weight: var(--font-semibold);
+  cursor: pointer;
+  padding: 0;
+  margin-left: 6px;
+  display: inline-block;
+  vertical-align: middle;
+  font-family: inherit;
+  transition: opacity var(--transition-fast);
+}
+
+.btnReadMore:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}

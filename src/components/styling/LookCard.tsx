@@ -161,6 +161,7 @@ export default function LookCard({
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null)
   const [showItemsAccordion, setShowItemsAccordion] = useState(false)
   const [justSaved, setJustSaved] = useState(false)
+  const [expandedItems, setExpandedItems] = useState<Record<number, boolean>>({})
   const cardRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -311,55 +312,79 @@ export default function LookCard({
               <span className={styles.toggleIcon}><Camera size={14} /></span>
             </div>
           )}
-          {items.map((item, index) => (
-            <div 
-              key={index} 
-              className={`${styles.item} ${item.isUpgrade ? styles.itemUpgrade : ''}`}
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              {/* Row 1: Image, Category, Title */}
-              <div className={styles.itemHeader}>
-                <div className={styles.itemIcon}>
-                  {showImages && item.imageUrl ? (
-                    <div 
-                      className={styles.imageWrapper} 
-                      onClick={() => setFullscreenImage(item.imageUrl || null)}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      <Image src={item.imageUrl} alt={item.name} fill style={{ objectFit: 'cover' }} unoptimized={true} />
-                    </div>
-                  ) : (
-                    (() => {
-                      const Icon = item.icon
-                      return typeof Icon === 'string' ? Icon : <Icon size={26} />
-                    })()
-                  )}
-                </div>
-                <div className={styles.itemMeta}>
-                  <div className={styles.itemType}>{item.type}</div>
-                  <div className={styles.itemName}>{item.name}</div>
-                </div>
-                {item.isUpgrade && <div className={styles.cartIcon}><ShoppingCart size={16} /></div>}
-              </div>
+          {items.map((item, index) => {
+            const isExpanded = !!expandedItems[index]
+            const needsTruncation = !!(item.itemReasoning && item.itemReasoning.length > 120)
+            const displayReasoning = needsTruncation && !isExpanded && item.itemReasoning
+              ? `${item.itemReasoning.substring(0, 115)}...`
+              : item.itemReasoning
 
-              {/* Row 2: Description & Meta */}
-              {(item.itemReasoning || item.price || item.source !== 'From Wardrobe') && (
-                <div className={styles.itemDescription}>
-                  {item.itemReasoning && (
-                    <div className={styles.itemReasoningText}>
-                      {item.itemReasoning}
-                    </div>
-                  )}
-                  {(item.price || item.source !== 'From Wardrobe') && (
-                    <div className={styles.itemSource}>
-                      {item.source !== 'From Wardrobe' && item.source}
-                      {item.price && <span className={styles.price}>{item.source !== 'From Wardrobe' ? ' — ' : ''}{item.price}</span>}
-                    </div>
-                  )}
+            const toggleExpand = () => {
+              setExpandedItems(prev => ({
+                ...prev,
+                [index]: !prev[index]
+              }))
+            }
+
+            return (
+              <div 
+                key={index} 
+                className={`${styles.item} ${item.isUpgrade ? styles.itemUpgrade : ''}`}
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                {/* Row 1: Image, Category, Title */}
+                <div className={styles.itemHeader}>
+                  <div className={styles.itemIcon}>
+                    {showImages && item.imageUrl ? (
+                      <div 
+                        className={styles.imageWrapper} 
+                        onClick={() => setFullscreenImage(item.imageUrl || null)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        <Image src={item.imageUrl} alt={item.name} fill style={{ objectFit: 'cover' }} unoptimized={true} />
+                      </div>
+                    ) : (
+                      (() => {
+                        const Icon = item.icon
+                        return typeof Icon === 'string' ? Icon : <Icon size={26} />
+                      })()
+                    )}
+                  </div>
+                  <div className={styles.itemMeta}>
+                    <div className={styles.itemType}>{item.type}</div>
+                    <div className={styles.itemName}>{item.name}</div>
+                  </div>
+                  {item.isUpgrade && <div className={styles.cartIcon}><ShoppingCart size={16} /></div>}
                 </div>
-              )}
-            </div>
-          ))}
+
+                {/* Row 2: Description & Meta */}
+                {(item.itemReasoning || item.price || item.source !== 'From Wardrobe') && (
+                  <div className={styles.itemDescription}>
+                    {item.itemReasoning && (
+                      <div className={styles.itemReasoningText}>
+                        {displayReasoning}
+                        {needsTruncation && (
+                          <button 
+                            type="button" 
+                            className={styles.btnReadMore}
+                            onClick={toggleExpand}
+                          >
+                            {isExpanded ? ' Read Less' : ' Read More'}
+                          </button>
+                        )}
+                      </div>
+                    )}
+                    {(item.price || item.source !== 'From Wardrobe') && (
+                      <div className={styles.itemSource}>
+                        {item.source !== 'From Wardrobe' && item.source}
+                        {item.price && <span className={styles.price}>{item.source !== 'From Wardrobe' ? ' — ' : ''}{item.price}</span>}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </div>
       )}
 
