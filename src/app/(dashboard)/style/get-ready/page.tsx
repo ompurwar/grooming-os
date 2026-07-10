@@ -284,9 +284,15 @@ function GetReadyContent() {
         const data = await response.json()
         if (data.tryOnImageUrl) {
           setTryOnImageUrl(data.tryOnImageUrl)
+          setIsGeneratingTryOn(false)
           triggerHaptic(hapticPatterns.success)
+        } else if (data.status === 'processing') {
+          // Job is running in background. Supabase realtime subscription will set isGeneratingTryOn(false) when done.
+        } else {
+          setIsGeneratingTryOn(false)
         }
       } else {
+        setIsGeneratingTryOn(false)
         const data = await response.json()
         // If it's the specific missing photo error, show a more actionable toast
         if (data.error && data.error.includes('Body Scan onboarding')) {
@@ -304,10 +310,9 @@ function GetReadyContent() {
         }
       }
     } catch (error) {
+      setIsGeneratingTryOn(false)
       console.error('Failed to generate try on', error)
       toast.error('Failed to connect to try-on service')
-    } finally {
-      setIsGeneratingTryOn(false)
     }
   }
 
