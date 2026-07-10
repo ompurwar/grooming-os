@@ -69,7 +69,7 @@ export default function LookCard({
     return () => observer.disconnect()
   }, [])
 
-  const isHeroMode = !!tryOnImageUrl
+  const isHeroMode = !!tryOnImageUrl || !!isGeneratingTryOn
 
   const handleSave = () => {
     if (onSave) {
@@ -91,19 +91,37 @@ export default function LookCard({
       
       {/* Hero Try-On Image */}
       {isHeroMode && (
-        <div key={tryOnImageUrl!} className={`${styles.heroImageContainer} ${styles.fadeIn}`} onClick={() => setFullscreenImage(tryOnImageUrl!)}>
-          <Image 
-            src={tryOnImageUrl!} 
-            alt="Virtual Try-On" 
-            fill 
-            style={{ objectFit: 'cover' }} 
-            unoptimized={true} 
-          />
-          <div className={styles.heroOverlay}>
-            <div className={styles.confidenceBadge} style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(10px)' }}>
-              {confidence}% Match ✨
+        <div key={tryOnImageUrl || 'generating'} className={`${styles.heroImageContainer} ${styles.fadeIn}`} onClick={() => tryOnImageUrl && setFullscreenImage(tryOnImageUrl)}>
+          {tryOnImageUrl ? (
+            <Image 
+              src={tryOnImageUrl!} 
+              alt="Virtual Try-On" 
+              fill 
+              style={{ objectFit: 'cover' }} 
+              unoptimized={true} 
+            />
+          ) : (
+            <div className={styles.magicalShimmerContainer}>
+              <div className={styles.magicalShimmer} />
+              <div className={styles.sparklesOverlay}>
+                <Sparkles className={`${styles.sparkleIcon} ${styles.sparkle1}`} size={32} />
+                <Sparkles className={`${styles.sparkleIcon} ${styles.sparkle2}`} size={16} />
+                <Sparkles className={`${styles.sparkleIcon} ${styles.sparkle3}`} size={24} />
+              </div>
+              <div className={styles.loadingTextContainer}>
+                <RefreshCw size={24} className="spin" style={{ color: 'var(--color-accent)' }} />
+                <span>{typeof isGeneratingTryOn === 'string' ? isGeneratingTryOn : 'Generating Virtual Try-On...'}</span>
+                <p>Applying the clothes to your body photo</p>
+              </div>
             </div>
-          </div>
+          )}
+          {tryOnImageUrl && (
+            <div className={styles.heroOverlay}>
+              <div className={styles.confidenceBadge} style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(10px)' }}>
+                {confidence}% Match ✨
+              </div>
+            </div>
+          )}
         </div>
       )}
 
