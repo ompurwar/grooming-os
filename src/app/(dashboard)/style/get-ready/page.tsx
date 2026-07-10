@@ -31,7 +31,7 @@ function GetReadyContent() {
   const [isSaved, setIsSaved] = useState(false)
   const [savedAsLabel, setSavedAsLabel] = useState<string | undefined>(undefined)
   const [tryOnImageUrl, setTryOnImageUrl] = useState<string | null>(null)
-  const [isGeneratingTryOn, setIsGeneratingTryOn] = useState(false)
+  const [isGeneratingTryOn, setIsGeneratingTryOn] = useState<boolean | string>(false)
   
   const [isLoggingWear, setIsLoggingWear] = useState(false)
   const [hasLoggedWear, setHasLoggedWear] = useState(false)
@@ -166,6 +166,17 @@ function GetReadyContent() {
             setTryOnImageUrl(payload.new.try_on_image_url)
             setIsGeneratingTryOn(false)
             triggerHaptic(hapticPatterns.success)
+          } else if (payload.new.vto_status === 'processing' && payload.new.vto_passes?.length > 0) {
+            // Intermediate pass completed
+            if (payload.new.try_on_image_url) {
+              setTryOnImageUrl(payload.new.try_on_image_url)
+            }
+            // Update loading text
+            const passes = payload.new.vto_passes
+            const currentIdx = payload.new.vto_current_pass || 0
+            if (currentIdx < passes.length) {
+              setIsGeneratingTryOn(`Generating ${passes[currentIdx].passType}...` as any)
+            }
           } else if (payload.new.vto_status === 'failed') {
             setIsGeneratingTryOn(false)
             toast.error('Virtual try-on failed to generate.')

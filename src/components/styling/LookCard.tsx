@@ -24,7 +24,7 @@ export interface LookCardProps {
   isSaved?: boolean;
   savedAsLabel?: string;
   tryOnImageUrl?: string | null;
-  isGeneratingTryOn?: boolean;
+  isGeneratingTryOn?: boolean | string;
   capsuleInfo?: { id: string, title: string };
 }
 
@@ -91,7 +91,7 @@ export default function LookCard({
       
       {/* Hero Try-On Image */}
       {isHeroMode && (
-        <div className={styles.heroImageContainer} onClick={() => setFullscreenImage(tryOnImageUrl!)}>
+        <div key={tryOnImageUrl!} className={`${styles.heroImageContainer} ${styles.fadeIn}`} onClick={() => setFullscreenImage(tryOnImageUrl!)}>
           <Image 
             src={tryOnImageUrl!} 
             alt="Virtual Try-On" 
@@ -231,10 +231,10 @@ export default function LookCard({
             <button 
               className={styles.btnTryOn}
               onClick={onGenerateTryOn}
-              disabled={isGeneratingTryOn}
+              disabled={!!isGeneratingTryOn}
             >
               <Sparkles size={18} />
-              {isGeneratingTryOn ? 'Generating...' : 'Try On Outfit'}
+              {typeof isGeneratingTryOn === 'string' ? isGeneratingTryOn : isGeneratingTryOn ? 'Generating...' : 'Try On Outfit'}
             </button>
           )}
           
