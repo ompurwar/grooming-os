@@ -128,7 +128,7 @@ export async function POST(request: Request) {
 
     // 5. Check if any requiredItemIds match items in this category — auto-select if so
     if (requiredItemIds && requiredItemIds.length > 0) {
-      const requiredInCategory = wardrobeItems.filter((item: any) =>
+      const requiredInCategory = availableItems.filter((item: any) =>
         requiredItemIds.includes(item.id)
       )
 
