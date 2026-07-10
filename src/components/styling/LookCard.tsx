@@ -317,38 +317,47 @@ export default function LookCard({
               className={`${styles.item} ${item.isUpgrade ? styles.itemUpgrade : ''}`}
               style={{ animationDelay: `${index * 100}ms` }}
             >
-              <div className={styles.itemIcon}>
-                {showImages && item.imageUrl ? (
-                  <div 
-                    className={styles.imageWrapper} 
-                    onClick={() => setFullscreenImage(item.imageUrl || null)}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <Image src={item.imageUrl} alt={item.name} fill style={{ objectFit: 'cover' }} unoptimized={true} />
-                  </div>
-                ) : (
-                  (() => {
-                    const Icon = item.icon
-                    return typeof Icon === 'string' ? Icon : <Icon size={26} />
-                  })()
-                )}
+              {/* Row 1: Image, Category, Title */}
+              <div className={styles.itemHeader}>
+                <div className={styles.itemIcon}>
+                  {showImages && item.imageUrl ? (
+                    <div 
+                      className={styles.imageWrapper} 
+                      onClick={() => setFullscreenImage(item.imageUrl || null)}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <Image src={item.imageUrl} alt={item.name} fill style={{ objectFit: 'cover' }} unoptimized={true} />
+                    </div>
+                  ) : (
+                    (() => {
+                      const Icon = item.icon
+                      return typeof Icon === 'string' ? Icon : <Icon size={26} />
+                    })()
+                  )}
+                </div>
+                <div className={styles.itemMeta}>
+                  <div className={styles.itemType}>{item.type}</div>
+                  <div className={styles.itemName}>{item.name}</div>
+                </div>
+                {item.isUpgrade && <div className={styles.cartIcon}><ShoppingCart size={16} /></div>}
               </div>
-              <div className={styles.itemDetails}>
-                <div className={styles.itemType}>{item.type}</div>
-                <div className={styles.itemName}>{item.name}</div>
-                {item.itemReasoning && (
-                  <div className={styles.itemSource} style={{ fontStyle: 'italic', fontSize: '11px', lineHeight: '1.3', marginTop: '2px', opacity: 0.7 }}>
-                    {item.itemReasoning}
-                  </div>
-                )}
-                {(item.price || item.source !== 'From Wardrobe') && (
-                  <div className={styles.itemSource}>
-                    {item.source !== 'From Wardrobe' && item.source}
-                    {item.price && <span className={styles.price}>{item.source !== 'From Wardrobe' ? ' — ' : ''}{item.price}</span>}
-                  </div>
-                )}
-              </div>
-              {item.isUpgrade && <div className={styles.cartIcon}><ShoppingCart size={16} /></div>}
+
+              {/* Row 2: Description & Meta */}
+              {(item.itemReasoning || item.price || item.source !== 'From Wardrobe') && (
+                <div className={styles.itemDescription}>
+                  {item.itemReasoning && (
+                    <div className={styles.itemReasoningText}>
+                      {item.itemReasoning}
+                    </div>
+                  )}
+                  {(item.price || item.source !== 'From Wardrobe') && (
+                    <div className={styles.itemSource}>
+                      {item.source !== 'From Wardrobe' && item.source}
+                      {item.price && <span className={styles.price}>{item.source !== 'From Wardrobe' ? ' — ' : ''}{item.price}</span>}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           ))}
         </div>
