@@ -28,6 +28,120 @@ export interface LookCardProps {
   capsuleInfo?: { id: string, title: string };
 }
 
+function ZoomableImage({ src, alt }: { src: string; alt: string }) {
+  const [scale, setScale] = useState(1)
+  const [position, setPosition] = useState({ x: 0, y: 0 })
+  const [isDragging, setIsDragging] = useState(false)
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
+
+  const handleDoubleClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (scale > 1) {
+      setScale(1)
+      setPosition({ x: 0, y: 0 })
+    } else {
+      setScale(2.5)
+      setPosition({ x: 0, y: 0 })
+    }
+  }
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (scale === 1) return
+    e.stopPropagation()
+    e.preventDefault()
+    setIsDragging(true)
+    setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y })
+  }
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || scale === 1) return
+    e.stopPropagation()
+    e.preventDefault()
+    setPosition({ x: e.clientX - dragStart.x, y: e.clientY - dragStart.y })
+  }
+
+  const handleMouseUp = () => {
+    setIsDragging(false)
+  }
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (scale === 1) return
+    e.stopPropagation()
+    const touch = e.touches[0]
+    setIsDragging(true)
+    setDragStart({ x: touch.clientX - position.x, y: touch.clientY - position.y })
+  }
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging || scale === 1) return
+    e.stopPropagation()
+    const touch = e.touches[0]
+    setPosition({ x: touch.clientX - dragStart.x, y: touch.clientY - dragStart.y })
+  }
+
+  return (
+    <div 
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleMouseUp}
+      onDoubleClick={handleDoubleClick}
+      style={{
+        cursor: scale > 1 ? (isDragging ? 'grabbing' : 'grab') : 'zoom-in',
+        width: '100%',
+        height: '100%',
+        position: 'relative',
+        overflow: scale > 1 ? 'visible' : 'hidden',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        userSelect: 'none'
+      }}
+    >
+      <div
+        style={{
+          transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+          transition: isDragging ? 'none' : 'transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+          width: '100%',
+          height: '100%',
+          position: 'relative'
+        }}
+      >
+        <Image 
+          src={src} 
+          alt={alt} 
+          fill 
+          style={{ objectFit: 'contain', pointerEvents: 'none' }} 
+          unoptimized={true} 
+        />
+      </div>
+      {scale > 1 && (
+        <div 
+          style={{
+            position: 'absolute',
+            bottom: '16px',
+            background: 'rgba(0,0,0,0.65)',
+            backdropFilter: 'blur(8px)',
+            color: 'white',
+            padding: '6px 12px',
+            borderRadius: '20px',
+            fontSize: '11px',
+            pointerEvents: 'none',
+            zIndex: 10,
+            letterSpacing: '0.2px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
+          }}
+        >
+          Drag to pan • Double-tap to zoom out
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function LookCard({ 
   occasion, 
   confidence, 
@@ -53,7 +167,6 @@ export default function LookCard({
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          // If at least 30% of the card is visible, switch to image mode automatically
           if (entry.isIntersecting) {
             setShowImages(true)
           }
@@ -228,7 +341,6 @@ export default function LookCard({
                     {item.itemReasoning}
                   </div>
                 )}
-                {/* Only show source if it's meaningful (not just "From Wardrobe") */}
                 {(item.price || item.source !== 'From Wardrobe') && (
                   <div className={styles.itemSource}>
                     {item.source !== 'From Wardrobe' && item.source}
@@ -244,7 +356,6 @@ export default function LookCard({
 
       {(onGenerateTryOn || onDelete || onTryAlternatives || onSave) && (
         <div className={styles.actions}>
-          {/* Try On Outfit CTA — prominent styled button */}
           {!isHeroMode && onGenerateTryOn && (
             <button 
               className={styles.btnTryOn}
@@ -257,7 +368,6 @@ export default function LookCard({
           )}
           
           <div className={styles.actionRow}>
-            {/* Delete — small, de-emphasized */}
             {onDelete && (
               <button 
                 className={styles.btnDelete}
@@ -267,14 +377,12 @@ export default function LookCard({
                 <Trash2 size={18} />
               </button>
             )}
-            {/* Alternatives — only when handler provided */}
             {onTryAlternatives && (
               <button className={styles.btnSecondary} onClick={onTryAlternatives}>
                 <RefreshCw size={15} />
                 Alternatives
               </button>
             )}
-            {/* Save — only when handler provided */}
             {onSave && (
               <button 
                 className={`${styles.btnSave} ${isSaved || justSaved ? styles.btnSaved : ''}`}
@@ -306,13 +414,10 @@ export default function LookCard({
       {fullscreenImage && (
         <div className={styles.fullscreenOverlay} onClick={() => setFullscreenImage(null)}>
           <div className={styles.fullscreenClose}><X size={24} /></div>
-          <div className={styles.fullscreenImageContainer}>
-            <Image 
+          <div className={styles.fullscreenImageContainer} onClick={(e) => e.stopPropagation()}>
+            <ZoomableImage 
               src={fullscreenImage} 
               alt="Fullscreen Preview" 
-              fill 
-              style={{ objectFit: 'contain' }} 
-              unoptimized={true} 
             />
           </div>
         </div>
