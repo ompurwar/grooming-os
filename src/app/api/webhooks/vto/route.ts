@@ -45,7 +45,7 @@ export async function POST(request: Request) {
       const passes = outfit.vto_passes || []
       const currentPass = outfit.vto_current_pass || 0
 
-      if (currentPass < passes.length - 1) {
+      if (passes.length > 0 && currentPass < passes.length - 1) {
         // Trigger the NEXT pass
         const nextPassIndex = currentPass + 1
         const nextPass = passes[nextPassIndex]

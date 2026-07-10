@@ -126,9 +126,6 @@ function GetReadyContent() {
       
       setIsSaved(outfit.is_saved)
       setTryOnImageUrl(outfit.try_on_image_url)
-      if (outfit.vto_status === 'processing') {
-        setIsGeneratingTryOn(true)
-      }
 
       // Duplicate hash check
       if (outfit.items_hash && !outfit.is_saved) {
