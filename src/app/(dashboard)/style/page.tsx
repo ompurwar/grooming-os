@@ -578,7 +578,7 @@ function StyleContent() {
 
     if (!res.ok) {
       const err = await res.json()
-      if (err.error?.includes('No items found')) return null
+      if (err.error?.includes('items found')) return null
       throw new Error(err.error || 'Step failed')
     }
 
