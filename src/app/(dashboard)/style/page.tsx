@@ -927,9 +927,6 @@ const SafeImage = ({ src, alt, className, fallback }: { src: string; alt: string
                       className={`${styles.dropdownItem} ${isSelected ? styles.dropdownItemSelected : ''}`}
                       onClick={() => toggleItemSelection(item)}
                     >
-                      <div className={styles.dropdownItemCheck}>
-                        {isSelected && <Check size={14} style={{ color: 'var(--color-accent)' }} />}
-                      </div>
                       <div className={styles.dropdownItemThumb}>
                         <SafeImage
                           src={item.image_url}
@@ -940,6 +937,9 @@ const SafeImage = ({ src, alt, className, fallback }: { src: string; alt: string
                       <div className={styles.dropdownItemInfo}>
                         <div className={styles.dropdownItemName}>{displayName}</div>
                         <div className={styles.dropdownItemCategory}>{item.category}</div>
+                      </div>
+                      <div className={styles.dropdownItemCheck}>
+                        {isSelected && <Check size={14} style={{ color: 'var(--color-accent)' }} />}
                       </div>
                     </div>
                   )

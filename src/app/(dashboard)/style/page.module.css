@@ -933,21 +933,23 @@
 }
 
 .closeDropdownBtn {
-  background: var(--color-bg-primary);
-  border: 1px solid var(--color-glass-border);
-  color: var(--color-text-secondary);
+  background: rgba(200, 165, 90, 0.1);
+  border: 1px solid rgba(200, 165, 90, 0.25);
+  color: var(--color-accent);
   font-size: 11px;
   font-weight: var(--font-semibold);
   cursor: pointer;
-  padding: 4px 8px;
-  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
   transition: all var(--transition-fast);
   white-space: nowrap;
 }
 
 .closeDropdownBtn:hover {
-  color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-bg-primary);
   border-color: var(--color-accent);
+  box-shadow: 0 0 12px rgba(200, 165, 90, 0.3);
 }
 
 .dropdownMenu {
@@ -976,6 +978,12 @@
   border: 1px solid var(--color-glass-border);
   border-radius: var(--radius-md);
   padding: 6px 10px;
+  transition: all var(--transition-fast);
+}
+
+.searchWrapper:focus-within {
+  border-color: rgba(200, 165, 90, 0.5);
+  box-shadow: 0 0 0 2px rgba(200, 165, 90, 0.15);
 }
 
 .searchIcon {
@@ -1045,17 +1053,24 @@
   padding: 8px;
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: background var(--transition-fast);
+  transition: all var(--transition-fast);
   border: 1px solid transparent;
 }
 
 .dropdownItem:hover {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+  transform: translateY(-0.5px);
 }
 
 .dropdownItemSelected {
-  background: rgba(200, 165, 90, 0.05);
-  border-color: rgba(200, 165, 90, 0.15);
+  background: rgba(200, 165, 90, 0.08) !important;
+  border-color: rgba(200, 165, 90, 0.35) !important;
+}
+
+.dropdownItemSelected:hover {
+  background: rgba(200, 165, 90, 0.12) !important;
+  border-color: rgba(200, 165, 90, 0.45) !important;
 }
 
 .dropdownItemCheck {
@@ -1065,6 +1080,7 @@
   justify-content: center;
   align-items: center;
   user-select: none;
+  margin-left: auto;
 }
 
 .dropdownItemThumb {
