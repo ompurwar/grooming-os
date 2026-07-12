@@ -147,20 +147,6 @@ function StyleContent() {
   }, [capsuleItemIds])
 
   useEffect(() => {
-    const itemsParam = searchParams.get('items')
-    if (!itemsParam) {
-      const saved = localStorage.getItem('style_base_items')
-      if (saved) {
-        try {
-          setBaseItems(JSON.parse(saved))
-        } catch (e) {
-          console.error(e)
-        }
-      }
-    }
-  }, [searchParams])
-
-  useEffect(() => {
     const savedSource = localStorage.getItem('style_styling_source')
     if (savedSource) {
       setSelectedCapsuleId(savedSource)
@@ -579,7 +565,8 @@ function StyleContent() {
         aestheticIntent: intent,
         previousSelections,
         rejectedItemIds: rejectedItemIds || [],
-        requiredItemIds: baseItems.filter(i => i.category === category).map(i => i.id)
+        requiredItemIds: baseItems.filter(i => i.category === category).map(i => i.id),
+        capsuleId: selectedCapsuleId || undefined
       })
     })
 
@@ -695,7 +682,8 @@ function StyleContent() {
           prompt: plannerPrompt,
           weatherContext: weather,
           aestheticIntent: plannerIntent,
-          selections
+          selections,
+          capsuleId: selectedCapsuleId || undefined
         })
       })
 
@@ -898,17 +886,6 @@ function StyleContent() {
               )}
               <button
                 type="button"
-                className={styles.saveSelectionBtn}
-                onClick={() => {
-                  localStorage.setItem('style_base_items', JSON.stringify(baseItems))
-                  toast.success('Wardrobe selection saved as default!')
-                }}
-                style={{ marginRight: '8px' }}
-              >
-                Save
-              </button>
-              <button
-                type="button"
                 className={styles.closeDropdownBtn}
                 onClick={() => setIsDropdownOpen(false)}
               >
@@ -1009,6 +986,26 @@ function StyleContent() {
           </button>
         </div>
 
+        {(mode === 'daily' || mode === 'planner') && savedCapsules.length > 0 && (
+          <div className={styles.inputGroup} style={{ marginTop: '12px', marginBottom: '12px' }}>
+            <label>Styling Source</label>
+            <select 
+              value={selectedCapsuleId} 
+              onChange={(e) => {
+                const val = e.target.value
+                setSelectedCapsuleId(val)
+                localStorage.setItem('style_styling_source', val)
+              }}
+              className={styles.selectInput}
+            >
+              <option value="">Entire Wardrobe</option>
+              {savedCapsules.map((capsule: any) => (
+                <option key={capsule.id} value={capsule.id}>Capsule: {capsule.title}</option>
+              ))}
+            </select>
+          </div>
+        )}
+
         {mode === 'daily' ? (
           <form 
             onSubmit={(e) => {
@@ -1026,26 +1023,6 @@ function StyleContent() {
               onChange={(e) => setPrompt(e.target.value)}
               rows={3}
             />
-            
-            {savedCapsules.length > 0 && (
-              <div className={styles.inputGroup} style={{ marginTop: '-8px', marginBottom: '8px' }}>
-                <label>Styling Source</label>
-                <select 
-                  value={selectedCapsuleId} 
-                  onChange={(e) => {
-                    const val = e.target.value
-                    setSelectedCapsuleId(val)
-                    localStorage.setItem('style_styling_source', val)
-                  }}
-                  className={styles.selectInput}
-                >
-                  <option value="">Entire Wardrobe</option>
-                  {savedCapsules.map((capsule: any) => (
-                    <option key={capsule.id} value={capsule.id}>Capsule: {capsule.title}</option>
-                  ))}
-                </select>
-              </div>
-            )}
             
             <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
               <button 

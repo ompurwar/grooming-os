@@ -11,7 +11,8 @@ export async function POST(request: Request) {
       prompt,
       weatherContext,
       aestheticIntent,
-      selections
+      selections,
+      capsuleId
     } = await request.json()
 
     if (!prompt || !selections || selections.length === 0) {
@@ -75,7 +76,8 @@ export async function POST(request: Request) {
         reasoning,
         weather_context: weatherContext || null,
         is_saved: false,
-        items_hash: itemsHash
+        items_hash: itemsHash,
+        capsule_id: capsuleId || null
       })
       .select('id')
       .single()
