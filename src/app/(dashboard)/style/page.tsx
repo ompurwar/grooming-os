@@ -459,7 +459,7 @@ function StyleContent() {
     const initialSteps: PlannerStep[] = categories.map(cat => {
       // Map UI category to DB category
       const dbCategory = cat.startsWith('Accessory') ? 'Accessory' : cat
-      const baseItem = baseItems.find(item => item.category === dbCategory && !completedSelections.find(s => s.id === item.id))
+      const baseItem = baseItems.find(item => item.category?.toUpperCase() === dbCategory.toUpperCase() && !completedSelections.find(s => s.id === item.id))
       
       if (baseItem) {
         const description = `${baseItem.primary_color || ''} ${baseItem.pattern || 'solid'} ${baseItem.sub_category || baseItem.category}`
@@ -571,7 +571,7 @@ function StyleContent() {
         aestheticIntent: intent,
         previousSelections,
         rejectedItemIds: rejectedItemIds || [],
-        requiredItemIds: baseItems.filter(i => i.category === category).map(i => i.id),
+        requiredItemIds: baseItems.filter(i => i.category?.toUpperCase() === category.toUpperCase()).map(i => i.id),
         capsuleId: selectedCapsuleId || undefined
       })
     })
@@ -1277,10 +1277,10 @@ const SafeImage = ({ src, alt, className, fallback }: { src: string; alt: string
                   <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
                     <button
                       type="button"
-                      className={styles.finalizeBtn}
+                      className={`${styles.finalizeBtn} ${styles.btnViewLook}`}
                       disabled={isFinalizing}
                       onClick={() => finalizePlannerOutfit(false)}
-                      style={{ flex: 1, background: 'var(--color-bg-secondary)', color: 'var(--color-text-primary)' }}
+                      style={{ flex: 1 }}
                     >
                       {isFinalizing ? (
                         <><RefreshCw size={18} className="spin" /> Saving...</>
@@ -1290,7 +1290,7 @@ const SafeImage = ({ src, alt, className, fallback }: { src: string; alt: string
                     </button>
                     <button
                       type="button"
-                      className={styles.finalizeBtn}
+                      className={`${styles.finalizeBtn} ${styles.btnTryOnOutfit}`}
                       disabled={isFinalizing}
                       onClick={() => finalizePlannerOutfit(true)}
                       style={{ flex: 2 }}

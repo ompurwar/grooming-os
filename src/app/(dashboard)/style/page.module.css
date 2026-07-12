@@ -786,31 +786,47 @@
 .finalizeBtn {
   width: 100%;
   padding: var(--space-4);
-  background: linear-gradient(135deg, #4caf50, #2e7d32);
-  color: #fff;
   font-size: var(--text-md);
   font-weight: var(--font-bold);
   border-radius: var(--radius-lg);
-  box-shadow: 0 4px 16px rgba(76, 175, 80, 0.3);
   transition: all var(--transition-base);
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  margin-top: var(--space-4);
   cursor: pointer;
   border: none;
-}
-
-.finalizeBtn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
 }
 
 .finalizeBtn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
   transform: none;
+  box-shadow: none !important;
+}
+
+.btnViewLook {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-glass-border);
+  color: var(--color-text-primary);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btnViewLook:hover:not(:disabled) {
+  border-color: var(--color-accent);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.btnTryOnOutfit {
+  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-dark));
+  color: var(--color-text-inverse);
+  box-shadow: 0 4px 16px rgba(197, 160, 89, 0.25);
+}
+
+.btnTryOnOutfit:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(197, 160, 89, 0.4);
 }
 
 /* Shimmer Effect */
