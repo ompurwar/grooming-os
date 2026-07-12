@@ -101,6 +101,19 @@ function StyleContent() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [isEditingBaseItems, setIsEditingBaseItems] = useState(false)
+  const preSelectorRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (preSelectorRef.current && !preSelectorRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
 
   const handleCapsuleGenerate = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -747,13 +760,21 @@ function StyleContent() {
       }
     }
 
+    const handleRowClick = (e: React.MouseEvent) => {
+      if ((e.target as HTMLElement).closest(`.${styles.deselectBtn}`) || 
+          (e.target as HTMLElement).closest(`.${styles.editSelectorBtn}`)) {
+        return
+      }
+      setIsDropdownOpen(prev => !prev)
+    }
+
     return (
-      <div className={styles.preSelectorContainer}>
+      <div className={styles.preSelectorContainer} ref={preSelectorRef}>
         {/* Selected Items Row */}
-        <div className={styles.selectedRow}>
+        <div className={styles.selectedRow} onClick={handleRowClick} style={{ cursor: 'pointer' }}>
           <div className={styles.selectedGrid}>
             {baseItems.length === 0 ? (
-              <span className={styles.placeholderText} onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
+              <span className={styles.placeholderText}>
                 Select items to style with...
               </span>
             ) : (
@@ -791,15 +812,6 @@ function StyleContent() {
           </button>
         </div>
 
-        {/* Dropdown Toggle Trigger Button */}
-        <button
-          type="button"
-          className={styles.dropdownToggle}
-          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-        >
-          <span>{isDropdownOpen ? 'Close Wardrobe List 👆' : 'Open Wardrobe List 👇'}</span>
-        </button>
-
         {/* Dropdown Menu */}
         {isDropdownOpen && (
           <div className={styles.dropdownMenu}>
@@ -813,10 +825,17 @@ function StyleContent() {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
               {searchQuery && (
-                <button type="button" className={styles.clearSearch} onClick={() => setSearchQuery('')}>
+                <button type="button" className={styles.clearSearch} onClick={() => setSearchQuery('')} style={{ marginRight: '8px' }}>
                   <X size={12} />
                 </button>
               )}
+              <button
+                type="button"
+                className={styles.closeDropdownBtn}
+                onClick={() => setIsDropdownOpen(false)}
+              >
+                Close
+              </button>
             </div>
 
             <div className={styles.itemsListWrapper}>
@@ -833,7 +852,7 @@ function StyleContent() {
                       onClick={() => toggleItemSelection(item)}
                     >
                       <div className={styles.dropdownItemCheck}>
-                        {isSelected ? '😍' : '😒'}
+                        {isSelected && <Check size={14} style={{ color: 'var(--color-accent)' }} />}
                       </div>
                       {item.image_url ? (
                         <div className={styles.dropdownItemThumb}>

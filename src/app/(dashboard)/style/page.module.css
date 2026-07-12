@@ -894,24 +894,22 @@
   border-color: var(--color-accent);
 }
 
-.dropdownToggle {
-  background: transparent;
-  border: none;
-  color: var(--color-accent);
+.closeDropdownBtn {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-glass-border);
+  color: var(--color-text-secondary);
   font-size: 11px;
   font-weight: var(--font-semibold);
   cursor: pointer;
-  padding: 0;
-  text-align: left;
-  width: fit-content;
-  align-self: flex-start;
-  transition: opacity var(--transition-fast);
-  letter-spacing: var(--tracking-wider);
-  text-transform: uppercase;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+  white-space: nowrap;
 }
 
-.dropdownToggle:hover {
-  opacity: 0.8;
+.closeDropdownBtn:hover {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
 }
 
 .dropdownMenu {
