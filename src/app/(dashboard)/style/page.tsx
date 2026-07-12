@@ -8,7 +8,7 @@ import { fetchWeatherContext, WeatherContext } from '@/utils/weather'
 import { toast } from 'sonner'
 import { triggerHaptic, hapticPatterns } from '@/utils/haptics'
 import { analytics } from '@/utils/analytics'
-import { Check, Sparkles, AlertCircle, Bookmark, ShoppingCart, Shirt, Briefcase, Globe, RefreshCw, Loader2, SkipForward, RotateCcw, Eye } from 'lucide-react'
+import { Check, Sparkles, AlertCircle, Bookmark, ShoppingCart, Shirt, Briefcase, Globe, RefreshCw, Loader2, SkipForward, RotateCcw, Eye, X, Search, Edit2 } from 'lucide-react'
 import TypewriterText from '@/components/shared/TypewriterText'
 import styles from './page.module.css'
 
@@ -97,6 +97,10 @@ function StyleContent() {
   const [selectedCapsuleId, setSelectedCapsuleId] = useState<string>('')
   const [wardrobeCount, setWardrobeCount] = useState<number | null>(null)
   const [baseItems, setBaseItems] = useState<any[]>([])
+  const [allWardrobeItems, setAllWardrobeItems] = useState<any[]>([])
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [isEditingBaseItems, setIsEditingBaseItems] = useState(false)
 
   const handleCapsuleGenerate = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -134,7 +138,7 @@ function StyleContent() {
         return
       }
 
-      const [looksRes, capsulesResponse, wardrobeCountRes] = await Promise.all([
+      const [looksRes, capsulesResponse, wardrobeCountRes, wardrobeItemsRes] = await Promise.all([
         supabase
           .from('outfits')
           .select(`
@@ -149,12 +153,14 @@ function StyleContent() {
           .order('created_at', { ascending: false })
           .limit(4),
         fetch('/api/style/capsules').then(res => res.json()),
-        supabase.from('wardrobe_items').select('id', { count: 'exact', head: true }).eq('user_id', session.user.id)
+        supabase.from('wardrobe_items').select('id', { count: 'exact', head: true }).eq('user_id', session.user.id),
+        supabase.from('wardrobe_items').select('*').eq('user_id', session.user.id)
       ])
 
       setSavedLooks(looksRes.data ?? [])
       setSavedCapsules(capsulesResponse.capsules ?? [])
       setWardrobeCount(wardrobeCountRes.count ?? 0)
+      setAllWardrobeItems(wardrobeItemsRes.data ?? [])
     }
     initStyle()
   }, [])
@@ -716,6 +722,131 @@ function StyleContent() {
     }
   }
 
+  const renderItemPreSelector = () => {
+    const filteredItems = allWardrobeItems.filter(item => {
+      const nameMatch = item.name?.toLowerCase().includes(searchQuery.toLowerCase())
+      const catMatch = item.category?.toLowerCase().includes(searchQuery.toLowerCase())
+      return nameMatch || catMatch
+    })
+
+    const toggleItemSelection = (item: any) => {
+      const exists = baseItems.some(i => i.id === item.id)
+      if (exists) {
+        setBaseItems(prev => prev.filter(i => i.id !== item.id))
+      } else {
+        setBaseItems(prev => [...prev, item])
+      }
+    }
+
+    return (
+      <div className={styles.preSelectorContainer}>
+        {/* Selected Items Row */}
+        <div className={styles.selectedRow}>
+          <div className={styles.selectedGrid}>
+            {baseItems.length === 0 ? (
+              <span className={styles.placeholderText} onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
+                Select items to style with...
+              </span>
+            ) : (
+              baseItems.map(item => (
+                <div key={item.id} className={styles.selectedSquare}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={item.image_url} alt={item.name || item.category} className={styles.squareImg} />
+                  {isEditingBaseItems && (
+                    <button
+                      type="button"
+                      className={styles.deselectBtn}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setBaseItems(prev => prev.filter(i => i.id !== item.id))
+                      }}
+                    >
+                      <X size={10} />
+                    </button>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+          
+          <button
+            type="button"
+            className={`${styles.editSelectorBtn} ${isEditingBaseItems ? styles.editSelectorBtnActive : ''}`}
+            onClick={() => setIsEditingBaseItems(!isEditingBaseItems)}
+            title="Toggle edit selected items"
+          >
+            {isEditingBaseItems ? <Check size={16} /> : <Edit2 size={16} />}
+          </button>
+        </div>
+
+        {/* Dropdown Toggle Trigger Button */}
+        <button
+          type="button"
+          className={styles.dropdownToggle}
+          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+        >
+          <span>{isDropdownOpen ? 'Close Wardrobe List 👆' : 'Open Wardrobe List 👇'}</span>
+        </button>
+
+        {/* Dropdown Menu */}
+        {isDropdownOpen && (
+          <div className={styles.dropdownMenu}>
+            <div className={styles.searchWrapper}>
+              <Search size={14} className={styles.searchIcon} />
+              <input
+                type="text"
+                className={styles.searchInput}
+                placeholder="Search wardrobe..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              {searchQuery && (
+                <button type="button" className={styles.clearSearch} onClick={() => setSearchQuery('')}>
+                  <X size={12} />
+                </button>
+              )}
+            </div>
+
+            <div className={styles.itemsListWrapper}>
+              {filteredItems.length === 0 ? (
+                <div className={styles.noItemsText}>No items found in wardrobe</div>
+              ) : (
+                filteredItems.map(item => {
+                  const isSelected = baseItems.some(i => i.id === item.id)
+                  return (
+                    <div
+                      key={item.id}
+                      className={`${styles.dropdownItem} ${isSelected ? styles.dropdownItemSelected : ''}`}
+                      onClick={() => toggleItemSelection(item)}
+                    >
+                      <div className={styles.dropdownItemCheck}>
+                        {isSelected ? '😍' : '😒'}
+                      </div>
+                      {item.image_url ? (
+                        <div className={styles.dropdownItemThumb}>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={item.image_url} alt={item.name} />
+                        </div>
+                      ) : (
+                        <div className={styles.dropdownItemThumbFallback}>
+                          <Shirt size={14} />
+                        </div>
+                      )}
+                      <div className={styles.dropdownItemInfo}>
+                        <div className={styles.dropdownItemName}>{item.name || 'Unnamed Item'}</div>
+                        <div className={styles.dropdownItemCategory}>{item.category}</div>
+                      </div>
+                    </div>
+                  )
+                })
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    )
+  }
+
   if (wardrobeCount === null) return null;
 
   return (
@@ -774,6 +905,8 @@ function StyleContent() {
             }} 
             className={styles.form}
           >
+            {renderItemPreSelector()}
+
             <textarea 
               className={styles.promptInput}
               placeholder="E.g., I'm going to a rooftop dinner in a slightly chilly city..."
@@ -782,17 +915,6 @@ function StyleContent() {
               rows={3}
             />
             
-            {baseItems.length > 0 && (
-              <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px', marginTop: '-8px', marginBottom: '8px' }}>
-                <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)', alignSelf: 'center', marginRight: '4px' }}>Including:</span>
-                {baseItems.map(item => (
-                  <div key={item.id} style={{ width: '40px', height: '40px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0, border: '1px solid var(--color-glass-border)' }}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={item.image_url} alt={item.category} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  </div>
-                ))}
-              </div>
-            )}
             {savedCapsules.length > 0 && (
               <div className={styles.inputGroup} style={{ marginTop: '-8px', marginBottom: '8px' }}>
                 <label>Styling Source</label>
@@ -825,25 +947,6 @@ function StyleContent() {
                   <>Style Me <Sparkles size={16} style={{display: 'inline', verticalAlign: 'text-bottom', marginLeft: 4}} /></>
                 )}
               </button>
-              
-              <Link
-                href="/wardrobe?select=true&returnTo=style"
-                className={styles.styleBtn}
-                style={{ 
-                  background: 'var(--color-bg-tertiary)', 
-                  color: 'var(--color-text-primary)', 
-                  border: '1px solid var(--color-border)', 
-                  flex: '0 0 auto', 
-                  width: 'auto',
-                  padding: '0 16px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-                title="Start with a specific item from your wardrobe"
-              >
-                <Shirt size={20} />
-              </Link>
             </div>
 
             <div className={styles.chipsLabel}>Popular Occasions</div>
@@ -865,6 +968,8 @@ function StyleContent() {
           <div className={styles.plannerForm}>
             {!isPlannerRunning && !isPlannerDone && (
               <>
+                {renderItemPreSelector()}
+
                 <textarea 
                   className={styles.promptInput}
                   placeholder="E.g., Rooftop dinner date in a slightly chilly city..."
