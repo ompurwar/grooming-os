@@ -8,7 +8,7 @@ import { fetchWeatherContext, WeatherContext } from '@/utils/weather'
 import { toast } from 'sonner'
 import { triggerHaptic, hapticPatterns } from '@/utils/haptics'
 import { analytics } from '@/utils/analytics'
-import { Check, Sparkles, AlertCircle, Bookmark, ShoppingCart, Shirt, Briefcase, Globe, RefreshCw, Loader2, SkipForward, RotateCcw, Eye, X, Search, Edit2 } from 'lucide-react'
+import { Check, Sparkles, AlertCircle, Bookmark, ShoppingCart, Shirt, Briefcase, Globe, RefreshCw, Loader2, SkipForward, RotateCcw, Eye, X, Search, Edit2, ChevronDown } from 'lucide-react'
 import TypewriterText from '@/components/shared/TypewriterText'
 import styles from './page.module.css'
 
@@ -99,14 +99,19 @@ function StyleContent() {
   const [baseItems, setBaseItems] = useState<any[]>([])
   const [allWardrobeItems, setAllWardrobeItems] = useState<any[]>([])
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [isSourceDropdownOpen, setIsSourceDropdownOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [isEditingBaseItems, setIsEditingBaseItems] = useState(false)
   const preSelectorRef = useRef<HTMLDivElement>(null)
+  const sourceDropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (preSelectorRef.current && !preSelectorRef.current.contains(event.target as Node)) {
         setIsDropdownOpen(false)
+      }
+      if (sourceDropdownRef.current && !sourceDropdownRef.current.contains(event.target as Node)) {
+        setIsSourceDropdownOpen(false)
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
@@ -1005,20 +1010,66 @@ const SafeImage = ({ src, alt, className, fallback }: { src: string; alt: string
         {(mode === 'daily' || mode === 'planner') && savedCapsules.length > 0 && (
           <div className={styles.inputGroup} style={{ marginTop: '12px', marginBottom: '12px' }}>
             <label>Styling Source</label>
-            <select 
-              value={selectedCapsuleId} 
-              onChange={(e) => {
-                const val = e.target.value
-                setSelectedCapsuleId(val)
-                localStorage.setItem('style_styling_source', val)
-              }}
-              className={styles.selectInput}
-            >
-              <option value="">Entire Wardrobe</option>
-              {savedCapsules.map((capsule: any) => (
-                <option key={capsule.id} value={capsule.id}>Capsule: {capsule.title}</option>
-              ))}
-            </select>
+            <div className={styles.customSelectContainer} ref={sourceDropdownRef}>
+              <div 
+                className={`${styles.customSelectTrigger} ${isSourceDropdownOpen ? styles.customSelectTriggerActive : ''}`}
+                onClick={() => setIsSourceDropdownOpen(prev => !prev)}
+              >
+                <div className={styles.triggerLeft}>
+                  {selectedCapsuleId ? <Briefcase size={16} style={{ color: 'var(--color-accent)' }} /> : <Globe size={16} style={{ color: 'var(--color-accent)' }} />}
+                  <span className={styles.triggerText}>
+                    {selectedCapsuleId ? (savedCapsules.find(c => c.id === selectedCapsuleId)?.title ? `Capsule: ${savedCapsules.find(c => c.id === selectedCapsuleId)?.title}` : 'Selected Capsule') : 'Entire Wardrobe'}
+                  </span>
+                </div>
+                <ChevronDown size={16} className={`${styles.triggerArrow} ${isSourceDropdownOpen ? styles.triggerArrowRotate : ''}`} />
+              </div>
+
+              {isSourceDropdownOpen && (
+                <div className={styles.customSelectMenu}>
+                  {/* Option 1: Entire Wardrobe */}
+                  <div 
+                    className={`${styles.customSelectOption} ${!selectedCapsuleId ? styles.customSelectOptionSelected : ''}`}
+                    onClick={() => {
+                      setSelectedCapsuleId('')
+                      localStorage.setItem('style_styling_source', '')
+                      setIsSourceDropdownOpen(false)
+                    }}
+                  >
+                    <Globe size={16} className={styles.optionIcon} />
+                    <div className={styles.optionInfo}>
+                      <div className={styles.optionTitle}>Entire Wardrobe</div>
+                      <div className={styles.optionDesc}>Style with all active items in your wardrobe</div>
+                    </div>
+                    {!selectedCapsuleId && <Check size={14} className={styles.optionCheck} />}
+                  </div>
+
+                  {/* Options: Capsules */}
+                  {savedCapsules.map((capsule: any) => {
+                    const isSelected = selectedCapsuleId === capsule.id
+                    return (
+                      <div 
+                        key={capsule.id}
+                        className={`${styles.customSelectOption} ${isSelected ? styles.customSelectOptionSelected : ''}`}
+                        onClick={() => {
+                          setSelectedCapsuleId(capsule.id)
+                          localStorage.setItem('style_styling_source', capsule.id)
+                          setIsSourceDropdownOpen(false)
+                        }}
+                      >
+                        <Briefcase size={16} className={styles.optionIcon} />
+                        <div className={styles.optionInfo}>
+                          <div className={styles.optionTitle}>Capsule: {capsule.title}</div>
+                          <div className={styles.optionDesc}>
+                            {capsule.description || 'Custom curated travel capsule wardrobe'}
+                          </div>
+                        </div>
+                        {isSelected && <Check size={14} className={styles.optionCheck} />}
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
           </div>
         )}
 
