@@ -818,9 +818,6 @@ function StyleContent() {
         {/* Label & Active Source Display */}
         <div className={styles.preSelectorHeader}>
           <label className={styles.preSelectorLabel}>Pre-selected Wardrobe Items</label>
-          <span className={styles.preSelectorSourceBadge}>
-            Source: {selectedCapsuleId ? (savedCapsules.find(c => c.id === selectedCapsuleId)?.title ? `Capsule: ${savedCapsules.find(c => c.id === selectedCapsuleId)?.title}` : 'Selected Capsule') : 'Entire Wardrobe'}
-          </span>
         </div>
 
         {/* Selected Items Row */}
