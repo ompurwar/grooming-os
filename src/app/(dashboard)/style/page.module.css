@@ -1079,3 +1079,45 @@
   text-transform: uppercase;
   letter-spacing: 0.02em;
 }
+
+.selectionInfoWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.selectionInfoText {
+  font-size: 10px;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  letter-spacing: 0.05em;
+  font-weight: var(--font-bold);
+  user-select: none;
+}
+
+.selectedGridInner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.saveSelectionBtn {
+  background: rgba(200, 165, 90, 0.1);
+  border: 1px solid rgba(200, 165, 90, 0.3);
+  color: var(--color-accent);
+  font-size: 11px;
+  font-weight: var(--font-semibold);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.saveSelectionBtn:hover {
+  background: var(--color-accent);
+  color: var(--color-bg-primary);
+  border-color: var(--color-accent);
+}

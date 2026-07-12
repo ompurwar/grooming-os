@@ -115,6 +115,50 @@ function StyleContent() {
     }
   }, [])
 
+  const [capsuleItemIds, setCapsuleItemIds] = useState<string[] | null>(null)
+
+  useEffect(() => {
+    if (!selectedCapsuleId) {
+      setCapsuleItemIds(null)
+      return
+    }
+
+    const fetchCapsuleItems = async () => {
+      const supabase = createClient()
+      const { data, error } = await supabase
+        .from('capsule_items')
+        .select('wardrobe_item_id')
+        .eq('capsule_id', selectedCapsuleId)
+      
+      if (!error && data) {
+        setCapsuleItemIds(data.map((c: any) => c.wardrobe_item_id))
+      } else {
+        setCapsuleItemIds([])
+      }
+    }
+
+    fetchCapsuleItems()
+  }, [selectedCapsuleId])
+
+  useEffect(() => {
+    if (capsuleItemIds === null) return
+    setBaseItems(prev => prev.filter(item => capsuleItemIds.includes(item.id)))
+  }, [capsuleItemIds])
+
+  useEffect(() => {
+    const itemsParam = searchParams.get('items')
+    if (!itemsParam) {
+      const saved = localStorage.getItem('style_base_items')
+      if (saved) {
+        try {
+          setBaseItems(JSON.parse(saved))
+        } catch (e) {
+          console.error(e)
+        }
+      }
+    }
+  }, [searchParams])
+
   const handleCapsuleGenerate = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!destinations.trim() || !days) return
@@ -737,6 +781,11 @@ function StyleContent() {
 
   const renderItemPreSelector = () => {
     const filteredItems = allWardrobeItems.filter(item => {
+      // Respect capsule items filter if styling source is a specific capsule
+      if (capsuleItemIds !== null && !capsuleItemIds.includes(item.id)) {
+        return false
+      }
+
       const query = searchQuery.toLowerCase().trim()
       if (!query) return true
 
@@ -778,27 +827,34 @@ function StyleContent() {
                 Select items to style with...
               </span>
             ) : (
-              baseItems.map(item => {
-                const displayName = `${item.primary_color || ''} ${item.sub_category || item.category || ''}`.trim()
-                return (
-                  <div key={item.id} className={styles.selectedSquare} title={displayName}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={item.image_url} alt={displayName} className={styles.squareImg} />
-                    {isEditingBaseItems && (
-                      <button
-                        type="button"
-                        className={styles.deselectBtn}
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setBaseItems(prev => prev.filter(i => i.id !== item.id))
-                        }}
-                      >
-                        <X size={10} />
-                      </button>
-                    )}
-                  </div>
-                )
-              })
+              <div className={styles.selectionInfoWrapper}>
+                <span className={styles.selectionInfoText}>
+                  {baseItems.length} {baseItems.length === 1 ? 'item' : 'items'} selected from {selectedCapsuleId ? 'selected capsule' : 'entire wardrobe'}
+                </span>
+                <div className={styles.selectedGridInner}>
+                  {baseItems.map(item => {
+                    const displayName = `${item.primary_color || ''} ${item.sub_category || item.category || ''}`.trim()
+                    return (
+                      <div key={item.id} className={styles.selectedSquare} title={displayName}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={item.image_url} alt={displayName} className={styles.squareImg} />
+                        {isEditingBaseItems && (
+                          <button
+                            type="button"
+                            className={styles.deselectBtn}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setBaseItems(prev => prev.filter(i => i.id !== item.id))
+                            }}
+                          >
+                            <X size={10} />
+                          </button>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
             )}
           </div>
           
@@ -820,7 +876,7 @@ function StyleContent() {
               <input
                 type="text"
                 className={styles.searchInput}
-                placeholder="Search wardrobe..."
+                placeholder={selectedCapsuleId ? "Search in capsule..." : "Search wardrobe..."}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -829,6 +885,17 @@ function StyleContent() {
                   <X size={12} />
                 </button>
               )}
+              <button
+                type="button"
+                className={styles.saveSelectionBtn}
+                onClick={() => {
+                  localStorage.setItem('style_base_items', JSON.stringify(baseItems))
+                  toast.success('Wardrobe selection saved as default!')
+                }}
+                style={{ marginRight: '8px' }}
+              >
+                Save
+              </button>
               <button
                 type="button"
                 className={styles.closeDropdownBtn}
@@ -840,7 +907,9 @@ function StyleContent() {
 
             <div className={styles.itemsListWrapper}>
               {filteredItems.length === 0 ? (
-                <div className={styles.noItemsText}>No items found in wardrobe</div>
+                <div className={styles.noItemsText}>
+                  {selectedCapsuleId ? 'No items found in selected capsule' : 'No items found in wardrobe'}
+                </div>
               ) : (
                 filteredItems.map(item => {
                   const isSelected = baseItems.some(i => i.id === item.id)
