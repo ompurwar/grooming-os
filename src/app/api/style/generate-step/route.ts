@@ -114,11 +114,17 @@ export async function POST(request: Request) {
       })
     }
 
+    const formatItemDescription = (item: any) => {
+      const patternText = (!item.pattern || item.pattern.toLowerCase() === 'none' || item.pattern.toLowerCase() === 'solid') ? '' : ` ${item.pattern}`
+      return `${item.primary_color}${patternText} ${item.sub_category || item.category}`
+    }
+
     const inventory = availableItems.map((item: any) => {
-      const tags = item.ai_tags && item.ai_tags.length > 0 ? ` [Fit/Tags: ${item.ai_tags.join(', ')}]` : ''
+      const patternText = (!item.pattern || item.pattern.toLowerCase() === 'none' || item.pattern.toLowerCase() === 'solid') ? 'solid' : item.pattern
+      const tagsText = item.ai_tags && item.ai_tags.length > 0 ? ` [Fit/Tags: ${item.ai_tags.join(', ')}]` : ''
       return {
         id: item.id,
-        description: `${item.primary_color} ${item.pattern || 'solid'} ${item.sub_category || item.category}${tags}`,
+        description: `${item.primary_color} ${patternText} ${item.sub_category || item.category}${tagsText}`,
         category: item.category,
         material: item.material || 'Unknown',
         pattern: item.pattern || 'None',
@@ -138,9 +144,10 @@ export async function POST(request: Request) {
           selectedItem: {
             id: autoSelected.id,
             category: autoSelected.category,
-            description: `${autoSelected.primary_color} ${autoSelected.pattern || 'solid'} ${autoSelected.sub_category || autoSelected.category}`,
+            description: formatItemDescription(autoSelected),
             imageUrl: autoSelected.image_url || null,
-            reason: 'This item was explicitly selected by the user as a required piece for this outfit.'
+            reason: 'This item was explicitly selected by the user as a required piece for this outfit.',
+            tags: autoSelected.ai_tags || []
           },
           aestheticNotes: 'Anchoring the outfit around the user\'s chosen piece.'
         })
@@ -217,9 +224,10 @@ Your task:
       selectedItem: {
         id: selectedItem.id,
         category: selectedItem.category,
-        description: `${selectedItem.primary_color} ${selectedItem.pattern || 'solid'} ${selectedItem.sub_category || selectedItem.category}${selectedItem.ai_tags && selectedItem.ai_tags.length > 0 ? ` [Fit/Tags: ${selectedItem.ai_tags.join(', ')}]` : ''}`,
+        description: formatItemDescription(selectedItem),
         imageUrl: selectedItem.image_url || null,
-        reason: object.reason
+        reason: object.reason,
+        tags: selectedItem.ai_tags || []
       },
       aestheticNotes: object.aesthetic_notes
     })

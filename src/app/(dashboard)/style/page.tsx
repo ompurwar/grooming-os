@@ -37,6 +37,7 @@ interface PlannerStep {
     description: string
     imageUrl?: string
     reason: string
+    tags?: string[]
   }
   aestheticNotes?: string
   rejectedItemIds?: string[]
@@ -1237,6 +1238,13 @@ const SafeImage = ({ src, alt, className, fallback }: { src: string; alt: string
                               )}
                               <div>
                                 <div className={styles.stepItemName}>{step.selectedItem.description}</div>
+                                {step.selectedItem.tags && step.selectedItem.tags.length > 0 && (
+                                  <div className={styles.stepItemTags}>
+                                    {step.selectedItem.tags.map(tag => (
+                                      <span key={tag} className={styles.stepItemTag}>{tag}</span>
+                                    ))}
+                                  </div>
+                                )}
                                 <div className={styles.stepItemReason}>
                                   <TypewriterText text={step.selectedItem.reason} speed={15} />
                                 </div>
