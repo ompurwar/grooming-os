@@ -737,8 +737,8 @@ function StyleContent() {
       ) : (
         <>
           {/* Hero Action */}
-          <section className={styles.heroCard}>
-        <div className={styles.glow} />
+          <section className={mode === 'planner' ? styles.flatPlannerContainer : styles.heroCard}>
+            {mode !== 'planner' && <div className={styles.glow} />}
         <h2>What's the occasion?</h2>
         <p>Describe your event or mood, and AI will craft the perfect look.</p>
         
@@ -862,20 +862,7 @@ function StyleContent() {
           </form>
         ) : mode === 'planner' ? (
           /* V2 Planner Mode */
-          <div 
-            className={styles.plannerForm}
-            style={{
-              background: 
-                plannerIntent === 'harmonious' ? 'linear-gradient(135deg, rgba(200, 165, 90, 0.05), transparent)' :
-                plannerIntent === 'contrasting' ? 'linear-gradient(135deg, rgba(255, 100, 100, 0.03), rgba(100, 100, 255, 0.03))' :
-                plannerIntent === 'fun' ? 'linear-gradient(135deg, rgba(100, 200, 255, 0.06), rgba(255, 150, 200, 0.06))' :
-                plannerIntent === 'relaxed' ? 'linear-gradient(135deg, rgba(150, 200, 150, 0.05), transparent)' :
-                plannerIntent === 'sharp' ? 'linear-gradient(135deg, rgba(50, 50, 50, 0.1), transparent)' : 'none',
-              transition: 'background 0.5s ease',
-              borderRadius: 'var(--radius-xl)',
-              padding: '16px'
-            }}
-          >
+          <div className={styles.plannerForm}>
             {!isPlannerRunning && !isPlannerDone && (
               <>
                 <textarea 

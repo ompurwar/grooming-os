@@ -778,3 +778,12 @@
   animation: shimmerAnim 1.5s infinite linear;
   border-radius: var(--radius-sm);
 }
+
+.flatPlannerContainer {
+  position: relative;
+  width: 100%;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
