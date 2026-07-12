@@ -724,9 +724,18 @@ function StyleContent() {
 
   const renderItemPreSelector = () => {
     const filteredItems = allWardrobeItems.filter(item => {
-      const nameMatch = item.name?.toLowerCase().includes(searchQuery.toLowerCase())
-      const catMatch = item.category?.toLowerCase().includes(searchQuery.toLowerCase())
-      return nameMatch || catMatch
+      const query = searchQuery.toLowerCase().trim()
+      if (!query) return true
+
+      const colorMatch = item.primary_color?.toLowerCase().includes(query)
+      const subCatMatch = item.sub_category?.toLowerCase().includes(query)
+      const catMatch = item.category?.toLowerCase().includes(query)
+      const brandMatch = item.brand?.toLowerCase().includes(query)
+      
+      const displayName = `${item.primary_color || ''} ${item.sub_category || item.category || ''}`.toLowerCase()
+      const nameMatch = displayName.includes(query)
+
+      return colorMatch || subCatMatch || catMatch || brandMatch || nameMatch
     })
 
     const toggleItemSelection = (item: any) => {
@@ -748,24 +757,27 @@ function StyleContent() {
                 Select items to style with...
               </span>
             ) : (
-              baseItems.map(item => (
-                <div key={item.id} className={styles.selectedSquare}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={item.image_url} alt={item.name || item.category} className={styles.squareImg} />
-                  {isEditingBaseItems && (
-                    <button
-                      type="button"
-                      className={styles.deselectBtn}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setBaseItems(prev => prev.filter(i => i.id !== item.id))
-                      }}
-                    >
-                      <X size={10} />
-                    </button>
-                  )}
-                </div>
-              ))
+              baseItems.map(item => {
+                const displayName = `${item.primary_color || ''} ${item.sub_category || item.category || ''}`.trim()
+                return (
+                  <div key={item.id} className={styles.selectedSquare} title={displayName}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={item.image_url} alt={displayName} className={styles.squareImg} />
+                    {isEditingBaseItems && (
+                      <button
+                        type="button"
+                        className={styles.deselectBtn}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setBaseItems(prev => prev.filter(i => i.id !== item.id))
+                        }}
+                      >
+                        <X size={10} />
+                      </button>
+                    )}
+                  </div>
+                )
+              })
             )}
           </div>
           
@@ -813,6 +825,7 @@ function StyleContent() {
               ) : (
                 filteredItems.map(item => {
                   const isSelected = baseItems.some(i => i.id === item.id)
+                  const displayName = `${item.primary_color || ''} ${item.sub_category || item.category || ''}`.trim()
                   return (
                     <div
                       key={item.id}
@@ -825,7 +838,7 @@ function StyleContent() {
                       {item.image_url ? (
                         <div className={styles.dropdownItemThumb}>
                           {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={item.image_url} alt={item.name} />
+                          <img src={item.image_url} alt={displayName} />
                         </div>
                       ) : (
                         <div className={styles.dropdownItemThumbFallback}>
@@ -833,7 +846,7 @@ function StyleContent() {
                         </div>
                       )}
                       <div className={styles.dropdownItemInfo}>
-                        <div className={styles.dropdownItemName}>{item.name || 'Unnamed Item'}</div>
+                        <div className={styles.dropdownItemName}>{displayName}</div>
                         <div className={styles.dropdownItemCategory}>{item.category}</div>
                       </div>
                     </div>
