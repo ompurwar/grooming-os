@@ -204,8 +204,8 @@ function StyleContent() {
           .order('created_at', { ascending: false })
           .limit(4),
         fetch('/api/style/capsules').then(res => res.json()),
-        supabase.from('wardrobe_items').select('id', { count: 'exact', head: true }).eq('user_id', session.user.id),
-        supabase.from('wardrobe_items').select('*').eq('user_id', session.user.id)
+        supabase.from('wardrobe_items').select('id', { count: 'exact', head: true }).eq('user_id', session.user.id).eq('is_active', true),
+        supabase.from('wardrobe_items').select('*').eq('user_id', session.user.id).eq('is_active', true)
       ])
 
       setSavedLooks(looksRes.data ?? [])
@@ -775,6 +775,20 @@ function StyleContent() {
     }
   }
 
+const SafeImage = ({ src, alt, className, fallback }: { src: string; alt: string; className?: string; fallback: React.ReactNode }) => {
+  const [error, setError] = useState(false)
+  if (error || !src) return <>{fallback}</>
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img 
+      src={src} 
+      alt={alt} 
+      className={className} 
+      onError={() => setError(true)} 
+    />
+  )
+}
+
   const renderItemPreSelector = () => {
     const filteredItems = allWardrobeItems.filter(item => {
       // Respect capsule items filter if styling source is a specific capsule
@@ -833,8 +847,16 @@ function StyleContent() {
                   const displayName = `${item.primary_color || ''} ${item.sub_category || item.category || ''}`.trim()
                   return (
                     <div key={item.id} className={styles.selectedSquare} title={displayName}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={item.image_url} alt={displayName} className={styles.squareImg} />
+                      <SafeImage
+                        src={item.image_url}
+                        alt={displayName}
+                        className={styles.squareImg}
+                        fallback={
+                          <div className={styles.squareImgFallback}>
+                            <Shirt size={14} style={{ color: 'var(--color-text-tertiary)' }} />
+                          </div>
+                        }
+                      />
                       {isEditingBaseItems && (
                         <button
                           type="button"
@@ -908,16 +930,13 @@ function StyleContent() {
                       <div className={styles.dropdownItemCheck}>
                         {isSelected && <Check size={14} style={{ color: 'var(--color-accent)' }} />}
                       </div>
-                      {item.image_url ? (
-                        <div className={styles.dropdownItemThumb}>
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={item.image_url} alt={displayName} />
-                        </div>
-                      ) : (
-                        <div className={styles.dropdownItemThumbFallback}>
-                          <Shirt size={14} />
-                        </div>
-                      )}
+                      <div className={styles.dropdownItemThumb}>
+                        <SafeImage
+                          src={item.image_url}
+                          alt={displayName}
+                          fallback={<Shirt size={14} style={{ color: 'var(--color-text-tertiary)' }} />}
+                        />
+                      </div>
                       <div className={styles.dropdownItemInfo}>
                         <div className={styles.dropdownItemName}>{displayName}</div>
                         <div className={styles.dropdownItemCategory}>{item.category}</div>
