@@ -124,15 +124,16 @@ function StyleContent() {
     }
 
     const fetchCapsuleItems = async () => {
-      const supabase = createClient()
-      const { data, error } = await supabase
-        .from('capsule_items')
-        .select('wardrobe_item_id')
-        .eq('capsule_id', selectedCapsuleId)
-      
-      if (!error && data) {
-        setCapsuleItemIds(data.map((c: any) => c.wardrobe_item_id))
-      } else {
+      try {
+        const res = await fetch(`/api/style/capsule/${selectedCapsuleId}`)
+        const data = await res.json()
+        if (res.ok && data.itemIds) {
+          setCapsuleItemIds(data.itemIds)
+        } else {
+          setCapsuleItemIds([])
+        }
+      } catch (err) {
+        console.error('Failed to fetch capsule items:', err)
         setCapsuleItemIds([])
       }
     }
