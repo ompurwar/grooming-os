@@ -83,7 +83,7 @@ function StyleContent() {
   const [plannerSteps, setPlannerSteps] = useState<PlannerStep[]>([])
   const [isPlannerRunning, setIsPlannerRunning] = useState(false)
   const [isPlannerDone, setIsPlannerDone] = useState(false)
-  const [isFinalizing, setIsFinalizing] = useState(false)
+  const [finalizingMode, setFinalizingMode] = useState<'view' | 'tryon' | null>(null)
   const [plannerPrompt, setPlannerPrompt] = useState('')
   const [destinations, setDestinations] = useState('')
   const [days, setDays] = useState('')
@@ -660,8 +660,8 @@ function StyleContent() {
   }
 
   const finalizePlannerOutfit = async (autoTryOn = false) => {
-    if (isFinalizing) return
-    setIsFinalizing(true)
+    if (finalizingMode) return
+    setFinalizingMode(autoTryOn ? 'tryon' : 'view')
     triggerHaptic(hapticPatterns.medium)
 
     const selections = plannerSteps
@@ -674,7 +674,7 @@ function StyleContent() {
 
     if (selections.length === 0) {
       toast.error('No items were selected')
-      setIsFinalizing(false)
+      setFinalizingMode(null)
       return
     }
 
@@ -706,7 +706,7 @@ function StyleContent() {
       console.error('Finalize failed:', err)
       toast.error(err.message)
       triggerHaptic(hapticPatterns.error)
-      setIsFinalizing(false)
+      setFinalizingMode(null)
     }
   }
 
@@ -1278,11 +1278,11 @@ const SafeImage = ({ src, alt, className, fallback }: { src: string; alt: string
                     <button
                       type="button"
                       className={`${styles.finalizeBtn} ${styles.btnViewLook}`}
-                      disabled={isFinalizing}
+                      disabled={!!finalizingMode}
                       onClick={() => finalizePlannerOutfit(false)}
                       style={{ flex: 1, whiteSpace: 'nowrap' }}
                     >
-                      {isFinalizing ? (
+                      {finalizingMode === 'view' ? (
                         <><RefreshCw size={18} className="spin" /> Saving...</>
                       ) : (
                         <><Eye size={18} /> View Look</>
@@ -1291,11 +1291,11 @@ const SafeImage = ({ src, alt, className, fallback }: { src: string; alt: string
                     <button
                       type="button"
                       className={`${styles.finalizeBtn} ${styles.btnTryOnOutfit}`}
-                      disabled={isFinalizing}
+                      disabled={!!finalizingMode}
                       onClick={() => finalizePlannerOutfit(true)}
                       style={{ flex: 1, whiteSpace: 'nowrap' }}
                     >
-                      {isFinalizing ? (
+                      {finalizingMode === 'tryon' ? (
                         <><RefreshCw size={18} className="spin" /> Processing...</>
                       ) : (
                         <><Sparkles size={18} /> Try On Outfit</>
