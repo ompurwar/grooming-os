@@ -160,6 +160,13 @@ function StyleContent() {
     }
   }, [searchParams])
 
+  useEffect(() => {
+    const savedSource = localStorage.getItem('style_styling_source')
+    if (savedSource) {
+      setSelectedCapsuleId(savedSource)
+    }
+  }, [])
+
   const handleCapsuleGenerate = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!destinations.trim() || !days) return
@@ -820,6 +827,14 @@ function StyleContent() {
 
     return (
       <div className={styles.preSelectorContainer} ref={preSelectorRef}>
+        {/* Label & Active Source Display */}
+        <div className={styles.preSelectorHeader}>
+          <label className={styles.preSelectorLabel}>Pre-selected Wardrobe Items</label>
+          <span className={styles.preSelectorSourceBadge}>
+            Source: {selectedCapsuleId ? (savedCapsules.find(c => c.id === selectedCapsuleId)?.title ? `Capsule: ${savedCapsules.find(c => c.id === selectedCapsuleId)?.title}` : 'Selected Capsule') : 'Entire Wardrobe'}
+          </span>
+        </div>
+
         {/* Selected Items Row */}
         <div className={styles.selectedRow} onClick={handleRowClick} style={{ cursor: 'pointer' }}>
           <div className={styles.selectedGrid}>
@@ -828,33 +843,28 @@ function StyleContent() {
                 Select items to style with...
               </span>
             ) : (
-              <div className={styles.selectionInfoWrapper}>
-                <span className={styles.selectionInfoText}>
-                  {baseItems.length} {baseItems.length === 1 ? 'item' : 'items'} selected from {selectedCapsuleId ? 'selected capsule' : 'entire wardrobe'}
-                </span>
-                <div className={styles.selectedGridInner}>
-                  {baseItems.map(item => {
-                    const displayName = `${item.primary_color || ''} ${item.sub_category || item.category || ''}`.trim()
-                    return (
-                      <div key={item.id} className={styles.selectedSquare} title={displayName}>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={item.image_url} alt={displayName} className={styles.squareImg} />
-                        {isEditingBaseItems && (
-                          <button
-                            type="button"
-                            className={styles.deselectBtn}
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              setBaseItems(prev => prev.filter(i => i.id !== item.id))
-                            }}
-                          >
-                            <X size={10} />
-                          </button>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
+              <div className={styles.selectedGridInner}>
+                {baseItems.map(item => {
+                  const displayName = `${item.primary_color || ''} ${item.sub_category || item.category || ''}`.trim()
+                  return (
+                    <div key={item.id} className={styles.selectedSquare} title={displayName}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={item.image_url} alt={displayName} className={styles.squareImg} />
+                      {isEditingBaseItems && (
+                        <button
+                          type="button"
+                          className={styles.deselectBtn}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setBaseItems(prev => prev.filter(i => i.id !== item.id))
+                          }}
+                        >
+                          <X size={10} />
+                        </button>
+                      )}
+                    </div>
+                  )
+                })}
               </div>
             )}
           </div>
@@ -1022,7 +1032,11 @@ function StyleContent() {
                 <label>Styling Source</label>
                 <select 
                   value={selectedCapsuleId} 
-                  onChange={(e) => setSelectedCapsuleId(e.target.value)}
+                  onChange={(e) => {
+                    const val = e.target.value
+                    setSelectedCapsuleId(val)
+                    localStorage.setItem('style_styling_source', val)
+                  }}
                   className={styles.selectInput}
                 >
                   <option value="">Entire Wardrobe</option>
