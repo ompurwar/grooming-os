@@ -887,6 +887,7 @@ const SafeImage = ({ src, alt, className, fallback }: { src: string; alt: string
             className={`${styles.editSelectorBtn} ${isEditingBaseItems ? styles.editSelectorBtnActive : ''}`}
             onClick={() => setIsEditingBaseItems(!isEditingBaseItems)}
             title="Toggle edit selected items"
+            disabled={baseItems.length === 0}
           >
             {isEditingBaseItems ? <Check size={16} /> : <Edit2 size={16} />}
           </button>
