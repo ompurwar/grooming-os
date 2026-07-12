@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { generateObject } from 'ai'
 import { openai } from '@ai-sdk/openai'
 import { z } from 'zod'
@@ -37,8 +38,29 @@ export async function POST(request: Request) {
     let wardrobeItems: any[] = []
 
     if (capsuleId) {
+      // Use admin client to bypass RLS on capsule_items (RLS enabled but no policies)
+      const supabaseAdmin = createSupabaseClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+      )
+
+      // Verify capsule belongs to user
+      const { data: capsule } = await supabaseAdmin
+        .from('capsules')
+        .select('id')
+        .eq('id', capsuleId)
+        .eq('user_id', userId)
+        .single()
+
+      if (!capsule) {
+        return NextResponse.json(
+          { error: 'Capsule not found or unauthorized' },
+          { status: 404 }
+        )
+      }
+
       // Fetch items belonging to the capsule, then filter by category
-      const { data: cItems, error: cError } = await supabase
+      const { data: cItems, error: cError } = await supabaseAdmin
         .from('capsule_items')
         .select(`
           wardrobe_items (
@@ -49,7 +71,7 @@ export async function POST(request: Request) {
 
       if (!cError && cItems) {
         wardrobeItems = cItems
-          .map(c => c.wardrobe_items)
+          .map(c => (c as any).wardrobe_items)
           .filter(Boolean)
           .filter((item: any) => item.category === categoryToSelect)
       }

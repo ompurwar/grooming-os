@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { generateObject } from 'ai'
 import { openai } from '@ai-sdk/openai'
 import { z } from 'zod'
@@ -26,8 +27,29 @@ export async function POST(request: Request) {
     let wardrobeItems: any[] = []
     
     if (capsuleId) {
+      // Use admin client to bypass RLS on capsule_items (RLS enabled but no policies)
+      const supabaseAdmin = createSupabaseClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+      )
+
+      // Verify capsule belongs to user
+      const { data: capsule } = await supabaseAdmin
+        .from('capsules')
+        .select('id')
+        .eq('id', capsuleId)
+        .eq('user_id', userId)
+        .single()
+
+      if (!capsule) {
+        return NextResponse.json(
+          { error: 'Capsule not found or unauthorized' },
+          { status: 404 }
+        )
+      }
+
       // Fetch ONLY items belonging to the capsule
-      const { data: cItems, error: cError } = await supabase
+      const { data: cItems, error: cError } = await supabaseAdmin
         .from('capsule_items')
         .select(`
           wardrobe_items (
@@ -37,7 +59,7 @@ export async function POST(request: Request) {
         .eq('capsule_id', capsuleId)
         
       if (!cError && cItems) {
-        wardrobeItems = cItems.map(c => c.wardrobe_items).filter(Boolean)
+        wardrobeItems = cItems.map(c => (c as any).wardrobe_items).filter(Boolean)
       }
     } else {
       // Fetch ALL active wardrobe items
@@ -144,7 +166,6 @@ export async function POST(request: Request) {
     const itemsHash = crypto.createHash('sha256').update(sortedIds.join(',')).digest('hex')
 
     // 4. Save the Outfit to Supabase
-    const { createClient: createSupabaseClient } = await import('@supabase/supabase-js')
     const supabaseAdmin = createSupabaseClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
