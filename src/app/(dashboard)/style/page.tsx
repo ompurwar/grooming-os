@@ -1280,7 +1280,7 @@ const SafeImage = ({ src, alt, className, fallback }: { src: string; alt: string
                       className={`${styles.finalizeBtn} ${styles.btnViewLook}`}
                       disabled={isFinalizing}
                       onClick={() => finalizePlannerOutfit(false)}
-                      style={{ flex: 1 }}
+                      style={{ flex: 1, whiteSpace: 'nowrap' }}
                     >
                       {isFinalizing ? (
                         <><RefreshCw size={18} className="spin" /> Saving...</>
@@ -1293,7 +1293,7 @@ const SafeImage = ({ src, alt, className, fallback }: { src: string; alt: string
                       className={`${styles.finalizeBtn} ${styles.btnTryOnOutfit}`}
                       disabled={isFinalizing}
                       onClick={() => finalizePlannerOutfit(true)}
-                      style={{ flex: 2 }}
+                      style={{ flex: 1, whiteSpace: 'nowrap' }}
                     >
                       {isFinalizing ? (
                         <><RefreshCw size={18} className="spin" /> Processing...</>
