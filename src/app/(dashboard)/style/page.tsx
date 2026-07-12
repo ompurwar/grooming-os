@@ -737,8 +737,8 @@ function StyleContent() {
       ) : (
         <>
           {/* Hero Action */}
-          <section className={mode === 'planner' ? styles.flatPlannerContainer : styles.heroCard}>
-            {mode !== 'planner' && <div className={styles.glow} />}
+          <section className={styles.heroCard}>
+            <div className={styles.glow} />
         <h2>What's the occasion?</h2>
         <p>Describe your event or mood, and AI will craft the perfect look.</p>
         
