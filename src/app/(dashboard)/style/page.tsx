@@ -1278,7 +1278,7 @@ const SafeImage = ({ src, alt, className, fallback }: { src: string; alt: string
                     <button
                       type="button"
                       className={`${styles.finalizeBtn} ${styles.btnViewLook}`}
-                      disabled={!!finalizingMode}
+                      disabled={!!finalizingMode || !plannerSteps.some(s => s.status === 'complete' && s.selectedItem)}
                       onClick={() => finalizePlannerOutfit(false)}
                       style={{ flex: 1, whiteSpace: 'nowrap' }}
                     >
@@ -1291,7 +1291,7 @@ const SafeImage = ({ src, alt, className, fallback }: { src: string; alt: string
                     <button
                       type="button"
                       className={`${styles.finalizeBtn} ${styles.btnTryOnOutfit}`}
-                      disabled={!!finalizingMode}
+                      disabled={!!finalizingMode || !plannerSteps.some(s => s.status === 'complete' && s.selectedItem)}
                       onClick={() => finalizePlannerOutfit(true)}
                       style={{ flex: 1, whiteSpace: 'nowrap' }}
                     >
