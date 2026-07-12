@@ -105,7 +105,7 @@
   letter-spacing: 0.5px;
 }
 
-.textInput, .selectInput {
+.textInput {
   width: 100%;
   padding: 12px 16px;
   background: var(--color-bg-secondary);
@@ -117,10 +117,49 @@
   transition: all 0.2s;
 }
 
-.textInput:focus, .selectInput:focus {
+.textInput:focus {
   outline: none;
   border-color: var(--color-accent-border);
   background: var(--color-bg-primary);
+}
+
+.selectInput {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c8a55a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 16px;
+  padding-right: 40px !important;
+  cursor: pointer;
+  width: 100%;
+  padding: 12px 16px;
+  background-color: var(--color-bg-secondary);
+  border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius-lg);
+  color: var(--color-text-primary);
+  font-size: var(--text-sm);
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.selectInput:hover {
+  border-color: rgba(200, 165, 90, 0.35);
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.selectInput:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  background-color: var(--color-bg-primary);
+  box-shadow: 0 0 0 2px rgba(200, 165, 90, 0.1);
+}
+
+.selectInput option {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  padding: 12px;
 }
 
 .form {
