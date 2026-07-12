@@ -845,6 +845,20 @@ function StyleContent() {
                 <Shirt size={20} />
               </Link>
             </div>
+
+            <div className={styles.chipsLabel}>Popular Occasions</div>
+            <div className={styles.chipsGrid}>
+              {OCCASION_CHIPS.map(chip => (
+                <button
+                  key={chip}
+                  type="button"
+                  className={styles.chip}
+                  onClick={() => handleChipClick(chip)}
+                >
+                  {chip}
+                </button>
+              ))}
+            </div>
           </form>
         ) : mode === 'planner' ? (
           /* V2 Planner Mode */
@@ -896,6 +910,20 @@ function StyleContent() {
                 >
                   <Sparkles size={18} /> Start Planner
                 </button>
+
+                <div className={styles.chipsLabel}>Popular Occasions</div>
+                <div className={styles.chipsGrid}>
+                  {OCCASION_CHIPS.map(chip => (
+                    <button
+                      key={chip}
+                      type="button"
+                      className={styles.chip}
+                      onClick={() => handleChipClick(chip)}
+                    >
+                      {chip}
+                    </button>
+                  ))}
+                </div>
               </>
             )}
 
@@ -1068,20 +1096,6 @@ function StyleContent() {
             </button>
           </form>
         )}
-
-        <div className={styles.chipsLabel}>Popular Occasions</div>
-        <div className={styles.chipsGrid}>
-          {OCCASION_CHIPS.map(chip => (
-            <button
-              key={chip}
-              type="button"
-              className={styles.chip}
-              onClick={() => handleChipClick(chip)}
-            >
-              {chip}
-            </button>
-          ))}
-        </div>
       </section>
 
       {/* OOTD */}
